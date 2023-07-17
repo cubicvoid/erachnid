@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.17)
+cmake_policy(SET CMP0100 NEW) # handle .hh files
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11 CACHE STRING "Build for 10.11")
@@ -9,9 +10,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif()
 
-# TODO Update project name
 project(erachnid VERSION 0.0.1 LANGUAGES C CXX)
-
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
@@ -24,14 +23,21 @@ option(USE_SANITIZER "Build and link with ASAN" FALSE)
 option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" FALSE)
 
 add_subdirectory(lib/clap EXCLUDE_FROM_ALL)
+#add_subdirectory(lib/clap-helpers EXCLUDE_FROM_ALL)
+
 
 add_library(${PROJECT_NAME} MODULE
-        src/erachnid.c
+        src/clap-entry.c
+        src/factory.c
+        src/starry.c
+        src/chomp.c
+        src/example.c
         )
-target_link_libraries(${PROJECT_NAME} clap)
+target_link_libraries(${PROJECT_NAME} PRIVATE clap)
+#target_link_libraries(${PROJECT_NAME} PUBLIC clap-helpers)
 
-target_include_directories(${PROJECT_NAME} PUBLIC)
-target_compile_definitions(${PROJECT_NAME} PRIVATE)
+#target_include_directories(${PROJECT_NAME} PUBLIC)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE)
 
 # TODO
 if(APPLE)
@@ -44,7 +50,7 @@ if(APPLE)
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}.plist.in
             )
-    target_link_libraries(${PROJECT_NAME} "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics")
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics")
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE IS_MAC=1)
     target_compile_options(${PROJECT_NAME} PRIVATE
