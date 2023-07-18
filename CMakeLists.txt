@@ -30,7 +30,7 @@ add_library(${PROJECT_NAME} MODULE
         src/clap-entry.c
         src/factory.c
         src/starry.c
-        src/chomp.c
+        src/chomp.cc
         src/example.c
         )
 target_link_libraries(${PROJECT_NAME} PRIVATE clap)
@@ -69,6 +69,7 @@ if(APPLE)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${PROJECT_NAME}.clap to ~/Library/Audio/Plug-Ins/CLAP/"
                 COMMAND ${CMAKE_COMMAND} -E make_directory "~/Library/Audio/Plug-Ins/CLAP"
+                COMMAND ${CMAKE_COMMAND} -E rm -rf "~/Library/Audio/Plug-Ins/CLAP/${PROJECT_NAME}.clap"
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${products_folder}/${PROJECT_NAME}.clap" "~/Library/Audio/Plug-Ins/CLAP/${PROJECT_NAME}.clap"
                 )
     endif()

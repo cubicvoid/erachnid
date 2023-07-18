@@ -7,7 +7,7 @@
 const clap_plugin_descriptor_t s_my_plug_desc = {
    .clap_version = CLAP_VERSION_INIT,
    .id = "me.faec.erachnid",
-   .name = "erachnid",
+   .name = "erachnid test",
    .vendor = "cubicvoid",
    .url = "https://faec.me",
    .manual_url = "https://your-domain.com/your-plugin/manual",

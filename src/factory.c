@@ -4,8 +4,8 @@
 
 #include <clap/clap.h>
 
-extern clap_plugin_descriptor_t s_my_plug_desc;
-extern clap_plugin_t *my_plug_create(const clap_host_t *host);
+#include "example.h"
+#include "chomp.hh"
 
 /////////////////////////
 // clap_plugin_factory //
@@ -20,6 +20,10 @@ static PluginEntry s_plugins[] = {
    {
       .desc = &s_my_plug_desc,
       .create = my_plug_create,
+   },
+   {
+      .desc = &chomp_plug_desc,
+      .create = chomp_plug_create,
    },
 };
 
