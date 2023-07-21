@@ -239,7 +239,6 @@ static void chomp_on_main_thread(const struct clap_plugin *plugin) {}
 
 extern "C" clap_plugin_t *chomp_plug_create(const clap_host_t *host) {
    ChompPlugin *p = new ChompPlugin(host);
-   // Don't call into the host here
    return &p->plugin;
 }
 

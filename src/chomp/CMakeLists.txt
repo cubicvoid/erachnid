@@ -1,2 +1,3 @@
-add_library(chomp STATIC chomp.hh chomp.cc)
+add_library(chomp OBJECT chomp.cc)
+target_include_directories(chomp PUBLIC include)
 target_link_libraries(chomp PRIVATE clap)

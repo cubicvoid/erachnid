@@ -4,8 +4,8 @@
 
 #include <clap/clap.h>
 
-#include "example/example.h"
-#include "chomp/chomp.hh"
+#include "example.h"
+#include "chomp.h"
 
 /////////////////////////
 // clap_plugin_factory //
