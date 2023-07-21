@@ -1,17 +1,18 @@
 
 add_subdirectory(chomp)
 add_subdirectory(starry)
+add_subdirectory(example)
 
 add_library(${PROJECT_NAME} MODULE
         clap-entry.c
         factory.c
-        example.c
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     clap
     chomp
 		starry
+		example
     )
 
 if(APPLE)

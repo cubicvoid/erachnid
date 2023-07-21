@@ -4,7 +4,7 @@
 
 #include <clap/clap.h>
 
-#include "example.h"
+#include "example/example.h"
 #include "chomp/chomp.hh"
 
 /////////////////////////
