@@ -5,7 +5,7 @@
 #include <clap/clap.h>
 
 #include "example.h"
-#include "chomp.hh"
+#include "chomp/chomp.hh"
 
 /////////////////////////
 // clap_plugin_factory //

@@ -57,7 +57,7 @@ public:
 void CLAP_ABI nilLog(const clap_host_t *host, clap_log_severity severity, const char *msg) {
 }
 
-static bool chomp_plug_init(const struct clap_plugin *plugin) {
+static bool chomp_init(const struct clap_plugin *plugin) {
    ChompPlugin *plug = static_cast<ChompPlugin*>(plugin->plugin_data);
    plug->logFile = fopen("/Users/fae/chomp.log", "wb");
 
@@ -74,7 +74,7 @@ static bool chomp_plug_init(const struct clap_plugin *plugin) {
    return true;
 }
 
-static void chomp_plug_destroy(const struct clap_plugin *_plugin) {
+static void chomp_destroy(const struct clap_plugin *_plugin) {
    ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
    plugin->flog(plugin->host, CLAP_LOG_INFO, "chomp_plug_destroy");
    if (plugin->logFile != nullptr) {
@@ -83,7 +83,7 @@ static void chomp_plug_destroy(const struct clap_plugin *_plugin) {
    delete plugin;
 }
 
-static bool chomp_plug_activate(
+static bool chomp_activate(
    const struct clap_plugin *_plugin,
    double                    sample_rate,
    uint32_t                  min_frames_count,
@@ -99,18 +99,27 @@ static bool chomp_plug_activate(
    return true;
 }
 
-static void chomp_plug_deactivate(const struct clap_plugin *_plugin) {
+static void chomp_deactivate(const struct clap_plugin *_plugin) {
    ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
    plugin->flog(plugin->host, CLAP_LOG_INFO, "chomp_plug_deactivate");
 }
 
-static bool chomp_plug_start_processing(const struct clap_plugin *plugin) { return true; }
+static bool chomp_start_processing(const struct clap_plugin *_plugin) {
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->processing = true;
+   return true;
+}
 
-static void chomp_plug_stop_processing(const struct clap_plugin *plugin) {}
+static void chomp_stop_processing(const struct clap_plugin *_plugin) {
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->processing = false;
+}
 
-static void chomp_plug_reset(const struct clap_plugin *plugin) {}
+static void chomp_reset(const struct clap_plugin *_plugin) {
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+}
 
-static clap_process_status chomp_plug_process(
+static clap_process_status chomp_process(
    const struct clap_plugin *plugin,
    const clap_process_t     *process
 ) {
@@ -203,9 +212,9 @@ static const clap_plugin_audio_ports_t s_chomp_audio_ports = {
 };
 
 
-static const void *chomp_plug_get_extension(const struct clap_plugin *_plugin, const char *id) {
+static const void *chomp_get_extension(const struct clap_plugin *_plugin, const char *id) {
    char buf[256];
-   snprintf(buf, sizeof(buf), "chomp_plug_get_extension(%s)", id);
+   snprintf(buf, sizeof(buf), "chomp_get_extension(%s)", id);
    ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
    plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
 
@@ -218,11 +227,14 @@ static const void *chomp_plug_get_extension(const struct clap_plugin *_plugin, c
       return &s_my_plug_note_ports;
    if (!strcmp(id, CLAP_EXT_STATE))
       return &s_my_plug_state;*/
+   if (strcmp(id, CLAP_EXT_PARAMS) == 0) {
+      
+   }
    // TODO: add support to CLAP_EXT_PARAMS
    return NULL;
 }
 
-static void chomp_plug_on_main_thread(const struct clap_plugin *plugin) {}
+static void chomp_on_main_thread(const struct clap_plugin *plugin) {}
 
 
 extern "C" clap_plugin_t *chomp_plug_create(const clap_host_t *host) {
@@ -236,15 +248,15 @@ ChompPlugin::ChompPlugin(const clap_host_t *_host)
    : host(_host), log(nilLog), processing(false), active(false)
 {
    plugin.desc = &chomp_plug_desc;
-   plugin.init = chomp_plug_init;
-   plugin.destroy = chomp_plug_destroy;
-   plugin.activate = chomp_plug_activate;
-   plugin.deactivate = chomp_plug_deactivate;
-   plugin.start_processing = chomp_plug_start_processing;
-   plugin.stop_processing = chomp_plug_stop_processing;
-   plugin.reset = chomp_plug_reset;
-   plugin.process = chomp_plug_process;
-   plugin.get_extension = chomp_plug_get_extension;
-   plugin.on_main_thread = chomp_plug_on_main_thread;
+   plugin.init = chomp_init;
+   plugin.destroy = chomp_destroy;
+   plugin.activate = chomp_activate;
+   plugin.deactivate = chomp_deactivate;
+   plugin.start_processing = chomp_start_processing;
+   plugin.stop_processing = chomp_stop_processing;
+   plugin.reset = chomp_reset;
+   plugin.process = chomp_process;
+   plugin.get_extension = chomp_get_extension;
+   plugin.on_main_thread = chomp_on_main_thread;
    plugin.plugin_data = this;
 }
