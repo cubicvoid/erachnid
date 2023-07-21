@@ -1,6 +1,8 @@
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+
+#include <sys/time.h>
 
 #include <clap/clap.h>
 
@@ -17,39 +19,76 @@ extern "C" const clap_plugin_descriptor_t chomp_plug_desc = {
    .features = (const char *[]){CLAP_PLUGIN_FEATURE_INSTRUMENT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
 };
 
+class ChompPlugin {
+public:
+   ChompPlugin(const clap_host_t *_host);
 
-typedef struct {
+   FILE *logFile;
+
+   void flog(const clap_host_t *host, clap_log_severity sev, const char *msg) {
+      if (logFile != nullptr) {
+         struct timeval tv;
+         gettimeofday(&tv, nullptr);
+         time_t t = tv.tv_sec;
+         struct tm *info = localtime(&t);
+         printf("%s",asctime (info));
+
+         char buf[512];
+         snprintf(buf, sizeof(buf), "(%d) %s\n", sev, msg);
+         fwrite(buf, 1, strlen(buf), logFile);
+         fflush(logFile);
+      }
+   }
+
    clap_plugin_t                   plugin;
    const clap_host_t              *host;
    const clap_host_latency_t      *host_latency;
-   const clap_host_log_t          *host_log;
    const clap_host_thread_check_t *host_thread_check;
    const clap_host_state_t        *host_state;
 
+   void(CLAP_ABI *log)(const clap_host_t *host, clap_log_severity severity, const char *msg);
+   
    uint32_t latency;
-} chomp_plug_t;
+};
+
+void CLAP_ABI nilLog(const clap_host_t *host, clap_log_severity severity, const char *msg) {
+}
 
 static bool chomp_plug_init(const struct clap_plugin *plugin) {
-   chomp_plug_t *plug = static_cast<chomp_plug_t*>(plugin->plugin_data);
+   ChompPlugin *plug = static_cast<ChompPlugin*>(plugin->plugin_data);
+   plug->logFile = fopen("/Users/fae/chomp.log", "wb");
 
    // Fetch host's extensions here
    // Make sure to check that the interface functions are not null pointers
-   plug->host_log = (const clap_host_log_t *)plug->host->get_extension(plug->host, CLAP_EXT_LOG);
+   const clap_host_log_t* ext_log = static_cast<const clap_host_log_t*>(
+      plug->host->get_extension(plug->host, CLAP_EXT_LOG));
+   if (ext_log != nullptr && ext_log->log != nullptr) {
+      plug->log = ext_log->log;
+   }
    plug->host_thread_check = (const clap_host_thread_check_t *)plug->host->get_extension(plug->host, CLAP_EXT_THREAD_CHECK);
    plug->host_latency = (const clap_host_latency_t *)plug->host->get_extension(plug->host, CLAP_EXT_LATENCY);
    plug->host_state = (const clap_host_state_t *)plug->host->get_extension(plug->host, CLAP_EXT_STATE);
    return true;
 }
 
-static void chomp_plug_destroy(const struct clap_plugin *plugin) {
-   chomp_plug_t *plug = static_cast<chomp_plug_t*>(plugin->plugin_data);
-   free(plug);
+static void chomp_plug_destroy(const struct clap_plugin *_plugin) {
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   if (plugin->logFile != nullptr) {
+      fclose(plugin->logFile);
+   }
+   delete plugin;
 }
 
-static bool chomp_plug_activate(const struct clap_plugin *plugin,
-                             double                    sample_rate,
-                             uint32_t                  min_frames_count,
-                             uint32_t                  max_frames_count) {
+static bool chomp_plug_activate(
+   const struct clap_plugin *_plugin,
+   double                    sample_rate,
+   uint32_t                  min_frames_count,
+   uint32_t                  max_frames_count
+) {
+   
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, "hi fae");
+   //plugin->log(plugin->host, CLAP_LOG_FATAL, "testing host log (the plugin just activated)");
    return true;
 }
 
@@ -61,8 +100,10 @@ static void chomp_plug_stop_processing(const struct clap_plugin *plugin) {}
 
 static void chomp_plug_reset(const struct clap_plugin *plugin) {}
 
-static clap_process_status chomp_plug_process(const struct clap_plugin *plugin,
-                                           const clap_process_t     *process) {
+static clap_process_status chomp_plug_process(
+   const struct clap_plugin *plugin,
+   const clap_process_t     *process
+) {
    /*chomp_plug_t     *plug = plugin->plugin_data;
    const uint32_t nframes = process->frames_count;
    const uint32_t nev = process->in_events->size(process->in_events);
@@ -124,22 +165,23 @@ static void chomp_plug_on_main_thread(const struct clap_plugin *plugin) {}
 
 
 extern "C" clap_plugin_t *chomp_plug_create(const clap_host_t *host) {
-   chomp_plug_t *p = static_cast<chomp_plug_t*>(calloc(1, sizeof(*p)));
-   p->host = host;
-   p->plugin.desc = &chomp_plug_desc;
-   p->plugin.plugin_data = p;
-   p->plugin.init = chomp_plug_init;
-   p->plugin.destroy = chomp_plug_destroy;
-   p->plugin.activate = chomp_plug_activate;
-   p->plugin.deactivate = chomp_plug_deactivate;
-   p->plugin.start_processing = chomp_plug_start_processing;
-   p->plugin.stop_processing = chomp_plug_stop_processing;
-   p->plugin.reset = chomp_plug_reset;
-   p->plugin.process = chomp_plug_process;
-   p->plugin.get_extension = chomp_plug_get_extension;
-   p->plugin.on_main_thread = chomp_plug_on_main_thread;
-
+   ChompPlugin *p = new ChompPlugin(host);
    // Don't call into the host here
-
    return &p->plugin;
+}
+
+
+ChompPlugin::ChompPlugin(const clap_host_t *_host) : host(_host), log(nilLog) {
+   plugin.desc = &chomp_plug_desc;
+   plugin.init = chomp_plug_init;
+   plugin.destroy = chomp_plug_destroy;
+   plugin.activate = chomp_plug_activate;
+   plugin.deactivate = chomp_plug_deactivate;
+   plugin.start_processing = chomp_plug_start_processing;
+   plugin.stop_processing = chomp_plug_stop_processing;
+   plugin.reset = chomp_plug_reset;
+   plugin.process = chomp_plug_process;
+   plugin.get_extension = chomp_plug_get_extension;
+   plugin.on_main_thread = chomp_plug_on_main_thread;
+   plugin.plugin_data = this;
 }
