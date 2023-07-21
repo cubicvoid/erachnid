@@ -29,12 +29,12 @@ public:
       if (logFile != nullptr) {
          struct timeval tv;
          gettimeofday(&tv, nullptr);
-         time_t t = tv.tv_sec;
-         struct tm *info = localtime(&t);
-         printf("%s",asctime (info));
 
          char buf[512];
-         snprintf(buf, sizeof(buf), "(%d) %s\n", sev, msg);
+         snprintf(buf, sizeof(buf), "(%d) %ld.%lf %s\n",
+            sev, tv.tv_sec,
+            static_cast<double>(tv.tv_usec) / 1000000.0,
+            msg);
          fwrite(buf, 1, strlen(buf), logFile);
          fflush(logFile);
       }
@@ -49,6 +49,9 @@ public:
    void(CLAP_ABI *log)(const clap_host_t *host, clap_log_severity severity, const char *msg);
    
    uint32_t latency;
+
+   bool active;
+   bool processing;
 };
 
 void CLAP_ABI nilLog(const clap_host_t *host, clap_log_severity severity, const char *msg) {
@@ -73,6 +76,7 @@ static bool chomp_plug_init(const struct clap_plugin *plugin) {
 
 static void chomp_plug_destroy(const struct clap_plugin *_plugin) {
    ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, "chomp_plug_destroy");
    if (plugin->logFile != nullptr) {
       fclose(plugin->logFile);
    }
@@ -86,13 +90,19 @@ static bool chomp_plug_activate(
    uint32_t                  max_frames_count
 ) {
    
+   char buf[256];
+   snprintf(buf, sizeof(buf), "chomp_plug_activate(%lf, %d, %d)",
+      sample_rate, min_frames_count, max_frames_count);
    ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
-   plugin->flog(plugin->host, CLAP_LOG_INFO, "hi fae");
+   plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
    //plugin->log(plugin->host, CLAP_LOG_FATAL, "testing host log (the plugin just activated)");
    return true;
 }
 
-static void chomp_plug_deactivate(const struct clap_plugin *plugin) {}
+static void chomp_plug_deactivate(const struct clap_plugin *_plugin) {
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, "chomp_plug_deactivate");
+}
 
 static bool chomp_plug_start_processing(const struct clap_plugin *plugin) { return true; }
 
@@ -148,12 +158,63 @@ static clap_process_status chomp_plug_process(
    return CLAP_PROCESS_CONTINUE;
 }
 
-static const void *chomp_plug_get_extension(const struct clap_plugin *plugin, const char *id) {
-   /*if (!strcmp(id, CLAP_EXT_LATENCY))
-      return &s_my_plug_latency;
-   if (!strcmp(id, CLAP_EXT_AUDIO_PORTS))
-      return &s_my_plug_audio_ports;
-   if (!strcmp(id, CLAP_EXT_NOTE_PORTS))
+/////////////////////////////
+// clap_plugin_audio_ports //
+/////////////////////////////
+
+static uint32_t chomp_audio_ports_count(const clap_plugin_t *_plugin, bool is_input) {
+   char buf[256];
+   snprintf(buf, sizeof(buf), "chomp_audio_ports_count(is_input: %d)", is_input);
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
+   // We just declare 1 audio input and 1 audio output
+   return 1;
+}
+
+static bool chomp_audio_ports_get(
+   const clap_plugin_t    *_plugin,
+   uint32_t                index,
+   bool                    is_input,
+   clap_audio_port_info_t *info
+) {
+   char buf[256];
+   snprintf(buf, sizeof(buf), "chomp_audio_ports_get(index: %d, is_input: %d)", index, is_input);
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
+   if (index > 0) {
+      return false;
+   }
+   info->id = 0;
+   if (is_input) {
+      snprintf(info->name, sizeof(info->name), "Input");
+   } else {
+      snprintf(info->name, sizeof(info->name), "Output");
+   }
+   info->channel_count = 2;
+   info->flags = CLAP_AUDIO_PORT_IS_MAIN | CLAP_AUDIO_PORT_SUPPORTS_64BITS;
+   info->port_type = CLAP_PORT_STEREO;
+   info->in_place_pair = CLAP_INVALID_ID;
+   return true;
+}
+
+static const clap_plugin_audio_ports_t s_chomp_audio_ports = {
+   .count = chomp_audio_ports_count,
+   .get = chomp_audio_ports_get,
+};
+
+
+static const void *chomp_plug_get_extension(const struct clap_plugin *_plugin, const char *id) {
+   char buf[256];
+   snprintf(buf, sizeof(buf), "chomp_plug_get_extension(%s)", id);
+   ChompPlugin *plugin = static_cast<ChompPlugin*>(_plugin->plugin_data);
+   plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
+
+   //if (!strcmp(id, CLAP_EXT_LATENCY))
+   //   return &s_my_plug_latency;
+   if (strcmp(id, CLAP_EXT_AUDIO_PORTS) == 0) {
+      return &s_chomp_audio_ports;
+   }
+   /*if (!strcmp(id, CLAP_EXT_NOTE_PORTS))
       return &s_my_plug_note_ports;
    if (!strcmp(id, CLAP_EXT_STATE))
       return &s_my_plug_state;*/
@@ -171,7 +232,9 @@ extern "C" clap_plugin_t *chomp_plug_create(const clap_host_t *host) {
 }
 
 
-ChompPlugin::ChompPlugin(const clap_host_t *_host) : host(_host), log(nilLog) {
+ChompPlugin::ChompPlugin(const clap_host_t *_host)
+   : host(_host), log(nilLog), processing(false), active(false)
+{
    plugin.desc = &chomp_plug_desc;
    plugin.init = chomp_plug_init;
    plugin.destroy = chomp_plug_destroy;
