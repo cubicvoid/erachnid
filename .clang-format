@@ -1,0 +1,13 @@
+Language: Cpp
+BasedOnStyle: Google
+IndentWidth: 2
+AlignAfterOpenBracket: BlockIndent
+BinPackParameters: False
+AlignConsecutiveDeclarations: Consecutive
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: Inner
+ColumnLimit: 80
+PenaltyBreakAssignment: 2
+PenaltyReturnTypeOnItsOwnLine: 200
+PointerAlignment: Left
+SpaceBeforeParens: Never
