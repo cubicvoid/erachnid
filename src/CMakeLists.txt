@@ -31,7 +31,7 @@ if(APPLE)
 
     if (${COPY_AFTER_BUILD})
         message(STATUS "Will copy plugin after every build" )
-        set(products_folder ${CMAKE_BINARY_DIR})
+        set(products_folder "${CMAKE_BINARY_DIR}/src")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${PROJECT_NAME}.clap to ~/Library/Audio/Plug-Ins/CLAP/"
                 COMMAND ${CMAKE_COMMAND} -E make_directory "~/Library/Audio/Plug-Ins/CLAP"

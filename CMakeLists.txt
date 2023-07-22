@@ -15,14 +15,9 @@ project(erachnid VERSION 0.0.1 LANGUAGES C CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 
-
-# use asan as an option (currently mac only)
-option(USE_SANITIZER "Build and link with ASAN" FALSE)
-
 # Copy on mac (could expand to other platforms)
 option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" FALSE)
 
 add_subdirectory(lib/clap EXCLUDE_FROM_ALL)
 add_subdirectory(src)
-#add_subdirectory(lib/clap-helpers EXCLUDE_FROM_ALL)
 

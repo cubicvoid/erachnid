@@ -1,3 +1,3 @@
-add_library(chomp OBJECT chomp.cc)
+add_library(chomp OBJECT chomp.cc params.cc process.cc audio_ports.cc)
 target_include_directories(chomp PUBLIC include)
 target_link_libraries(chomp PRIVATE clap)
