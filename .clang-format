@@ -10,4 +10,4 @@ ColumnLimit: 80
 PenaltyBreakAssignment: 2
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
-SpaceBeforeParens: Never
+SpaceBeforeParens: ControlStatements

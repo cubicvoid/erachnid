@@ -1,52 +1,89 @@
 #pragma once
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-
+#include <clap/clap.h>
 #include <sys/time.h>
 
-#include <clap/clap.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
-class ChompPlugin {
-public:
-   ChompPlugin(const clap_host_t *_host);
+namespace chomp {
 
-   FILE *logFile;
+struct Voice {};
 
-   void flog(const clap_host_t *host, clap_log_severity sev, const char *msg) {
-      if (logFile != nullptr) {
-         struct timeval tv;
-         gettimeofday(&tv, nullptr);
+class Plugin {
+ private:
+  void ProcessEvent(const clap_event_header_t *hdr);
 
-         char buf[512];
-         snprintf(buf, sizeof(buf), "(%d) %ld.%lf %s\n",
-            sev, tv.tv_sec,
-            static_cast<double>(tv.tv_usec) / 1000000.0,
-            msg);
-         fwrite(buf, 1, strlen(buf), logFile);
-         fflush(logFile);
-      }
-   }
+  int noteOnCount = 0;
+  int noteOffCount = 0;
+  int midiCount = 0;
+  int sampleCount = 0;
 
-   clap_plugin_t                   plugin;
-   const clap_host_t              *host;
-   const clap_host_latency_t      *host_latency;
-   const clap_host_thread_check_t *host_thread_check;
-   const clap_host_state_t        *host_state;
+ public:
+  Plugin(const clap_host_t *_host);
 
-   void(CLAP_ABI *log)(const clap_host_t *host, clap_log_severity severity, const char *msg);
-   
-   uint32_t latency;
+  clap_process_status Process(const clap_process_t *process);
 
-   bool active;
-   bool processing;
+  bool Init();
+  void Destroy();
+  void Deactivate();
+  bool Activate(
+      double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
+  );
+  void StartProcessing();
+  void StopProcessing();
+  void Reset();
+
+  uint32_t ParamsCount();
+  bool     ParamsGetInfo(uint32_t param_index, clap_param_info_t *param_info);
+  bool     ParamsGetValue(clap_id param_id, double *out_value);
+
+  bool ParamsValueToText(
+      clap_id  param_id,
+      double   value,
+      char    *out_buffer,
+      uint32_t out_buffer_capacity
+  );
+  bool ParamsTextToValue(
+      clap_id param_id, const char *param_value_text, double *out_value
+  );
+
+  void ParamsFlush(
+      const clap_input_events_t *in, const clap_output_events_t *out
+  );
+
+  FILE *logFile;
+
+  void flog(const clap_host_t *host, clap_log_severity sev, const char *msg) {
+    if (logFile != nullptr) {
+      struct timeval tv;
+      gettimeofday(&tv, nullptr);
+
+      char buf[512];
+      snprintf(
+          buf, sizeof(buf), "(%d) %ld.%lf %s\n", sev, tv.tv_sec,
+          static_cast<double>(tv.tv_usec) / 1000000.0, msg
+      );
+      fwrite(buf, 1, strlen(buf), logFile);
+      fflush(logFile);
+    }
+  }
+
+  clap_plugin_t                   plugin;
+  const clap_host_t              *host;
+  const clap_host_latency_t      *host_latency;
+  const clap_host_thread_check_t *host_thread_check;
+  const clap_host_state_t        *host_state;
+
+  void(CLAP_ABI *log)(
+      const clap_host_t *host, clap_log_severity severity, const char *msg
+  );
+
+  uint32_t latency;
+
+  bool active;
+  bool processing;
 };
 
-clap_process_status chomp_process(
-   const struct clap_plugin *plugin,
-   const clap_process_t     *process
-);
-
-extern const clap_plugin_params_t s_chomp_params;
-extern const clap_plugin_audio_ports_t s_chomp_audio_ports;
+}  // namespace chomp
