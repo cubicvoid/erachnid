@@ -31,9 +31,17 @@ class Plugin {
   bool Activate(
       double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
   );
-  void StartProcessing();
+  bool StartProcessing();
   void StopProcessing();
   void Reset();
+
+  uint32_t NotePortsCount(bool is_input);
+  bool NotePortsGet(uint32_t index, bool is_input, clap_note_port_info_t *info);
+
+  uint32_t AudioPortsCount(bool is_input);
+  bool     AudioPortsGet(
+          uint32_t index, bool is_input, clap_audio_port_info_t *info
+      );
 
   uint32_t ParamsCount();
   bool     ParamsGetInfo(uint32_t param_index, clap_param_info_t *param_info);

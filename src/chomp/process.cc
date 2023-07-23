@@ -9,9 +9,12 @@
 
 namespace chomp {
 
-// void ChompPlugin::NoteOn() {}
+bool Plugin::StartProcessing() {
+  processing = true;
+  return true;
+}
 
-// const Voice *ChompPlugin::GetVoice(const clap_event_note_t &note) {}
+void Plugin::StopProcessing() { processing = false; }
 
 clap_process_status Plugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;

@@ -46,17 +46,9 @@ static bool chomp_activate(
     uint32_t                  min_frames_count,
     uint32_t                  max_frames_count
 ) {
-  char buf[256];
-  snprintf(
-      buf, sizeof(buf), "chomp_plug_activate(%lf, %d, %d)", sample_rate,
-      min_frames_count, max_frames_count
-  );
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
-  // plugin->log(plugin->host, CLAP_LOG_FATAL, "testing host log (the plugin
-  // just activated)");
-  return true;
+  return plugin->Activate(sample_rate, min_frames_count, max_frames_count);
 }
 
 static void chomp_deactivate(const struct clap_plugin *_plugin) {
@@ -68,16 +60,13 @@ static void chomp_deactivate(const struct clap_plugin *_plugin) {
 static bool chomp_start_processing(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->StartProcessing();
-  plugin->processing = true;
-  return true;
+  return plugin->StartProcessing();
 }
 
 static void chomp_stop_processing(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   plugin->StopProcessing();
-  plugin->processing = false;
 }
 
 static clap_process_status chomp_process(
@@ -101,12 +90,9 @@ static void chomp_reset(const struct clap_plugin *_plugin) {
 static uint32_t chomp_audio_ports_count(
     const clap_plugin_t *_plugin, bool is_input
 ) {
-  char buf[256];
-  snprintf(buf, sizeof(buf), "chomp_audio_ports_count(is_input: %d)", is_input);
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
-  // We just declare 1 audio input and 1 audio output
-  return 1;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  return plugin->AudioPortsCount(is_input);
 }
 
 static bool chomp_audio_ports_get(
@@ -115,27 +101,9 @@ static bool chomp_audio_ports_get(
     bool                    is_input,
     clap_audio_port_info_t *info
 ) {
-  char buf[256];
-  snprintf(
-      buf, sizeof(buf), "chomp_audio_ports_get(index: %d, is_input: %d)", index,
-      is_input
-  );
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
-  if (index > 0) {
-    return false;
-  }
-  info->id = 0;
-  if (is_input) {
-    snprintf(info->name, sizeof(info->name), "Input");
-  } else {
-    snprintf(info->name, sizeof(info->name), "Output");
-  }
-  info->channel_count = 2;
-  info->flags = CLAP_AUDIO_PORT_IS_MAIN | CLAP_AUDIO_PORT_SUPPORTS_64BITS;
-  info->port_type = CLAP_PORT_STEREO;
-  info->in_place_pair = CLAP_INVALID_ID;
-  return true;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  return plugin->AudioPortsGet(index, is_input, info);
 }
 
 const clap_plugin_audio_ports_t s_chomp_audio_ports = {
@@ -152,22 +120,18 @@ static uint32_t chomp_note_ports_count(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog(nullptr, 0, "chomp_note_ports_count");
-  return 1;
+  return plugin->NotePortsCount(is_input);
 }
 
 static bool chomp_note_ports_get(
-    const clap_plugin_t   *plugin,
+    const clap_plugin_t   *_plugin,
     uint32_t               index,
     bool                   is_input,
     clap_note_port_info_t *info
 ) {
-  if (index > 0) return false;
-  info->id = 0;
-  snprintf(info->name, sizeof(info->name), "Trigger");
-  info->supported_dialects = CLAP_NOTE_DIALECT_CLAP;
-  info->preferred_dialect = CLAP_NOTE_DIALECT_CLAP;
-  return true;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  return plugin->NotePortsGet(index, is_input, info);
 }
 
 const clap_plugin_note_ports_t s_chomp_note_ports = {
