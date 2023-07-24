@@ -22,7 +22,7 @@ clap_plugin_descriptor_t plugin_desc = {
     .version = "0.0.1",
     .description = "~fae~",
     .features = (const char *[]
-    ){CLAP_PLUGIN_FEATURE_INSTRUMENT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
+    ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
 };
 
 }  // namespace chomp

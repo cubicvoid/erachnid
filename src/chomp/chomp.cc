@@ -58,26 +58,12 @@ bool Plugin::Activate(
   return true;
 }
 
-bool Plugin::Activate(
-    double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
-) {
-  char buf[256];
-  snprintf(
-      buf, sizeof(buf), "chomp_plug_activate(%lf, %d, %d)", sample_rate,
-      min_frames_count, max_frames_count
-  );
-  flog(host, CLAP_LOG_INFO, buf);
-  // plugin->log(plugin->host, CLAP_LOG_FATAL, "testing host log (the plugin
-  // just activated)");
-  return true;
-}
-
 void Plugin::Deactivate() {
   char buf[128];
   snprintf(
       buf, sizeof(buf),
-      "chomp_plug_deactivate (%d note on, %d note off, %d midi)", noteOnCount,
-      noteOffCount, midiCount
+      "chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
+      noteOnCount, noteOffCount, midiCount, sampleCount
   );
   flog(nullptr, CLAP_LOG_INFO, buf);
 }

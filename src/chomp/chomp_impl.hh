@@ -14,11 +14,16 @@ struct Voice {};
 class Plugin {
  private:
   void ProcessEvent(const clap_event_header_t *hdr);
+  void NoteOn(const clap_event_note_t *note);
+  void NoteOff(const clap_event_note_t *note);
 
   int noteOnCount = 0;
   int noteOffCount = 0;
   int midiCount = 0;
   int sampleCount = 0;
+
+  double envVolume = 0.0;
+  double envTarget = 0.0;
 
  public:
   Plugin(const clap_host_t *_host);
