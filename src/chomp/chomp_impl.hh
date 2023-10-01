@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "params.hh"
+
 namespace chomp {
 
 struct Voice {};
@@ -24,6 +26,25 @@ class Plugin {
 
   double envVolume = 0.0;
   double envTarget = 0.0;
+
+  Param rats = Param(
+      ParamIDRats,
+      "rats",
+      "something",
+      0,
+      100,
+      50,
+      CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
+  );
+  Param attack = Param(
+      ParamIDAttack,
+      "attack",
+      "something else",
+      0.0,
+      1.0,
+      0.0,
+      CLAP_PARAM_IS_AUTOMATABLE
+  );
 
  public:
   Plugin(const clap_host_t *_host);
@@ -47,24 +68,6 @@ class Plugin {
   bool     AudioPortsGet(
           uint32_t index, bool is_input, clap_audio_port_info_t *info
       );
-
-  uint32_t ParamsCount();
-  bool     ParamsGetInfo(uint32_t param_index, clap_param_info_t *param_info);
-  bool     ParamsGetValue(clap_id param_id, double *out_value);
-
-  bool ParamsValueToText(
-      clap_id  param_id,
-      double   value,
-      char    *out_buffer,
-      uint32_t out_buffer_capacity
-  );
-  bool ParamsTextToValue(
-      clap_id param_id, const char *param_value_text, double *out_value
-  );
-
-  void ParamsFlush(
-      const clap_input_events_t *in, const clap_output_events_t *out
-  );
 
   FILE *logFile;
 

@@ -27,20 +27,24 @@ clap_plugin_descriptor_t plugin_desc = {
 
 }  // namespace chomp
 
-static bool chomp_init(const struct clap_plugin *_plugin) {
+namespace {
+
+using namespace chomp;
+
+bool chomp_init(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   return plugin->Init();
 }
 
-static void chomp_destroy(const struct clap_plugin *_plugin) {
+void chomp_destroy(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   plugin->Destroy();
   delete plugin;
 }
 
-static bool chomp_activate(
+bool chomp_activate(
     const struct clap_plugin *_plugin,
     double                    sample_rate,
     uint32_t                  min_frames_count,
@@ -51,25 +55,25 @@ static bool chomp_activate(
   return plugin->Activate(sample_rate, min_frames_count, max_frames_count);
 }
 
-static void chomp_deactivate(const struct clap_plugin *_plugin) {
+void chomp_deactivate(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   plugin->Deactivate();
 }
 
-static bool chomp_start_processing(const struct clap_plugin *_plugin) {
+bool chomp_start_processing(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   return plugin->StartProcessing();
 }
 
-static void chomp_stop_processing(const struct clap_plugin *_plugin) {
+void chomp_stop_processing(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   plugin->StopProcessing();
 }
 
-static clap_process_status chomp_process(
+clap_process_status chomp_process(
     const struct clap_plugin *_plugin, const clap_process_t *process
 ) {
   chomp::Plugin *plugin =
@@ -77,7 +81,7 @@ static clap_process_status chomp_process(
   return plugin->Process(process);
 }
 
-static void chomp_reset(const struct clap_plugin *_plugin) {
+void chomp_reset(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   plugin->Reset();
@@ -87,15 +91,13 @@ static void chomp_reset(const struct clap_plugin *_plugin) {
 // clap_plugin_audio_ports //
 /////////////////////////////
 
-static uint32_t chomp_audio_ports_count(
-    const clap_plugin_t *_plugin, bool is_input
-) {
+uint32_t chomp_audio_ports_count(const clap_plugin_t *_plugin, bool is_input) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   return plugin->AudioPortsCount(is_input);
 }
 
-static bool chomp_audio_ports_get(
+bool chomp_audio_ports_get(
     const clap_plugin_t    *_plugin,
     uint32_t                index,
     bool                    is_input,
@@ -115,15 +117,13 @@ const clap_plugin_audio_ports_t s_chomp_audio_ports = {
 // clap_plugin_note_ports //
 ////////////////////////////
 
-static uint32_t chomp_note_ports_count(
-    const clap_plugin_t *_plugin, bool is_input
-) {
+uint32_t chomp_note_ports_count(const clap_plugin_t *_plugin, bool is_input) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
   return plugin->NotePortsCount(is_input);
 }
 
-static bool chomp_note_ports_get(
+bool chomp_note_ports_get(
     const clap_plugin_t   *_plugin,
     uint32_t               index,
     bool                   is_input,
@@ -139,25 +139,31 @@ const clap_plugin_note_ports_t s_chomp_note_ports = {
     .get = chomp_note_ports_get,
 };
 
-static uint32_t chomp_params_count(const clap_plugin_t *_plugin) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  return plugin->ParamsCount();
+uint32_t chomp_params_count(const clap_plugin_t *_plugin) {
+  Plugin  *plugin = static_cast<Plugin *>(_plugin->plugin_data);
+  char     buf[64];
+  uint32_t count = Param::Count();
+  snprintf(buf, sizeof(buf), "params_count() -> %d", count);
+  plugin->flog(nullptr, 0, buf);
+  return count;  // plugin->ParamsCount();
 }
 
-static bool chomp_params_get_info(
+bool chomp_params_get_info(
     const clap_plugin_t *_plugin,
     uint32_t             param_index,
     clap_param_info_t   *param_info
 ) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  return plugin->ParamsGetInfo(param_index, param_info);
+  char buf[64];
+  snprintf(buf, sizeof(buf), "params_get_info(%d)", param_index);
+  Plugin *plugin = static_cast<Plugin *>(_plugin->plugin_data);
+  plugin->flog(nullptr, 0, buf);
+  return Param::GetInfo(param_index, param_info);
 }
 
 bool chomp_params_get_value(
     const clap_plugin_t *_plugin, clap_id param_id, double *out_value
 ) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  return plugin->ParamsGetValue(param_id, out_value);
+  return Param::GetValue(param_id, out_value);
 }
 
 bool chomp_params_value_to_text(
@@ -167,10 +173,7 @@ bool chomp_params_value_to_text(
     char                *out_buffer,
     uint32_t             out_buffer_capacity
 ) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  return plugin->ParamsValueToText(
-      param_id, value, out_buffer, out_buffer_capacity
-  );
+  return Param::ValueToText(param_id, value, out_buffer, out_buffer_capacity);
 }
 
 bool chomp_params_text_to_value(
@@ -179,8 +182,7 @@ bool chomp_params_text_to_value(
     const char          *param_value_text,
     double              *out_value
 ) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  return plugin->ParamsTextToValue(param_id, param_value_text, out_value);
+  return Param::TextToValue(param_id, param_value_text, out_value);
 }
 
 void chomp_params_flush(
@@ -188,8 +190,7 @@ void chomp_params_flush(
     const clap_input_events_t  *in,
     const clap_output_events_t *out
 ) {
-  chomp::Plugin *plugin = static_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->ParamsFlush(in, out);
+  Param::Flush(in, out);
 }
 
 const clap_plugin_params_t s_chomp_params = {
@@ -201,7 +202,7 @@ const clap_plugin_params_t s_chomp_params = {
     .flush = chomp_params_flush,
 };
 
-static const void *chomp_get_extension(
+const void *chomp_get_extension(
     const struct clap_plugin *_plugin, const char *id
 ) {
   char buf[256];
@@ -226,7 +227,19 @@ static const void *chomp_get_extension(
   return NULL;
 }
 
-static void chomp_on_main_thread(const struct clap_plugin *plugin) {}
+void chomp_on_main_thread(const struct clap_plugin *_plugin) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  /*const clap_host_params_t *host_params =
+      reinterpret_cast<const clap_host_params_t *>(
+          plugin->host->get_extension(plugin->host, CLAP_EXT_PARAMS)
+      );
+  if (host_params != nullptr && host_params->rescan != nullptr) {
+    host_params->rescan(plugin->host, CLAP_PARAM_RESCAN_ALL);
+  }*/
+}
+
+}  // namespace
 
 namespace chomp {
 

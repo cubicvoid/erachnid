@@ -4,9 +4,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <format>
 
 #include "bridge.hh"
 #include "chomp_impl.hh"
+#include "params.hh"
 
 void CLAP_ABI
 nilLog(const clap_host_t *host, clap_log_severity severity, const char *msg) {}
@@ -54,6 +56,9 @@ bool Plugin::Activate(
       buf, sizeof(buf), "chomp_plug_activate(%lf, %d, %d)", sample_rate,
       min_frames_count, max_frames_count
   );
+  flog(host, CLAP_LOG_INFO, buf);
+  Param::Finalize(*this);
+  snprintf(buf, sizeof(buf), "%d params active", Param::Count());
   flog(host, CLAP_LOG_INFO, buf);
   return true;
 }

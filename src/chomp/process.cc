@@ -75,6 +75,13 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
       envVolume = envTarget;
     }
   }
+  sampleCount += frameCount;
+  if (sampleCount > 10000 && sampleCount - frameCount <= 10000) {
+    // one-time restart for testing
+    // host->request_restart(host);
+    host->request_callback(host);
+    return CLAP_PROCESS_SLEEP;
+  }
 
   return CLAP_PROCESS_CONTINUE;
 }
