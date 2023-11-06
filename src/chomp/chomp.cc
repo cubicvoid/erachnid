@@ -31,6 +31,15 @@ bool Plugin::Init() {
   if (ext_log != nullptr && ext_log->log != nullptr) {
     log = ext_log->log;
   }
+
+  const clap_host_gui_t *ext_gui = reinterpret_cast<const clap_host_gui_t *>(
+      host->get_extension(host, CLAP_EXT_GUI)
+  );
+  if (ext_gui != nullptr) {
+    // ext_gui->request_show()
+    // ext_gui->
+  }
+
   host_thread_check = (const clap_host_thread_check_t *)host->get_extension(
       host, CLAP_EXT_THREAD_CHECK
   );

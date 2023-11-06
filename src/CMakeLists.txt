@@ -23,7 +23,7 @@ if(APPLE)
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}.plist.in
             )
-    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics")
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics" "-framework Cocoa")
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE IS_MAC=1)
     target_compile_options(${PROJECT_NAME} PRIVATE -Werror)

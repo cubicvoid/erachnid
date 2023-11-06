@@ -139,6 +139,10 @@ const clap_plugin_note_ports_t s_chomp_note_ports = {
     .get = chomp_note_ports_get,
 };
 
+////////////////////////
+// clap_plugin_params //
+////////////////////////
+
 uint32_t chomp_params_count(const clap_plugin_t *_plugin) {
   Plugin  *plugin = static_cast<Plugin *>(_plugin->plugin_data);
   char     buf[64];
@@ -202,6 +206,119 @@ const clap_plugin_params_t s_chomp_params = {
     .flush = chomp_params_flush,
 };
 
+/////////////////////
+// clap_plugin_gui //
+/////////////////////
+
+bool chomp_gui_is_api_supported(
+    const clap_plugin_t *plugin, const char *api, bool is_floating
+) {
+  return strcmp(api, CLAP_WINDOW_API_COCOA) == 0 && !is_floating;
+}
+
+bool chomp_gui_get_preferred_api(
+    const clap_plugin_t *plugin, const char **api, bool *is_floating
+) {
+  *api = CLAP_WINDOW_API_COCOA;
+  *is_floating = false;
+  return true;
+}
+
+bool chomp_gui_create(
+    const clap_plugin_t *plugin, const char *api, bool is_floating
+) {
+  // TODO: load the nib
+}
+
+void chomp_gui_destroy(const clap_plugin_t *plugin) {
+  // TODO: free the nib
+}
+
+bool chomp_gui_set_scale(const clap_plugin_t *plugin, double scale) {
+  // gui scale is ignored on darwin
+  return false;
+}
+
+bool chomp_gui_get_size(
+    const clap_plugin_t *plugin, uint32_t *width, uint32_t *height
+) {
+  // TODO: check and return the size of the main view
+  return false;
+}
+
+bool chomp_gui_can_resize(const clap_plugin_t *plugin) {
+  // TODO: return a real answer here
+  return false;
+}
+
+bool chomp_gui_get_resize_hints(
+    const clap_plugin_t *plugin, clap_gui_resize_hints_t *hints
+) {
+  // TODO
+  return false;
+}
+
+bool chomp_gui_adjust_size(
+    const clap_plugin_t *plugin, uint32_t *width, uint32_t *height
+) {
+  // TODO
+  return false;
+}
+
+bool chomp_gui_set_size(
+    const clap_plugin_t *plugin, uint32_t width, uint32_t height
+) {
+  // TODO
+  return false;
+}
+
+bool chomp_gui_set_parent(
+    const clap_plugin_t *plugin, const clap_window_t *window
+) {
+  // TODO: embed view in the NSView window->cocoa.
+  return true;
+}
+
+bool chomp_gui_set_transient(
+    const clap_plugin_t *plugin, const clap_window_t *window
+) {
+  // TODO: i don't actually understand what this one means
+  return false;
+}
+
+void chomp_gui_suggest_title(const clap_plugin_t *plugin, const char *title) {
+  // TODO: low priority since this is floating only
+}
+
+bool chomp_gui_show(const clap_plugin_t *plugin) {
+  // TODO: unsure what this means when !floating
+  return false;
+}
+
+bool chomp_gui_hide(const clap_plugin_t *plugin) { return false; }
+
+const clap_plugin_gui_t s_chomp_gui = {
+    .is_api_supported = chomp_gui_is_api_supported,
+    .get_preferred_api = chomp_gui_get_preferred_api,
+    .create = chomp_gui_create,
+    .destroy = chomp_gui_destroy,
+    .set_scale = chomp_gui_set_scale,
+    .get_size = chomp_gui_get_size,
+    .can_resize = chomp_gui_can_resize,
+    .get_resize_hints = chomp_gui_get_resize_hints,
+    .adjust_size = chomp_gui_adjust_size,
+    .set_size = chomp_gui_set_size,
+    .set_parent = chomp_gui_set_parent,
+    .set_transient = chomp_gui_set_transient,
+    .suggest_title = chomp_gui_suggest_title,
+    .show = chomp_gui_show,
+    .hide = chomp_gui_hide,
+};
+
+//
+// extension handling
+//
+
 const void *chomp_get_extension(
     const struct clap_plugin *_plugin, const char *id
 ) {
@@ -222,6 +339,10 @@ const void *chomp_get_extension(
      return &s_my_plug_state;*/
   if (strcmp(id, CLAP_EXT_PARAMS) == 0) {
     return &s_chomp_params;
+  }
+
+  if (strcmp(id, CLAP_EXT_GUI) == 0) {
+    return &s_chomp_gui;
   }
   // TODO: add support to CLAP_EXT_PARAMS
   return NULL;
