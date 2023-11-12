@@ -155,7 +155,7 @@ bool chomp_params_get_info(
     clap_param_info_t   *param_info
 ) {
   Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
-  plugin->flog("params_get_info(%d)", param_index);
+  plugin->Log("params_get_info(%d)", param_index);
   return plugin->ParamGetInfo(param_index, param_info);
 }
 
@@ -216,7 +216,7 @@ bool chomp_gui_is_api_supported(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("is_api_supported(%s, %d)", api, is_floating);
+  plugin->Log("is_api_supported(%s, %d)", api, is_floating);
   return strcmp(api, CLAP_WINDOW_API_COCOA) == 0 && !is_floating;
 }
 
@@ -225,7 +225,7 @@ bool chomp_gui_get_preferred_api(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("get_preferred_api()");
+  plugin->Log("get_preferred_api()");
   *api = CLAP_WINDOW_API_COCOA;
   *is_floating = false;
   return true;
@@ -236,14 +236,12 @@ bool chomp_gui_create(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_create(%s, %d)", api, is_floating);
   return plugin->gui->Create(api, is_floating);
 }
 
 void chomp_gui_destroy(const clap_plugin_t *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_destroy()");
   return plugin->gui->Destroy();
 }
 
@@ -257,14 +255,13 @@ bool chomp_gui_get_size(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_get_size()");
   return plugin->gui->GetSize(width, height);
 }
 
 bool chomp_gui_can_resize(const clap_plugin_t *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_can_resize()");
+  return plugin->gui->CanResize();
   return true;
 }
 
@@ -273,7 +270,7 @@ bool chomp_gui_get_resize_hints(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_get_resize_hints()");
+  plugin->Log("gui_get_resize_hints()");
 
   // TODO
   return false;
@@ -284,7 +281,6 @@ bool chomp_gui_adjust_size(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_adjust_size(%d, %d)", *width, *height);
   return plugin->gui->AdjustSize(width, height);
 }
 
@@ -293,7 +289,6 @@ bool chomp_gui_set_size(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_set_size(%d, %d)", width, height);
   return plugin->gui->SetSize(width, height);
 }
 
@@ -302,10 +297,7 @@ bool chomp_gui_set_parent(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_set_parent()");
-  // plugin->window = window;
   return plugin->gui->SetParent(window);
-  // doSomethingWithView(window->cocoa);
 }
 
 bool chomp_gui_set_transient(
@@ -313,7 +305,6 @@ bool chomp_gui_set_transient(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_set_transient()");
   return plugin->gui->SetTransient(window);
 }
 
@@ -324,14 +315,12 @@ void chomp_gui_suggest_title(const clap_plugin_t *plugin, const char *title) {
 bool chomp_gui_show(const clap_plugin_t *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_show()");
   return plugin->gui->Show();
 }
 
 bool chomp_gui_hide(const clap_plugin_t *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("gui_hide()");
   return plugin->gui->Hide();
 }
 
@@ -362,7 +351,7 @@ const void *chomp_get_extension(
 ) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog("chomp_get_extension(%s)", id);
+  plugin->Log("chomp_get_extension(%s)", id);
 
   // if (!strcmp(id, CLAP_EXT_LATENCY))
   //    return &s_my_plug_latency;
@@ -387,6 +376,7 @@ const void *chomp_get_extension(
 void chomp_on_main_thread(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->Log("chomp_on_main_thread()");
   /*const clap_host_params_t *host_params =
       reinterpret_cast<const clap_host_params_t *>(
           plugin->host->get_extension(plugin->host, CLAP_EXT_PARAMS)

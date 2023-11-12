@@ -57,7 +57,7 @@ class Plugin {
   );
   // FILE *logFile;
 
-  void flog(const char *format...);
+  void Log(const char *format...);
 
   clap_plugin_t                   plugin;
   const clap_host_t              *host;

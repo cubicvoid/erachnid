@@ -23,6 +23,7 @@ Plugin::Plugin(const clap_host_t *_host)
   if (logFile == nullptr) {
     logFile = fopen("/Users/fae/chomp.log", "wb");
   }
+  Log("plugin_create()");
 
   init_plugin(&plugin, reinterpret_cast<void *>(this));
   gui.reset(GUIWrapper::New(this));
@@ -38,7 +39,7 @@ Plugin::Plugin(const clap_host_t *_host)
   RefreshParameters();
 }
 
-void Plugin::flog(const char *format...) {
+void Plugin::Log(const char *format...) {
   if (logFile != nullptr) {
     va_list args;
     va_start(args, format);
@@ -66,7 +67,7 @@ void Plugin::flog(const char *format...) {
 bool Plugin::Init() {
   static int count = 0;
   pluginID = count++;
-  flog("Plugin::Init()");
+  Log("plugin_init");
 
   // Fetch host's extensions here
   // Make sure to check that the interface functions are not null pointers
@@ -96,7 +97,7 @@ bool Plugin::Init() {
 }
 
 void Plugin::Destroy() {
-  flog("chomp_plug_destroy");
+  Log("chomp_plug_destroy");
   /*if (logFile != nullptr) {
     fclose(logFile);
   }*/
@@ -105,20 +106,16 @@ void Plugin::Destroy() {
 bool Plugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {
-  flog(
-      "chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
-      max_frames_count
-  );
+  Log("chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
+      max_frames_count);
 
-  flog("%d params active", static_cast<int>(paramsActive.size()));
+  Log("%d params active", static_cast<int>(paramsActive.size()));
   return true;
 }
 
 void Plugin::Deactivate() {
-  flog(
-      "chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
-      noteOnCount, noteOffCount, midiCount, sampleCount
-  );
+  Log("chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
+      noteOnCount, noteOffCount, midiCount, sampleCount);
 }
 
 void Plugin::Reset() {}

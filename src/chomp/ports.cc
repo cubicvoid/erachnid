@@ -10,7 +10,7 @@
 namespace chomp {
 
 uint32_t Plugin::NotePortsCount(bool is_input) {
-  flog("chomp_note_ports_count");
+  Log("chomp_note_ports_count");
   return 1;
 }
 
@@ -26,14 +26,14 @@ bool Plugin::NotePortsGet(
 }
 
 uint32_t Plugin::AudioPortsCount(bool is_input) {
-  flog("chomp_audio_ports_count(is_input: %d)", is_input);
+  Log("chomp_audio_ports_count(is_input: %d)", is_input);
   return 1;
 }
 
 bool Plugin::AudioPortsGet(
     uint32_t index, bool is_input, clap_audio_port_info_t *info
 ) {
-  flog("chomp_audio_ports_get(index: %d, is_input: %d)", index, is_input);
+  Log("chomp_audio_ports_get(index: %d, is_input: %d)", index, is_input);
   if (index > 0) {
     return false;
   }

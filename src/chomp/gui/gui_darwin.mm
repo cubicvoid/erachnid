@@ -2,6 +2,7 @@
 
 #import "gui.h"
 
+#import "chomp_impl.hh"
 
 namespace chomp {
 
@@ -12,6 +13,7 @@ public:
   virtual bool Create(const char *api, bool is_floating);
   virtual void Destroy();
   virtual bool GetSize(uint32_t *width, uint32_t *height);
+  virtual bool CanResize();
   virtual bool AdjustSize(uint32_t *width, uint32_t *height);
   virtual bool SetSize(uint32_t width, uint32_t height);
   virtual bool SetParent(const clap_window_t *window);
@@ -23,93 +25,143 @@ private:
 
   Plugin *plugin;
   NSView *rootView;
+
+  // Reaper (at least) expects us to remember and restore our parent view and
+  // visibility state between destroy / create calls.
+  NSView *containerView;
+  bool visible;
 };
 
-GUIWrapperDarwin::GUIWrapperDarwin(Plugin *_plugin) : plugin(_plugin) {
+GUIWrapperDarwin::GUIWrapperDarwin(Plugin *_plugin) :
+  plugin(_plugin), containerView(nullptr), visible(false) {
 }
 
 bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
-  @autoreleasepool {
+  plugin->Log("gui_create(%s, %d)", api, static_cast<int>(is_floating));
+  //@autoreleasepool {
+
+    NSObject *owner = [[NSObject alloc] init];
+
 
     NSBundle *bundle = [NSBundle bundleWithIdentifier:@"org.surge-synth-team.erachnid"];
     if (bundle == nil) {
+      plugin->Log("couldn't load plugin bundle");
       return false;
     }
-    NSNib *nib = [[[NSNib alloc] autorelease] initWithNibNamed:@"Stuff" bundle:bundle];
+    NSNib *nib = [[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle];
     if (nib == nil) {
+      plugin->Log("couldn't load Stuff.nib from bundle");
       return false;//@"couldn't load Stuff.nib from bundle";
     }
     NSArray* topLevelObjects;
-    if (![nib instantiateWithOwner:nil topLevelObjects:&topLevelObjects]) {
+    if (![nib instantiateWithOwner:owner topLevelObjects:&topLevelObjects]) {
+      plugin->Log("Couldn't instantiate Stuff.nib");
       return false;//@"couldn't instantiate nib";
     }
-    rootView = [topLevelObjects[0] retain];
-  }
+    [topLevelObjects retain];
+    rootView = topLevelObjects[0];
+    [rootView retain];
+    plugin->Log("rootView: %x", rootView);
+    /*if (containerView != nullptr) {
+      rootView.hidden = !visible;
+      [containerView addSubview:rootView];
+    }*/
+  //}
+  plugin->Log("gui_create successful");
   return true;
 }
 
 void GUIWrapperDarwin::Destroy() {
-  if (rootView != nil) {
-    [rootView removeFromSuperview];
-    [rootView release];
-    rootView = nil;
+  plugin->Log("gui_destroy() (this=%x, rootView=%x)", this, rootView);
+  //@autoreleasepool {
+    plugin->Log("what even is happening");
+    if (rootView != nil) {
+      plugin->Log("about to check if superview is nil");
+      if (rootView.superview != nil) {
+        plugin->Log("trying to remove from superview");
+        [rootView removeFromSuperview];
+      } else {
+        plugin->Log("superview was nil");
+      }
+      plugin->Log("skipping release");//"trying to release");
+      //[rootView release];
+      plugin->Log("resetting rootView to nil");
+      rootView = nil;
+    }
+    plugin->Log("gui_destroy finished (this=%x, rootView=%x)", this, rootView);
+  //}
+}
+
+bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
+  if (rootView != nullptr) {
+    *width = static_cast<uint32_t>(NSWidth(rootView.frame));
+    *height = static_cast<uint32_t>(NSHeight(rootView.frame));
+    plugin->Log("gui_get_size() -> width: %d, height: %d", *width, *height);
+    return true;
+  } else {
+    plugin->Log("gui_get_size() -> false");
+    return false;
   }
 }
 
-  bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
-    *width = static_cast<uint32_t>(NSWidth(rootView.frame));
-    *height = static_cast<uint32_t>(NSHeight(rootView.frame));
-    return true;
-  }
+bool GUIWrapperDarwin::CanResize() {
+  bool result = (rootView != nullptr);
+  plugin->Log("gui_can_resize() -> %d (this=%x, rootView=%x)", static_cast<int>(result), this, rootView);
+  return result;
+}
 
-  bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
-    return true;
-  }
+bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
+  plugin->Log("gui_adjust_size(width: %d, height: %d)", *width, *height);
+  return true;
+}
 
-  bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
+bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
+  if (rootView != nullptr) {
+    plugin->Log("gui_set_size(width: %d, height: %d) -> 1", width, height);
     rootView.frame = NSMakeRect(0, 0, width, height);
     return true;
   }
+  plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
+  return false;
+}
 
-  bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
-    NSView *parent = reinterpret_cast<NSView *>(window->cocoa);
-    [parent addSubview:rootView];
+bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
+  containerView = reinterpret_cast<NSView *>(window->cocoa);
+  if (rootView != nullptr) {
+    plugin->Log("gui_set_parent() -> 1");
+    [containerView addSubview:rootView];
     return true;
   }
-
-  bool GUIWrapperDarwin::SetTransient(const clap_window_t *window) {
-    return false;
-  }
-
-  bool GUIWrapperDarwin::Show() {
-    rootView.hidden = false;
-  }
-  bool GUIWrapperDarwin::Hide() {
-    rootView.hidden = true;
-  }
-
-/*
-bool doSomethingWithView(void *_view) {
-  NSView *view = reinterpret_cast<NSView *>(_view);
-	NSBundle *bundle = [NSBundle bundleWithIdentifier:@"org.surge-synth-team.erachnid"];
-
-	NSNib *contents = [[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle];
-	if (contents == nil) {
-		return false;//@"couldn't load Stuff.nib from bundle";
-	}
-	NSArray* topLevelObjects;
-	if (![contents instantiateWithOwner:view topLevelObjects:&topLevelObjects]) {
-		return false;//@"couldn't instantiate nib";
-	}
-	NSView *rootView = topLevelObjects[0];
-	rootView.frame = view.bounds;
-	rootView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-	rootView.autoresizesSubviews = true;
-	[view addSubview:rootView];
-	return true;//@"loaded Stuff.nib";
-	
+  plugin->Log("gui_set_parent() -> 0");
+  return false;
 }
-*/
+
+bool GUIWrapperDarwin::SetTransient(const clap_window_t *window) {
+  plugin->Log("gui_set_transient()");
+  return false;
+}
+
+bool GUIWrapperDarwin::Show() {
+  visible = true;
+  if (rootView != nullptr) {
+    plugin->Log("gui_show() -> 1");
+    rootView.hidden = !visible;
+    return true;
+  }
+  plugin->Log("gui_show() -> 0");
+  return false;
+}
+
+bool GUIWrapperDarwin::Hide() {
+  visible = false;
+  if (rootView != nullptr) {
+    plugin->Log("gui_hide() -> 1");
+    rootView.hidden = !visible;
+    return true;
+  }
+  plugin->Log("gui_hide() -> 0");
+  return false;
+}
 
 GUIWrapper* NewGUIWrapperDarwin(Plugin *plugin) {
   return new GUIWrapperDarwin(plugin);
