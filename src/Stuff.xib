@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <capability name="Combo buttons" minToolsVersion="14.0" minSystemVersion="13.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="AGq-9A-C3k">
+            <rect key="frame" x="0.0" y="0.0" width="461" height="233"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6js-MF-Eoa">
+                    <rect key="frame" x="382" y="13" width="66" height="32"/>
+                    <buttonCell key="cell" type="push" title="Beep" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hRD-Xz-M6e">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                </button>
+                <comboButton verticalHuggingPriority="750" baseWritingDirection="leftToRight" alignment="center" title="Something" imageScaling="proportionallyDown" translatesAutoresizingMaskIntoConstraints="NO" id="zH9-Hq-gKp">
+                    <rect key="frame" x="284" y="18" width="100" height="24"/>
+                    <menu key="menu" id="hXi-0f-tIh">
+                        <items>
+                            <menuItem title="Item 1" id="a8Y-JQ-t11"/>
+                            <menuItem title="Item 2" id="wgA-qb-mHo"/>
+                        </items>
+                    </menu>
+                </comboButton>
+            </subviews>
+            <constraints>
+                <constraint firstItem="6js-MF-Eoa" firstAttribute="leading" secondItem="zH9-Hq-gKp" secondAttribute="trailing" constant="8" symbolic="YES" id="3ff-hy-ceS"/>
+                <constraint firstItem="6js-MF-Eoa" firstAttribute="centerY" secondItem="zH9-Hq-gKp" secondAttribute="centerY" id="Dcp-oP-RCI"/>
+                <constraint firstAttribute="trailing" secondItem="6js-MF-Eoa" secondAttribute="trailing" constant="20" symbolic="YES" id="HwY-29-Ndk"/>
+                <constraint firstAttribute="bottom" secondItem="6js-MF-Eoa" secondAttribute="bottom" constant="20" symbolic="YES" id="W76-6o-28J"/>
+            </constraints>
+            <point key="canvasLocation" x="187.5" y="108.5"/>
+        </customView>
+    </objects>
+</document>

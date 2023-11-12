@@ -1,17 +1,17 @@
-#include "params.hh"
-
 #include <sys/time.h>
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+#include "chomp_impl.hh"
+
 namespace chomp {
 
-std::vector<Param *> Param::all;
-std::vector<Param *> Param::active;
+// std::vector<Param *> Param::all;
+// std::vector<Param *> Param::active;
 
-Param::Param(
+void Plugin::AddParam(
     ParamID     id,
     std::string name,
     std::string module,
@@ -19,8 +19,9 @@ Param::Param(
     double      maxValue,
     double      defaultValue,
     uint64_t    flags
-)
-    : value(defaultValue) {
+) {
+  clap_param_info_t info;
+
   info.id = id;
   strncpy(info.name, name.c_str(), sizeof(info.name));
   strncpy(info.module, module.c_str(), sizeof(info.module));
@@ -28,60 +29,58 @@ Param::Param(
   info.max_value = maxValue;
   info.default_value = defaultValue;
   info.flags = flags;
-
-  all.push_back(this);
+  paramsAll.push_back(new Param(info, defaultValue));
 }
 
-Param::~Param() {
-  auto it = std::find(all.begin(), all.end(), this);
-  if (it != all.end()) {
-    all.erase(it);
-  }
-  it = std::find(active.begin(), active.end(), this);
-  if (it != active.end()) {
-    active.erase(it);
-  }
-}
-
-void Param::Finalize(const Plugin &plugin) {
-  active.clear();
-  for (auto param : all) {
-    if (param->Active(plugin)) {
-      active.push_back(param);
+// Called on plugin activation
+void Plugin::RefreshParameters() {
+  /*paramsActive.clear();
+  for (auto param : paramsAll) {
+    if (param->Active(*this)) {
+      paramsActive.push_back(param);
     }
-  }
+  }*/
+  // TODO: if we ever have context-sensitive parameters, this is where to
+  // disable the unused ones.
+  paramsActive = paramsAll;
 }
 
-uint32_t Param::Count() { return static_cast<uint32_t>(active.size()); }
+// uint32_t Param::Count() { return static_cast<uint32_t>(active.size()); }
 
-bool Param::GetInfo(uint32_t param_index, clap_param_info_t *param_info) {
-  if (param_index >= active.size()) {
+uint32_t Plugin::ParamCount() {
+  uint32_t result = static_cast<uint32_t>(paramsActive.size());
+  flog("ParamCount() -> %d", result);
+  return result;
+}
+
+bool Plugin::ParamGetInfo(uint32_t param_index, clap_param_info_t *param_info) {
+  if (param_index >= paramsActive.size()) {
     return false;
   }
-  const Param &param = *active[param_index];
+  const Param &param = *paramsActive[param_index];
   memcpy(param_info, &param.info, sizeof(param.info));
   return true;
 }
 
-bool Param::GetValue(clap_id param_id, double *out_value) {
-  for (const Param *param : active) {
+bool Plugin::ParamGetValue(clap_id param_id, double *out_value) {
+  for (const Param *param : paramsActive) {
     if (param->info.id == param_id) {
-      *out_value = param->GetValue();
+      *out_value = param->value;
       return true;
     }
   }
   return false;
 }
 
-bool Param::ValueToText(
+bool Plugin::ParamValueToText(
     clap_id  param_id,
     double   value,
     char    *out_buffer,
     uint32_t out_buffer_capacity
 ) {
-  for (const Param *param : active) {
+  for (const Param *param : paramsActive) {
     if (param->info.id == param_id) {
-      std::string text = param->ValueToText(value);
+      std::string text = std::to_string(value);
       strncpy(out_buffer, text.c_str(), out_buffer_capacity);
       return true;
     }
@@ -89,19 +88,19 @@ bool Param::ValueToText(
   return false;
 }
 
-bool Param::TextToValue(
+bool Plugin::ParamTextToValue(
     clap_id param_id, const char *param_value_text, double *out_value
 ) {
-  for (const Param *param : active) {
+  for (const Param *param : paramsActive) {
     if (param->info.id == param_id) {
-      *out_value = param->TextToValue(param_value_text);
+      *out_value = std::stod(param_value_text);
       return true;
     }
   }
   return false;
 }
 
-void Param::Flush(
+void Plugin::ParamFlush(
     const clap_input_events_t *in, const clap_output_events_t *out
 ) {}
 }  // namespace chomp

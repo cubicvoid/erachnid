@@ -6,46 +6,17 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 
 #include "params.hh"
 
 namespace chomp {
 
+class GUIWrapper;
+
 struct Voice {};
 
 class Plugin {
- private:
-  void ProcessEvent(const clap_event_header_t *hdr);
-  void NoteOn(const clap_event_note_t *note);
-  void NoteOff(const clap_event_note_t *note);
-
-  int noteOnCount = 0;
-  int noteOffCount = 0;
-  int midiCount = 0;
-  int sampleCount = 0;
-
-  double envVolume = 0.0;
-  double envTarget = 0.0;
-
-  Param rats = Param(
-      ParamIDRats,
-      "rats",
-      "something",
-      0,
-      100,
-      50,
-      CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
-  );
-  Param attack = Param(
-      ParamIDAttack,
-      "attack",
-      "something else",
-      0.0,
-      1.0,
-      0.0,
-      CLAP_PARAM_IS_AUTOMATABLE
-  );
-
  public:
   Plugin(const clap_host_t *_host);
 
@@ -69,22 +40,24 @@ class Plugin {
           uint32_t index, bool is_input, clap_audio_port_info_t *info
       );
 
-  FILE *logFile;
-
-  void flog(const clap_host_t *host, clap_log_severity sev, const char *msg) {
-    if (logFile != nullptr) {
-      struct timeval tv;
-      gettimeofday(&tv, nullptr);
-
-      char buf[512];
-      snprintf(
-          buf, sizeof(buf), "(%d) %ld.%lf %s\n", sev, tv.tv_sec,
-          static_cast<double>(tv.tv_usec) / 1000000.0, msg
+  uint32_t ParamCount();
+  bool     ParamGetInfo(uint32_t param_index, clap_param_info_t *param_info);
+  bool     ParamGetValue(clap_id param_id, double *out_value);
+  bool     ParamValueToText(
+          clap_id  param_id,
+          double   value,
+          char    *out_buffer,
+          uint32_t out_buffer_capacity
       );
-      fwrite(buf, 1, strlen(buf), logFile);
-      fflush(logFile);
-    }
-  }
+  bool ParamTextToValue(
+      clap_id param_id, const char *param_value_text, double *out_value
+  );
+  void ParamFlush(
+      const clap_input_events_t *in, const clap_output_events_t *out
+  );
+  // FILE *logFile;
+
+  void flog(const char *format...);
 
   clap_plugin_t                   plugin;
   const clap_host_t              *host;
@@ -92,14 +65,52 @@ class Plugin {
   const clap_host_thread_check_t *host_thread_check;
   const clap_host_state_t        *host_state;
 
-  void(CLAP_ABI *log)(
-      const clap_host_t *host, clap_log_severity severity, const char *msg
-  );
+  std::unique_ptr<GUIWrapper> gui;
+  // const clap_window_t        *window;
+
+  void (*log)(const clap_host_t *host, int pluginID, const char *msg);
 
   uint32_t latency;
 
+  int  pluginID;
   bool active;
   bool processing;
+
+ protected:
+  struct Param {
+    Param(clap_param_info_t _info, double _value)
+        : info(_info), value(_value) {}
+    clap_param_info_t info;
+    double            value;
+  };
+
+  void AddParam(
+      ParamID     id,
+      std::string name,
+      std::string module,
+      double      minValue,
+      double      maxValue,
+      double      defaultValue,
+      uint64_t    flags
+  );
+
+ private:
+  void ProcessEvent(const clap_event_header_t *hdr);
+  void NoteOn(const clap_event_note_t *note);
+  void NoteOff(const clap_event_note_t *note);
+
+  int noteOnCount = 0;
+  int noteOffCount = 0;
+  int midiCount = 0;
+  int sampleCount = 0;
+
+  double envVolume = 0.0;
+  double envTarget = 0.0;
+
+  void RefreshParameters();
+
+  std::vector<Param *> paramsAll;
+  std::vector<Param *> paramsActive;
 };
 
 }  // namespace chomp

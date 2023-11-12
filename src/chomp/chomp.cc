@@ -1,6 +1,7 @@
 #include <clap/clap.h>
 #include <sys/time.h>
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -8,20 +9,64 @@
 
 #include "bridge.hh"
 #include "chomp_impl.hh"
+#include "gui/gui.h"
 #include "params.hh"
 
-void CLAP_ABI
-nilLog(const clap_host_t *host, clap_log_severity severity, const char *msg) {}
+void CLAP_ABI nilLog(const clap_host_t *host, int pluginID, const char *msg) {}
 
 namespace chomp {
 
+FILE *logFile = nullptr;
+
 Plugin::Plugin(const clap_host_t *_host)
     : host(_host), log(nilLog), processing(false), active(false) {
+  if (logFile == nullptr) {
+    logFile = fopen("/Users/fae/chomp.log", "wb");
+  }
+
   init_plugin(&plugin, reinterpret_cast<void *>(this));
+  gui.reset(GUIWrapper::New(this));
+
+  AddParam(
+      ParamIDRats, "rats", "something", 0, 100, 50,
+      CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
+  );
+  AddParam(
+      ParamIDAttack, "attack", "something else", 0.0, 1.0, 0.0,
+      CLAP_PARAM_IS_AUTOMATABLE
+  );
+  RefreshParameters();
+}
+
+void Plugin::flog(const char *format...) {
+  if (logFile != nullptr) {
+    va_list args;
+    va_start(args, format);
+
+    char timeStr[64];
+    int  msec;
+
+    struct timeval tv;
+    time_t         t = static_cast<time_t>(tv.tv_sec);
+    struct tm     *timeinfo;
+    gettimeofday(&tv, nullptr);
+    timeinfo = localtime(&tv.tv_sec);
+    strftime(timeStr, sizeof(timeStr), "%F %T", timeinfo);
+    msec = static_cast<int>(tv.tv_usec / 1000);
+
+    char buf[256];
+    snprintf(
+        buf, sizeof(buf), "[%d] %s.%03d %s\n", pluginID, timeStr, msec, format
+    );
+    vfprintf(logFile, buf, args);
+    fflush(logFile);
+  }
 }
 
 bool Plugin::Init() {
-  logFile = fopen("/Users/fae/chomp.log", "wb");
+  static int count = 0;
+  pluginID = count++;
+  flog("Plugin::Init()");
 
   // Fetch host's extensions here
   // Make sure to check that the interface functions are not null pointers
@@ -51,35 +96,29 @@ bool Plugin::Init() {
 }
 
 void Plugin::Destroy() {
-  flog(host, CLAP_LOG_INFO, "chomp_plug_destroy");
-  if (logFile != nullptr) {
+  flog("chomp_plug_destroy");
+  /*if (logFile != nullptr) {
     fclose(logFile);
-  }
+  }*/
 }
 
 bool Plugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {
-  char buf[256];
-  snprintf(
-      buf, sizeof(buf), "chomp_plug_activate(%lf, %d, %d)", sample_rate,
-      min_frames_count, max_frames_count
+  flog(
+      "chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
+      max_frames_count
   );
-  flog(host, CLAP_LOG_INFO, buf);
-  Param::Finalize(*this);
-  snprintf(buf, sizeof(buf), "%d params active", Param::Count());
-  flog(host, CLAP_LOG_INFO, buf);
+
+  flog("%d params active", static_cast<int>(paramsActive.size()));
   return true;
 }
 
 void Plugin::Deactivate() {
-  char buf[128];
-  snprintf(
-      buf, sizeof(buf),
+  flog(
       "chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
       noteOnCount, noteOffCount, midiCount, sampleCount
   );
-  flog(nullptr, CLAP_LOG_INFO, buf);
 }
 
 void Plugin::Reset() {}

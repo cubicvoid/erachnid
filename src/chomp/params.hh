@@ -14,7 +14,7 @@ enum ParamID {
   ParamIDAttack,
 };
 
-class Param {
+/*class Param {
  private:
   static std::vector<Param *> all;
   static std::vector<Param *> active;
@@ -35,15 +35,15 @@ class Param {
   virtual ~Param();
 
   // CLAP params extension API
-  static uint32_t Count();
-  static bool     GetInfo(uint32_t param_index, clap_param_info_t *param_info);
-  static bool     GetValue(clap_id param_id, double *out_value);
-  static bool     ValueToText(
-          clap_id  param_id,
-          double   value,
-          char    *out_buffer,
-          uint32_t out_buffer_capacity
-      );
+  // static uint32_t Count();
+  static bool GetInfo(uint32_t param_index, clap_param_info_t *param_info);
+  static bool GetValue(clap_id param_id, double *out_value);
+  static bool ValueToText(
+      clap_id  param_id,
+      double   value,
+      char    *out_buffer,
+      uint32_t out_buffer_capacity
+  );
   static bool TextToValue(
       clap_id param_id, const char *param_value_text, double *out_value
   );
@@ -63,6 +63,6 @@ class Param {
   virtual double TextToValue(const std::string &text) const {
     return std::stod(text);
   }
-};
+};*/
 
 }  // namespace chomp

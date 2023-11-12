@@ -1,6 +1,19 @@
+set(COCOA_UI_XIBS Stuff)
+
 add_library(${PROJECT_NAME} MODULE
         clap-entry.cc
+        ${RESOURCES}
         )
+
+find_program(IBTOOL ibtool REQUIRED)
+foreach(XIBFILE ${COCOA_UI_XIBS})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${IBTOOL} --compile ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.clap/Contents/Resources/${XIBFILE}.nib ${CMAKE_CURRENT_SOURCE_DIR}/${XIBFILE}.xib
+            COMMENT "Compiling NIB file ${XIBFILE}.nib")
+endforeach()
+
+set(RESOURCES Stuff.nib)
+
 
 add_subdirectory(chomp)
 add_subdirectory(starry)
@@ -13,6 +26,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	example
     )
 
+
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
             BUNDLE True
@@ -22,6 +36,7 @@ if(APPLE)
             MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}.plist.in
+            RESOURCE "${RESOURCES}"
             )
     target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics" "-framework Cocoa")
 

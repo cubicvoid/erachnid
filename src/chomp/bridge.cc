@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include "chomp_impl.hh"
+#include "gui/gui.h"
 
 namespace chomp {
 
@@ -144,12 +145,8 @@ const clap_plugin_note_ports_t s_chomp_note_ports = {
 ////////////////////////
 
 uint32_t chomp_params_count(const clap_plugin_t *_plugin) {
-  Plugin  *plugin = static_cast<Plugin *>(_plugin->plugin_data);
-  char     buf[64];
-  uint32_t count = Param::Count();
-  snprintf(buf, sizeof(buf), "params_count() -> %d", count);
-  plugin->flog(nullptr, 0, buf);
-  return count;  // plugin->ParamsCount();
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  return plugin->ParamCount();
 }
 
 bool chomp_params_get_info(
@@ -157,17 +154,16 @@ bool chomp_params_get_info(
     uint32_t             param_index,
     clap_param_info_t   *param_info
 ) {
-  char buf[64];
-  snprintf(buf, sizeof(buf), "params_get_info(%d)", param_index);
-  Plugin *plugin = static_cast<Plugin *>(_plugin->plugin_data);
-  plugin->flog(nullptr, 0, buf);
-  return Param::GetInfo(param_index, param_info);
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  plugin->flog("params_get_info(%d)", param_index);
+  return plugin->ParamGetInfo(param_index, param_info);
 }
 
 bool chomp_params_get_value(
     const clap_plugin_t *_plugin, clap_id param_id, double *out_value
 ) {
-  return Param::GetValue(param_id, out_value);
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  return plugin->ParamGetValue(param_id, out_value);
 }
 
 bool chomp_params_value_to_text(
@@ -177,7 +173,10 @@ bool chomp_params_value_to_text(
     char                *out_buffer,
     uint32_t             out_buffer_capacity
 ) {
-  return Param::ValueToText(param_id, value, out_buffer, out_buffer_capacity);
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  return plugin->ParamValueToText(
+      param_id, value, out_buffer, out_buffer_capacity
+  );
 }
 
 bool chomp_params_text_to_value(
@@ -186,7 +185,8 @@ bool chomp_params_text_to_value(
     const char          *param_value_text,
     double              *out_value
 ) {
-  return Param::TextToValue(param_id, param_value_text, out_value);
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  return plugin->ParamTextToValue(param_id, param_value_text, out_value);
 }
 
 void chomp_params_flush(
@@ -194,7 +194,8 @@ void chomp_params_flush(
     const clap_input_events_t  *in,
     const clap_output_events_t *out
 ) {
-  Param::Flush(in, out);
+  Plugin *plugin = reinterpret_cast<Plugin *>(_plugin->plugin_data);
+  plugin->ParamFlush(in, out);
 }
 
 const clap_plugin_params_t s_chomp_params = {
@@ -211,27 +212,39 @@ const clap_plugin_params_t s_chomp_params = {
 /////////////////////
 
 bool chomp_gui_is_api_supported(
-    const clap_plugin_t *plugin, const char *api, bool is_floating
+    const clap_plugin_t *_plugin, const char *api, bool is_floating
 ) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("is_api_supported(%s, %d)", api, is_floating);
   return strcmp(api, CLAP_WINDOW_API_COCOA) == 0 && !is_floating;
 }
 
 bool chomp_gui_get_preferred_api(
-    const clap_plugin_t *plugin, const char **api, bool *is_floating
+    const clap_plugin_t *_plugin, const char **api, bool *is_floating
 ) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("get_preferred_api()");
   *api = CLAP_WINDOW_API_COCOA;
   *is_floating = false;
   return true;
 }
 
 bool chomp_gui_create(
-    const clap_plugin_t *plugin, const char *api, bool is_floating
+    const clap_plugin_t *_plugin, const char *api, bool is_floating
 ) {
-  // TODO: load the nib
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_create(%s, %d)", api, is_floating);
+  return plugin->gui->Create(api, is_floating);
 }
 
-void chomp_gui_destroy(const clap_plugin_t *plugin) {
-  // TODO: free the nib
+void chomp_gui_destroy(const clap_plugin_t *_plugin) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_destroy()");
+  return plugin->gui->Destroy();
 }
 
 bool chomp_gui_set_scale(const clap_plugin_t *plugin, double scale) {
@@ -240,62 +253,87 @@ bool chomp_gui_set_scale(const clap_plugin_t *plugin, double scale) {
 }
 
 bool chomp_gui_get_size(
-    const clap_plugin_t *plugin, uint32_t *width, uint32_t *height
+    const clap_plugin_t *_plugin, uint32_t *width, uint32_t *height
 ) {
-  // TODO: check and return the size of the main view
-  return false;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_get_size()");
+  return plugin->gui->GetSize(width, height);
 }
 
-bool chomp_gui_can_resize(const clap_plugin_t *plugin) {
-  // TODO: return a real answer here
-  return false;
+bool chomp_gui_can_resize(const clap_plugin_t *_plugin) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_can_resize()");
+  return true;
 }
 
 bool chomp_gui_get_resize_hints(
-    const clap_plugin_t *plugin, clap_gui_resize_hints_t *hints
+    const clap_plugin_t *_plugin, clap_gui_resize_hints_t *hints
 ) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_get_resize_hints()");
+
   // TODO
   return false;
 }
 
 bool chomp_gui_adjust_size(
-    const clap_plugin_t *plugin, uint32_t *width, uint32_t *height
+    const clap_plugin_t *_plugin, uint32_t *width, uint32_t *height
 ) {
-  // TODO
-  return false;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_adjust_size(%d, %d)", *width, *height);
+  return plugin->gui->AdjustSize(width, height);
 }
 
 bool chomp_gui_set_size(
-    const clap_plugin_t *plugin, uint32_t width, uint32_t height
+    const clap_plugin_t *_plugin, uint32_t width, uint32_t height
 ) {
-  // TODO
-  return false;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_set_size(%d, %d)", width, height);
+  return plugin->gui->SetSize(width, height);
 }
 
 bool chomp_gui_set_parent(
-    const clap_plugin_t *plugin, const clap_window_t *window
+    const clap_plugin_t *_plugin, const clap_window_t *window
 ) {
-  // TODO: embed view in the NSView window->cocoa.
-  return true;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_set_parent()");
+  // plugin->window = window;
+  return plugin->gui->SetParent(window);
+  // doSomethingWithView(window->cocoa);
 }
 
 bool chomp_gui_set_transient(
-    const clap_plugin_t *plugin, const clap_window_t *window
+    const clap_plugin_t *_plugin, const clap_window_t *window
 ) {
-  // TODO: i don't actually understand what this one means
-  return false;
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_set_transient()");
+  return plugin->gui->SetTransient(window);
 }
 
 void chomp_gui_suggest_title(const clap_plugin_t *plugin, const char *title) {
   // TODO: low priority since this is floating only
 }
 
-bool chomp_gui_show(const clap_plugin_t *plugin) {
-  // TODO: unsure what this means when !floating
-  return false;
+bool chomp_gui_show(const clap_plugin_t *_plugin) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_show()");
+  return plugin->gui->Show();
 }
 
-bool chomp_gui_hide(const clap_plugin_t *plugin) { return false; }
+bool chomp_gui_hide(const clap_plugin_t *_plugin) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  plugin->flog("gui_hide()");
+  return plugin->gui->Hide();
+}
 
 const clap_plugin_gui_t s_chomp_gui = {
     .is_api_supported = chomp_gui_is_api_supported,
@@ -322,11 +360,9 @@ const clap_plugin_gui_t s_chomp_gui = {
 const void *chomp_get_extension(
     const struct clap_plugin *_plugin, const char *id
 ) {
-  char buf[256];
-  snprintf(buf, sizeof(buf), "chomp_get_extension(%s)", id);
   chomp::Plugin *plugin =
       reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
-  plugin->flog(plugin->host, CLAP_LOG_INFO, buf);
+  plugin->flog("chomp_get_extension(%s)", id);
 
   // if (!strcmp(id, CLAP_EXT_LATENCY))
   //    return &s_my_plug_latency;
