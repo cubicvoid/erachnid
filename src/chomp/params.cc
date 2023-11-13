@@ -48,7 +48,7 @@ void Plugin::RefreshParameters() {
 // uint32_t Param::Count() { return static_cast<uint32_t>(active.size()); }
 
 uint32_t Plugin::ParamCount() {
-  uint32_t result = static_cast<uint32_t>(paramsActive.size());
+  uint32_t result = 0;  // static_cast<uint32_t>(paramsActive.size());
   Log("ParamCount() -> %d", result);
   return result;
 }

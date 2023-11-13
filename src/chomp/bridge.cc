@@ -245,9 +245,10 @@ void chomp_gui_destroy(const clap_plugin_t *_plugin) {
   return plugin->gui->Destroy();
 }
 
-bool chomp_gui_set_scale(const clap_plugin_t *plugin, double scale) {
-  // gui scale is ignored on darwin
-  return false;
+bool chomp_gui_set_scale(const clap_plugin_t *_plugin, double scale) {
+  chomp::Plugin *plugin =
+      reinterpret_cast<chomp::Plugin *>(_plugin->plugin_data);
+  return plugin->gui->SetScale(scale);
 }
 
 bool chomp_gui_get_size(

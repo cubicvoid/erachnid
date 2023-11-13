@@ -20,6 +20,9 @@ FILE *logFile = nullptr;
 
 Plugin::Plugin(const clap_host_t *_host)
     : host(_host), log(nilLog), processing(false), active(false) {
+  static int count = 0;
+  pluginID = count++;
+
   if (logFile == nullptr) {
     logFile = fopen("/Users/fae/chomp.log", "wb");
   }
@@ -65,8 +68,6 @@ void Plugin::Log(const char *format...) {
 }
 
 bool Plugin::Init() {
-  static int count = 0;
-  pluginID = count++;
   Log("plugin_init");
 
   // Fetch host's extensions here
@@ -108,8 +109,6 @@ bool Plugin::Activate(
 ) {
   Log("chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
       max_frames_count);
-
-  Log("%d params active", static_cast<int>(paramsActive.size()));
   return true;
 }
 

@@ -15,6 +15,7 @@ class GUIWrapper {
   static GUIWrapper *New(Plugin *plugin);
 
   virtual bool Create(const char *api, bool is_floating) = 0;
+  virtual bool SetScale(double scale) = 0;
   virtual void Destroy() = 0;
   virtual bool GetSize(uint32_t *width, uint32_t *height) = 0;
   virtual bool CanResize() = 0;
