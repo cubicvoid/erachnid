@@ -110,6 +110,7 @@ bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
 void GUIWrapperDarwin::Destroy() {
   plugin->Log("gui_destroy() (this=%x, rootView=%x)", this, rootView);
   if (rootView != nil) {
+    [rootView removeFromSuperview];
     [rootView release];
     rootView = nil;
   }
