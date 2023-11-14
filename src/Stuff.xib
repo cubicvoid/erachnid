@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Combo buttons" minToolsVersion="14.0" minSystemVersion="13.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner"/>
+        <customObject id="-2" userLabel="File's Owner" customClass="SimpleClass">
+            <connections>
+                <outlet property="someView" destination="AGq-9A-C3k" id="teg-na-wcP"/>
+            </connections>
+        </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="AGq-9A-C3k">
@@ -20,6 +23,9 @@
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
+                    <connections>
+                        <action selector="buttonPressed:" target="-2" id="z2f-4K-klY"/>
+                    </connections>
                 </button>
                 <comboButton verticalHuggingPriority="750" baseWritingDirection="leftToRight" alignment="center" title="Something" imageScaling="proportionallyDown" translatesAutoresizingMaskIntoConstraints="NO" id="zH9-Hq-gKp">
                     <rect key="frame" x="284" y="18" width="100" height="24"/>

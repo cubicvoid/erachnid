@@ -2,7 +2,7 @@ set(COCOA_UI_XIBS Stuff)
 
 add_library(${PROJECT_NAME} MODULE
         clap-entry.cc
-        ${RESOURCES}
+        Stuff.xib
         )
 
 find_program(IBTOOL ibtool REQUIRED)
@@ -12,7 +12,7 @@ foreach(XIBFILE ${COCOA_UI_XIBS})
             COMMENT "Compiling NIB file ${XIBFILE}.nib")
 endforeach()
 
-set(RESOURCES Stuff.nib)
+#set(RESOURCES Stuff.nib)
 
 
 add_subdirectory(chomp)
