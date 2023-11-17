@@ -21,8 +21,8 @@ cmake --build build --config Debug
 
 ```sh
 mkdir xcode
-cmake -G Xcode -B xcode .
-open xcode/erachnid.xcodeproj
+cmake -G Xcode -B build-xcode .
+open build-xcode/erachnid.xcodeproj
 ```
 
 this will (possibly after building in xcode) let you open the xib files for the UI and link them to internal objective c owner classes.

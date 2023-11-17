@@ -195,8 +195,9 @@ bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
 }
 
 bool GUIWrapperDarwin::CanResize() {
-  plugin->Log("gui_can_resize() -> 0");
-  return false;
+  bool result = (controller != nil);
+  plugin->Log("gui_can_resize() -> %d", static_cast<int>(result));
+  return result;
   // bool result = (rootView != nullptr);
   // plugin->Log("gui_can_resize() -> %d (this=%x, rootView=%x)", static_cast<int>(result), this, rootView);
   // return result;
@@ -208,18 +209,17 @@ bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
 }
 
 bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
-  plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
-  return false;
+  //plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
   // this->width = width;
   // this->height = height;
   // return true;
-  // if (rootView != nullptr) {
-  //   plugin->Log("gui_set_size(width: %d, height: %d) -> 1", width, height);
-  //   //rootView.frame = NSMakeRect(0, 0, width, height);
-  //   return true;
-  // }
-  // plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
-  // return false;
+  if (controller != nil) {
+    plugin->Log("gui_set_size(width: %d, height: %d) -> 1", width, height);
+    controller.someView.frame = NSMakeRect(0, 0, width, height);
+    return true;
+  }
+  plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
+  return false;
 }
 
 bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
