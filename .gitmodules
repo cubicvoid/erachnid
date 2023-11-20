@@ -1,3 +1,9 @@
 [submodule "lib/clap"]
 	path = lib/clap
 	url = https://github.com/free-audio/clap
+[submodule "lib/reaper-sdk"]
+	path = lib/reaper-sdk
+	url = https://github.com/justinfrankel/reaper-sdk.git
+[submodule "lib/WDL"]
+	path = lib/WDL
+	url = https://github.com/justinfrankel/WDL.git

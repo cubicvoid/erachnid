@@ -24,10 +24,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     chomp
 	starry
 	example
-    )
+)
 
 
 if(APPLE)
+    target_link_options(${PROJECT_NAME} PRIVATE -exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/macos-symbols.txt)
+
     set_target_properties(${PROJECT_NAME} PROPERTIES
             BUNDLE True
             BUNDLE_EXTENSION clap

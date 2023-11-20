@@ -11,6 +11,7 @@
 #include "chomp_impl.hh"
 #include "gui/gui.h"
 #include "params.hh"
+#include "reaper_plugin.h"
 
 void CLAP_ABI nilLog(const clap_host_t *host, int pluginID, const char *msg) {}
 
@@ -85,6 +86,14 @@ bool Plugin::Init() {
   if (ext_gui != nullptr) {
     // ext_gui->request_show()
     // ext_gui->
+  }
+
+  const reaper_plugin_info_t *reaper =
+      reinterpret_cast<const reaper_plugin_info_t *>(
+          host->get_extension(host, "cockos.reaper_extension")
+      );
+  if (reaper != nullptr) {
+    Log("Got a REAPER extension?!?!");
   }
 
   host_thread_check = (const clap_host_thread_check_t *)host->get_extension(

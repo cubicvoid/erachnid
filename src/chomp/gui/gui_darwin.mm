@@ -8,17 +8,17 @@ namespace chomp {
   class GUIWrapperDarwin;
 }
 
-@interface SimpleClass : NSObject {
+@interface FAESimpleClass : NSObject {
   chomp::Plugin *_plugin;
 }
 
-@property (nonatomic, retain) IBOutlet NSView *someView;
+@property (nonatomic, retain) IBOutlet NSView *view;
 
 - (IBAction)buttonPressed:(id)sender;
 
 @end
 
-@implementation SimpleClass
+@implementation FAESimpleClass
 
 - (id)initWithPlugin:(chomp::Plugin *)plugin {
   self = [super init];
@@ -33,12 +33,13 @@ namespace chomp {
     _plugin->Log("buttonPressed");
   }
 }
-
+  
 @end
 
 
-
 namespace chomp {
+
+
 
 class GUIWrapperDarwin : public GUIWrapper {
 public:
@@ -60,7 +61,7 @@ private:
 
   Plugin *plugin;
   //NSView *rootView;
-  SimpleClass *controller;
+  FAESimpleClass *controller;
 
   uint32_t width;
   uint32_t height;
@@ -84,7 +85,7 @@ bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
       return false;//@"couldn't load Stuff.nib from bundle";
     }
 
-    controller = [[SimpleClass alloc] initWithPlugin:plugin];
+    controller = [[FAESimpleClass alloc] initWithPlugin:plugin];
 
     NSArray* topLevelObjects;
     if (![nib instantiateWithOwner:controller topLevelObjects:&topLevelObjects]) {
@@ -148,7 +149,7 @@ bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
 void GUIWrapperDarwin::Destroy() {
   plugin->Log("gui_destroy() (this=%x, controller=%x)", this, controller);
   if (controller != nil) {
-    [controller.someView removeFromSuperview];
+    [controller.view removeFromSuperview];
     [controller release];
     controller = nil;
   }
@@ -183,7 +184,7 @@ bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
   // plugin->Log("gui_get_size() -> width: %d, height: %d", *width, *height);
   // return true;
   if (controller != nil) {
-    NSRect frame = controller.someView.frame;
+    NSRect frame = controller.view.frame;
     *width = static_cast<uint32_t>(NSWidth(frame));
     *height = static_cast<uint32_t>(NSHeight(frame));
     plugin->Log("gui_get_size() -> width: %d, height: %d", *width, *height);
@@ -215,7 +216,7 @@ bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
   // return true;
   if (controller != nil) {
     plugin->Log("gui_set_size(width: %d, height: %d) -> 1", width, height);
-    controller.someView.frame = NSMakeRect(0, 0, width, height);
+    controller.view.frame = NSMakeRect(0, 0, width, height);
     return true;
   }
   plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
@@ -228,7 +229,7 @@ bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
   NSView *container = reinterpret_cast<NSView *>(window->cocoa);
   if (controller != nullptr) {
     plugin->Log("gui_set_parent(%x) -> 1", container);
-    [container addSubview:controller.someView];
+    [container addSubview:controller.view];
     return true;
   }
   plugin->Log("gui_set_parent(%x) -> 0", container);
@@ -245,7 +246,7 @@ bool GUIWrapperDarwin::Show() {
   // return true;
   if (controller != nullptr) {
     plugin->Log("gui_show() -> 1");
-    controller.someView.hidden = false;
+    controller.view.hidden = false;
     return true;
   }
   plugin->Log("gui_show() -> 0");
@@ -257,7 +258,7 @@ bool GUIWrapperDarwin::Hide() {
   // return true;
   if (controller != nil) {
     plugin->Log("gui_hide() -> 1");
-    controller.someView.hidden = true;
+    controller.view.hidden = true;
     return true;
   }
   plugin->Log("gui_hide() -> 0");

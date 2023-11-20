@@ -20,7 +20,7 @@ cmake --build build --config Debug
 (apple only for now)
 
 ```sh
-mkdir xcode
+mkdir build-xcode
 cmake -G Xcode -B build-xcode .
 open build-xcode/erachnid.xcodeproj
 ```

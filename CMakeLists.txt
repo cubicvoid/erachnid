@@ -10,8 +10,14 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif()
 
-project(erachnid VERSION 0.0.1 LANGUAGES C CXX OBJC)
+project(erachnid VERSION 0.0.1 LANGUAGES C CXX OBJC OBJCXX)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJC_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJCXX_VISIBILITY_PRESET hidden)
+
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
@@ -19,6 +25,10 @@ set(CMAKE_CXX_STANDARD 20)
 # Copy on mac (could expand to other platforms)
 option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" FALSE)
 
+include_directories(
+    lib/WDL/WDL
+    lib/reaper-sdk/sdk
+)
 add_subdirectory(lib/clap EXCLUDE_FROM_ALL)
 add_subdirectory(src)
 
