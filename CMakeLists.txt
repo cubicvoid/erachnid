@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20.0)
 cmake_policy(SET CMP0100 NEW) # handle .hh files
 
+if(MSVC)
+    add_compile_options(/W3)
+else()
+    add_compile_options(-W -Wall)
+endif()
+
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Build for 10.13")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
