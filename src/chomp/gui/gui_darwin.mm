@@ -4,6 +4,10 @@
 
 #import "chomp_impl.hh"
 
+#if __has_feature(objc_arc)
+#error "ARC is on"
+#endif
+
 namespace chomp {
   class GUIWrapperDarwin;
 }
@@ -74,75 +78,29 @@ GUIWrapperDarwin::GUIWrapperDarwin(Plugin *_plugin) :
 
 bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
   plugin->Log("gui_create(%s, %d)", api, static_cast<int>(is_floating));
-    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"org.surge-synth-team.erachnid"];
-    if (bundle == nil) {
-      plugin->Log("couldn't load plugin bundle");
-      return false;
-    }
-    NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
-    if (nib == nil) {
-      plugin->Log("couldn't load Stuff.nib from bundle");
-      return false;//@"couldn't load Stuff.nib from bundle";
-    }
+  NSBundle *bundle = [NSBundle bundleWithIdentifier:@"me.faec.erachnid"];
+  if (bundle == nil) {
+    plugin->Log("couldn't load plugin bundle");
+    return false;
+  } else {
+    plugin->Log("got bundle");
+  }
+  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
+  if (nib == nil) {
+    plugin->Log("couldn't load Stuff.nib from bundle");
+    return false;//@"couldn't load Stuff.nib from bundle";
+  } else {
+    plugin->Log("loaded Stuff.nib");
+  }
 
-    controller = [[FAESimpleClass alloc] initWithPlugin:plugin];
+  controller = [[FAESimpleClass alloc] initWithPlugin:plugin];
 
-    NSArray* topLevelObjects;
-    if (![nib instantiateWithOwner:controller topLevelObjects:&topLevelObjects]) {
-      plugin->Log("Couldn't instantiate Stuff.nib");
-      return false;//@"couldn't instantiate nib";
-    }
-    plugin->Log("Stuff.nib instantiated with %d objects", static_cast<int>(topLevelObjects.count));
-    //NSString *c1 = NSStringFromClass([topLevelObjects[0] class]);
-    //NSString *c2 = NSStringFromClass([topLevelObjects[1] class]);
-
-    /*for (id obj in topLevelObjects) {
-      if ([obj isKindOfClass:[NSView class]]) {
-        rootView = [obj retain];
-        NSRect frame = rootView.frame;
-        plugin->Log("rootView: %x  (width: %d, height: %d)",
-          rootView, static_cast<int>(NSWidth(frame), static_cast<int>(NSHeight(frame))));
-      }
-    }*/
-
-    //[topLevelObjects retain];
-    //lugin->Log("obj 0 (%x): %s, obj 1 (%x): %s",
-      //topLevelObjects[0], [c1 UTF8String], topLevelObjects[1], [c2 UTF8String]
-      //static_cast<int>([topLevelObjects[0] isKindOfClass:[NSView class]]),
-      //static_cast<int>([topLevelObjects[1] isKindOfClass:[NSView class]])
-    //);
-    //rootView = [topLevelObjects[1] retain];
-    //[rootView retain];
-    // NSRect frame = rootView.frame;
-    // plugin->Log("rootView: %x  (width: %d, height: %d)",
-    //   rootView, static_cast<int>(NSWidth(frame), static_cast<int>(NSHeight(frame))));
-  //@autoreleasepool {
-
-    /*NSObject *owner = [[NSObject alloc] init];
-
-
-    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"org.surge-synth-team.erachnid"];
-    if (bundle == nil) {
-      plugin->Log("couldn't load plugin bundle");
-      return false;
-    }
-    NSNib *nib = [[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle];
-    if (nib == nil) {
-      plugin->Log("couldn't load Stuff.nib from bundle");
-      return false;//@"couldn't load Stuff.nib from bundle";
-    }
-    NSArray* topLevelObjects;
-    if (![nib instantiateWithOwner:owner topLevelObjects:&topLevelObjects]) {
-      plugin->Log("Couldn't instantiate Stuff.nib");
-      return false;//@"couldn't instantiate nib";
-    }
-    [topLevelObjects retain];
-    rootView = topLevelObjects[0];
-    [rootView retain];
-    plugin->Log("rootView: %x", rootView);
-  //}
-  plugin->Log("gui_create successful");
-  */
+  NSArray* topLevelObjects;
+  if (![nib instantiateWithOwner:controller topLevelObjects:&topLevelObjects]) {
+    plugin->Log("Couldn't instantiate Stuff.nib");
+    return false;//@"couldn't instantiate nib";
+  }
+  plugin->Log("Stuff.nib instantiated with %d objects", static_cast<int>(topLevelObjects.count));
   return true;
 }
 
