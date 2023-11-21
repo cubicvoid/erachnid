@@ -4,11 +4,11 @@ message(STATUS "hi fae ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "but what about ${CMAKE_CURRENT_BINARY_DIR}")
 
 #macro(add_nib target)
-
-include("${CMAKE_SOURCE_DIR}/cmake/xib_helpers.cmake")
+if(APPLE)
+  include("${CMAKE_SOURCE_DIR}/cmake/xib_helpers.cmake")
+endif()
 
 #endmacro()
-
 
 # find_program(IBTOOL ibtool REQUIRED)
 
@@ -26,6 +26,9 @@ add_library(erachnid MODULE
     #Stuff.nib
 )
 
+
+testset(somevar)
+message("testset: ${somevar}")
 
 
 
@@ -70,7 +73,8 @@ if(APPLE)
 
     # collect all xibs that appeared across the project and
     # attach them to the target
-    finalize_xibs(erachnid XIBS)
+    finalize_xibs(XIBS)
+    message("finalized xibs ${XIBS}")
     target_sources(erachnid PRIVATE ${XIBS})
     set_target_properties(erachnid PROPERTIES RESOURCE "${XIBS}")
 
