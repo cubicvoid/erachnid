@@ -6,7 +6,7 @@
 
 const clap_plugin_descriptor_t s_my_plug_desc = {
    .clap_version = CLAP_VERSION_INIT,
-   .id = "me.faec.erachnid",
+   .id = "me.faec.erachnid.test",
    .name = "erachnid test",
    .vendor = "cubicvoid",
    .url = "https://faec.me",

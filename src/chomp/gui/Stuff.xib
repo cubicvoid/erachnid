@@ -8,7 +8,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="FAESimpleClass">
             <connections>
-                <outlet property="someView" destination="AGq-9A-C3k" id="teg-na-wcP"/>
                 <outlet property="view" destination="AGq-9A-C3k" id="3gG-jO-Iri"/>
             </connections>
         </customObject>

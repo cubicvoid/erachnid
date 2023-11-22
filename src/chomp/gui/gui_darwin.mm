@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
 
-#import "gui.h"
+#import "gui.hh"
 
 #import "chomp_impl.hh"
 
@@ -73,24 +73,40 @@ private:
 };
 
 GUIWrapperDarwin::GUIWrapperDarwin(Plugin *_plugin) :
-  plugin(_plugin), /*rootView(nil),*/ controller(nullptr), width(500), height(300) {
+  plugin(_plugin), /*rootView(nil),*/ controller(nil),
+  width(500), height(300)
+{
+  int value;
+  plugin->Log("GUIWrapperDarwin(%lx)  (this: %lx, stack: %lx)",
+    reinterpret_cast<long>(_plugin), reinterpret_cast<long>(this),
+    reinterpret_cast<long>(&value));
+
 }
 
 bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
-  plugin->Log("gui_create(%s, %d)", api, static_cast<int>(is_floating));
+  int value;
+  plugin->Log("gui_create(%s, %d)  (this: %lx, stack: %lx)",
+    api, static_cast<int>(is_floating),
+    reinterpret_cast<long>(this), reinterpret_cast<long>(&value));
   NSBundle *bundle = [NSBundle bundleWithIdentifier:@"me.faec.erachnid"];
   if (bundle == nil) {
     plugin->Log("couldn't load plugin bundle");
     return false;
   } else {
-    plugin->Log("got bundle");
+    plugin->Log("got bundle %lx", reinterpret_cast<long>(bundle));
   }
-  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
+  NSNib *nib = [NSNib alloc];
+	NSLog(@"allocated nib: %lx", reinterpret_cast<long>(nib));
+  plugin->Log("allocated nib: %lx", reinterpret_cast<long>(nib));
+  bool responds = [nib respondsToSelector:@selector(initWithNibNamed:bundle:)];
+  plugin->Log("responds to initWithNibNamed:bundle:  %d", static_cast<int>(responds));
+  nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
+  //nib = [nib initWithNibNamed:@"lskjdfkldsjf" bundle:nil];
   if (nib == nil) {
     plugin->Log("couldn't load Stuff.nib from bundle");
     return false;//@"couldn't load Stuff.nib from bundle";
   } else {
-    plugin->Log("loaded Stuff.nib");
+    plugin->Log("loaded Stuff.nib: %lx", reinterpret_cast<long>(nib));
   }
 
   controller = [[FAESimpleClass alloc] initWithPlugin:plugin];
@@ -105,7 +121,7 @@ bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
 }
 
 void GUIWrapperDarwin::Destroy() {
-  plugin->Log("gui_destroy() (this=%x, controller=%x)", this, controller);
+  plugin->Log("gui_destroy() (this=%lx, controller=%lx)", reinterpret_cast<long>(this), controller);
   if (controller != nil) {
     [controller.view removeFromSuperview];
     [controller release];
@@ -126,7 +142,7 @@ void GUIWrapperDarwin::Destroy() {
       plugin->Log("resetting rootView to nil");
       rootView = nil;
     }
-    plugin->Log("gui_destroy finished (this=%x, rootView=%x)", this, rootView);
+    plugin->Log("gui_destroy finished (this=%lx, rootView=%lx)", this, rootView);
   //}
   */
 }
@@ -157,9 +173,6 @@ bool GUIWrapperDarwin::CanResize() {
   bool result = (controller != nil);
   plugin->Log("gui_can_resize() -> %d", static_cast<int>(result));
   return result;
-  // bool result = (rootView != nullptr);
-  // plugin->Log("gui_can_resize() -> %d (this=%x, rootView=%x)", static_cast<int>(result), this, rootView);
-  // return result;
 }
 
 bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
@@ -182,15 +195,15 @@ bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
 }
 
 bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
-  // plugin->Log("gui_set_parent(%x) -> 1", window->cocoa);
+  // plugin->Log("gui_set_parent(%lx) -> 1", window->cocoa);
   // return true;
   NSView *container = reinterpret_cast<NSView *>(window->cocoa);
   if (controller != nullptr) {
-    plugin->Log("gui_set_parent(%x) -> 1", container);
+    plugin->Log("gui_set_parent(%lx) -> 1", container);
     [container addSubview:controller.view];
     return true;
   }
-  plugin->Log("gui_set_parent(%x) -> 0", container);
+  plugin->Log("gui_set_parent(%lx) -> 0", container);
   return false;
 }
 

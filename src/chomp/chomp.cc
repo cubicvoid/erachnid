@@ -9,18 +9,15 @@
 
 #include "bridge.hh"
 #include "chomp_impl.hh"
-#include "gui/gui.h"
+#include "gui/gui.hh"
 #include "params.hh"
 #include "reaper_plugin.h"
-
-void CLAP_ABI nilLog(const clap_host_t *host, int pluginID, const char *msg) {}
 
 namespace chomp {
 
 FILE *logFile = nullptr;
 
-Plugin::Plugin(const clap_host_t *_host)
-    : host(_host), log(nilLog), processing(false), active(false) {
+Plugin::Plugin(const clap_host_t *_host) : processing(false), active(false) {
   static int count = 0;
   pluginID = count++;
 

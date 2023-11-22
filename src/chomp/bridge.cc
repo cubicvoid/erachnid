@@ -8,18 +8,7 @@
 #include <cstring>
 
 #include "chomp_impl.hh"
-#include "gui/gui.h"
-
-#define REAPERAPI_IMPLEMENT
-/*#define REAPERAPI_MINIMAL
-#define REAPERAPI_WANT_PeakBuild_Create
-#define REAPERAPI_WANT_format_timestr
-#define REAPERAPI_WANT_update_disk_counters
-#define REAPERAPI_WANT_PCM_Source_CreateFromSimple
-#define REAPERAPI_WANT_GetPreferredDiskWriteMode
-#define REAPERAPI_WANT_get_ini_file
-#define REAPER_PLUGIN_FUNCTIONS_IMPL_LOADFUNC*/
-
+#include "gui/gui.hh"
 #include "reaper_plugin.h"
 #include "reaper_plugin_functions.h"
 
@@ -27,14 +16,14 @@ namespace chomp {
 
 clap_plugin_descriptor_t plugin_desc = {
     .clap_version = CLAP_VERSION_INIT,
-    .id = "me.faec.erachnid.bitesu",
-    .name = "bites u",
+    .id = "me.faec.erachnid.chomp",
+    .name = "erachid chomp",
     .vendor = "cubicvoid",
     .url = "https://faec.me",
     .manual_url = "https://your-domain.com/your-plugin/manual",
     .support_url = "https://your-domain.com/support",
     .version = "0.0.1",
-    .description = "~fae~",
+    .description = "midi-triggered amp envelopes",
     .features = (const char *[]
     ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
 };
