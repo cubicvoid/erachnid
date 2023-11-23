@@ -7,17 +7,19 @@ add_library(erachnid MODULE
   reaper.c
 )
 
+add_subdirectory(common)
 add_subdirectory(gui)
 add_subdirectory(chomp)
 add_subdirectory(starry)
-add_subdirectory(with_feeling)
-add_subdirectory(faes_modulation)
+add_subdirectory(gryphus)
 
 target_link_libraries(erachnid PRIVATE
   #gui-shared
+  common
   clap
   chomp
 	starry
+  gryphus
 ¥)
 
 

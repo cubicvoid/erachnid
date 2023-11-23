@@ -31,10 +31,6 @@ set(CMAKE_CXX_STANDARD 20)
 # Copy on mac (could expand to other platforms)
 option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" FALSE)
 
-include_directories(
-    lib/WDL/WDL
-    lib/reaper-sdk/sdk
-)
-add_subdirectory(lib/clap EXCLUDE_FROM_ALL)
+add_subdirectory(lib EXCLUDE_FROM_ALL)
 add_subdirectory(src)
 
