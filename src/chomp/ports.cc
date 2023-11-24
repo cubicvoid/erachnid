@@ -5,9 +5,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "chomp_impl.hh"
+#include "chomp.hh"
 
-namespace chomp {
+namespace erachnid::chomp {
 
 uint32_t Plugin::NotePortsCount(bool is_input) {
   Log("chomp_note_ports_count");
@@ -50,4 +50,4 @@ bool Plugin::AudioPortsGet(
   return true;
 }
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

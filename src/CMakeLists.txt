@@ -16,6 +16,7 @@ add_subdirectory(gryphus)
 target_link_libraries(erachnid PRIVATE
   #gui-shared
   common
+  reaper-sdk
   clap
   chomp
 	starry

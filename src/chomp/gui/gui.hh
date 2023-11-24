@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace chomp {
+namespace erachnid::chomp {
 
 class Plugin;
 
@@ -27,4 +27,4 @@ class GUIWrapper {
   virtual bool Hide() = 0;
 };
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

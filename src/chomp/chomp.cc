@@ -1,3 +1,5 @@
+#include "chomp.hh"
+
 #include <clap/clap.h>
 #include <sys/time.h>
 
@@ -8,16 +10,29 @@
 #include <format>
 
 #include "bridge.hh"
-#include "chomp_impl.hh"
 #include "gui/gui.hh"
 #include "params.hh"
 #include "reaper_plugin.h"
 
-namespace chomp {
+namespace erachnid::chomp {
+
+const clap_plugin_descriptor_t plugin_desc = {
+    .clap_version = CLAP_VERSION_INIT,
+    .id = "me.faec.erachnid.chomp",
+    .name = "erachnid chomp",
+    .vendor = "cubicvoid",
+    .url = "https://faec.me",
+    .manual_url = "https://your-domain.com/your-plugin/manual",
+    .support_url = "https://your-domain.com/support",
+    .version = "0.0.1",
+    .description = "midi-triggered amp envelopes",
+    .features = (const char *[]
+    ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
+};
 
 FILE *logFile = nullptr;
 
-Plugin::Plugin(const clap_host_t *_host) : processing(false), active(false) {
+Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   static int count = 0;
   pluginID = count++;
 
@@ -26,8 +41,9 @@ Plugin::Plugin(const clap_host_t *_host) : processing(false), active(false) {
   }
   Log("plugin_create()");
 
-  init_plugin(&plugin, reinterpret_cast<void *>(this));
-  gui.reset(GUIWrapper::New(this));
+  // init_plugin(&plugin, reinterpret_cast<void *>(this));
+  // TODO: reactivate the gui
+  // gui.reset(GUIWrapper::New(this));
 
   AddParam(
       ParamIDRats, "rats", "something", 0, 100, 50,
@@ -70,20 +86,6 @@ bool Plugin::Init() {
 
   // Fetch host's extensions here
   // Make sure to check that the interface functions are not null pointers
-  const clap_host_log_t *ext_log = reinterpret_cast<const clap_host_log_t *>(
-      host->get_extension(host, CLAP_EXT_LOG)
-  );
-  if (ext_log != nullptr && ext_log->log != nullptr) {
-    log = ext_log->log;
-  }
-
-  const clap_host_gui_t *ext_gui = reinterpret_cast<const clap_host_gui_t *>(
-      host->get_extension(host, CLAP_EXT_GUI)
-  );
-  if (ext_gui != nullptr) {
-    // ext_gui->request_show()
-    // ext_gui->
-  }
 
   const reaper_plugin_info_t *reaper =
       reinterpret_cast<const reaper_plugin_info_t *>(
@@ -92,14 +94,6 @@ bool Plugin::Init() {
   if (reaper != nullptr) {
     Log("Got a REAPER extension?!?!");
   }
-
-  host_thread_check = (const clap_host_thread_check_t *)host->get_extension(
-      host, CLAP_EXT_THREAD_CHECK
-  );
-  host_latency =
-      (const clap_host_latency_t *)host->get_extension(host, CLAP_EXT_LATENCY);
-  host_state =
-      (const clap_host_state_t *)host->get_extension(host, CLAP_EXT_STATE);
   return true;
 }
 
@@ -125,4 +119,4 @@ void Plugin::Deactivate() {
 
 void Plugin::Reset() {}
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

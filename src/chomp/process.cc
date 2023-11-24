@@ -6,9 +6,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "chomp_impl.hh"
+#include "chomp.hh"
 
-namespace chomp {
+namespace erachnid::chomp {
 
 void Plugin::NoteOn(const clap_event_note_t *note) { envTarget = 1.0; }
 
@@ -164,4 +164,4 @@ void Plugin::ProcessEvent(const clap_event_header_t *hdr) {
   }
 }
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

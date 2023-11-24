@@ -2,7 +2,7 @@
 
 #include "gui_darwin.h"
 
-namespace chomp {
+namespace erachnid::chomp {
 
 GUIWrapper* GUIWrapper::New(Plugin* plugin) {
   // If we supported more than one platform, this is where we would
@@ -12,4 +12,4 @@ GUIWrapper* GUIWrapper::New(Plugin* plugin) {
 
 GUIWrapper::~GUIWrapper() {}
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

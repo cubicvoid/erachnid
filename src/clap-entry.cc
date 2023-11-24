@@ -3,22 +3,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <concepts>
+
 #include "chomp.hh"
-#include "example.h"
+#include "clap_plugin.hh"
+
+using namespace erachnid;
 
 struct PluginEntry {
   const clap_plugin_descriptor_t *desc;
   clap_plugin_t *(CLAP_ABI *create)(const clap_host_t *host);
 };
 
+template <class PluginType>
+clap_plugin_t *plugin_create(const clap_host_t *host) {
+  static_assert(std::is_base_of<CLAPPlugin, PluginType>::value);
+  PluginType *p = new PluginType(host);
+  return p->RawPlugin();
+}
+
 static PluginEntry s_plugins[] = {
-    {
+    /*{
         .desc = &s_my_plug_desc,
         .create = my_plug_create,
-    },
+    },*/
     {
         .desc = &chomp::plugin_desc,
-        .create = chomp::plugin_create,
+        .create = plugin_create<chomp::Plugin>,
     },
 };
 

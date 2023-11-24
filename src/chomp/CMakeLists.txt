@@ -1,11 +1,12 @@
 add_library(chomp OBJECT
     chomp.cc
-    chomp_impl.hh
-    params.cc
+    #chomp_impl.hh
+    #params.cc
     process.cc
     ports.cc
-    bridge.cc
-    gui/gui.cc)
+    #bridge.cc
+    gui/gui.cc
+    include/chomp.hh)
 
 if(APPLE)
     target_sources(chomp PRIVATE gui/gui_darwin.mm)
@@ -15,4 +16,9 @@ endif()
 
 target_include_directories(chomp PUBLIC include)
 target_include_directories(chomp PRIVATE .)
-target_link_libraries(chomp PRIVATE clap reaper-sdk)
+target_link_libraries(chomp
+    PRIVATE
+        clap
+        reaper-sdk
+    PUBLIC
+        erachnid-common)

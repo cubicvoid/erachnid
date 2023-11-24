@@ -1,17 +1,19 @@
+#include "params.hh"
+
 #include <sys/time.h>
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-#include "chomp_impl.hh"
+#include "clap_plugin.hh"
 
-namespace chomp {
+namespace erachnid {
 
 // std::vector<Param *> Param::all;
 // std::vector<Param *> Param::active;
 
-void Plugin::AddParam(
+void CLAPPlugin::AddParam(
     ParamID     id,
     std::string name,
     std::string module,
@@ -33,7 +35,7 @@ void Plugin::AddParam(
 }
 
 // Called on plugin activation
-void Plugin::RefreshParameters() {
+void CLAPPlugin::RefreshParameters() {
   /*paramsActive.clear();
   for (auto param : paramsAll) {
     if (param->Active(*this)) {
@@ -47,13 +49,14 @@ void Plugin::RefreshParameters() {
 
 // uint32_t Param::Count() { return static_cast<uint32_t>(active.size()); }
 
-uint32_t Plugin::ParamCount() {
+uint32_t CLAPPlugin::ParamCount() {
   uint32_t result = 0;  // static_cast<uint32_t>(paramsActive.size());
-  Log("ParamCount() -> %d", result);
   return result;
 }
 
-bool Plugin::ParamGetInfo(uint32_t param_index, clap_param_info_t *param_info) {
+bool CLAPPlugin::ParamGetInfo(
+    uint32_t param_index, clap_param_info_t *param_info
+) {
   if (param_index >= paramsActive.size()) {
     return false;
   }
@@ -62,7 +65,7 @@ bool Plugin::ParamGetInfo(uint32_t param_index, clap_param_info_t *param_info) {
   return true;
 }
 
-bool Plugin::ParamGetValue(clap_id param_id, double *out_value) {
+bool CLAPPlugin::ParamGetValue(clap_id param_id, double *out_value) {
   for (const Param *param : paramsActive) {
     if (param->info.id == param_id) {
       *out_value = param->value;
@@ -72,7 +75,7 @@ bool Plugin::ParamGetValue(clap_id param_id, double *out_value) {
   return false;
 }
 
-bool Plugin::ParamValueToText(
+bool CLAPPlugin::ParamValueToText(
     clap_id  param_id,
     double   value,
     char    *out_buffer,
@@ -88,7 +91,7 @@ bool Plugin::ParamValueToText(
   return false;
 }
 
-bool Plugin::ParamTextToValue(
+bool CLAPPlugin::ParamTextToValue(
     clap_id param_id, const char *param_value_text, double *out_value
 ) {
   for (const Param *param : paramsActive) {
@@ -100,7 +103,7 @@ bool Plugin::ParamTextToValue(
   return false;
 }
 
-void Plugin::ParamFlush(
+void CLAPPlugin::ParamFlush(
     const clap_input_events_t *in, const clap_output_events_t *out
 ) {}
-}  // namespace chomp
+}  // namespace erachnid

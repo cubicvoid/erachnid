@@ -14,20 +14,6 @@
 
 namespace erachnid {
 
-clap_plugin_descriptor_t plugin_desc = {
-    .clap_version = CLAP_VERSION_INIT,
-    .id = "me.faec.erachnid.chomp",
-    .name = "erachnid chomp",
-    .vendor = "cubicvoid",
-    .url = "https://faec.me",
-    .manual_url = "https://your-domain.com/your-plugin/manual",
-    .support_url = "https://your-domain.com/support",
-    .version = "0.0.1",
-    .description = "midi-triggered amp envelopes",
-    .features = (const char *[]
-    ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
-};
-
 namespace {
 
   CLAP_ABI bool plugin_init(const struct clap_plugin *_plugin) {
@@ -356,24 +342,24 @@ namespace {
 
 }  // namespace
 
-clap_plugin_t *plugin_create(const clap_host_t *host) {
+/*clap_plugin_t *plugin_create(const clap_host_t *host) {
   chomp::Plugin *p = new chomp::Plugin(host);
   return &p->plugin;
-}
+}*/
 
-void init_plugin(clap_plugin_t *plugin, void *data) {
-  plugin->desc = &plugin_desc;
-  plugin->init = plugin_init;
-  plugin->destroy = plugin_destroy;
-  plugin->activate = plugin_activate;
-  plugin->deactivate = plugin_deactivate;
-  plugin->start_processing = plugin_start_processing;
-  plugin->stop_processing = plugin_stop_processing;
-  plugin->reset = plugin_reset;
-  plugin->process = plugin_process;
-  plugin->get_extension = plugin_get_extension;
-  plugin->on_main_thread = plugin_on_main_thread;
-  plugin->plugin_data = data;
+void CLAPPlugin::InitRawPlugin(const clap_plugin_descriptor_t *desc) {
+  rawPlugin.desc = desc;
+  rawPlugin.init = plugin_init;
+  rawPlugin.destroy = plugin_destroy;
+  rawPlugin.activate = plugin_activate;
+  rawPlugin.deactivate = plugin_deactivate;
+  rawPlugin.start_processing = plugin_start_processing;
+  rawPlugin.stop_processing = plugin_stop_processing;
+  rawPlugin.reset = plugin_reset;
+  rawPlugin.process = plugin_process;
+  rawPlugin.get_extension = plugin_get_extension;
+  rawPlugin.on_main_thread = plugin_on_main_thread;
+  rawPlugin.plugin_data = reinterpret_cast<void *>(this);
 }
 
 }  // namespace erachnid

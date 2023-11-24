@@ -2,11 +2,11 @@
 
 #include <memory>
 
-namespace chomp {
+namespace erachnid::chomp {
 
 class GUIWrapper;
 class Plugin;
 
 GUIWrapper* NewGUIWrapperDarwin(Plugin* plugin);
 
-}  // namespace chomp
+}  // namespace erachnid::chomp

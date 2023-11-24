@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-namespace chomp {
+namespace erachnid {
 
-class Plugin;
+class CLAPPlugin;
 
 enum ParamID {
   ParamIDRats,
@@ -65,4 +65,4 @@ enum ParamID {
   }
 };*/
 
-}  // namespace chomp
+}  // namespace erachnid

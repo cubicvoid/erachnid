@@ -4,7 +4,7 @@ cmake_policy(SET CMP0100 NEW) # handle .hh files
 if(MSVC)
     add_compile_options(/W3)
 else()
-    add_compile_options(-W -Wall)
+    add_compile_options(-W -Wall -Wno-unused-parameter)
 endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")

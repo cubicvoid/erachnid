@@ -11,8 +11,12 @@
 
 namespace erachnid {
 
-CLAPPlugin::CLAPPlugin(const clap_host_t *_host)
+CLAPPlugin::CLAPPlugin(
+    const clap_host_t *_host, const clap_plugin_descriptor_t *desc
+)
     : host(_host), processing(false), active(false) {
+  InitRawPlugin(desc);
+
   // this is a hacky way of assigning a unique id to each plugin
   // instance, but it's only used for debug logging:
   static int count = 0;

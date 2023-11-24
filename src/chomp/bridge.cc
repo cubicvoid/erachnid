@@ -7,32 +7,16 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "chomp_impl.hh"
+#include "chomp.hh"
 #include "gui/gui.hh"
 #include "reaper_plugin.h"
 #include "reaper_plugin_functions.h"
 
-namespace chomp {
-
-clap_plugin_descriptor_t plugin_desc = {
-    .clap_version = CLAP_VERSION_INIT,
-    .id = "me.faec.erachnid.chomp",
-    .name = "erachid chomp",
-    .vendor = "cubicvoid",
-    .url = "https://faec.me",
-    .manual_url = "https://your-domain.com/your-plugin/manual",
-    .support_url = "https://your-domain.com/support",
-    .version = "0.0.1",
-    .description = "midi-triggered amp envelopes",
-    .features = (const char *[]
-    ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
-};
-
-}  // namespace chomp
-
+// namespace chomp {}  // namespace chomp
+#if 0
 namespace {
 
-using namespace chomp;
+using namespace erachnid::chomp;
 
 bool chomp_init(const struct clap_plugin *_plugin) {
   chomp::Plugin *plugin =
@@ -398,7 +382,7 @@ clap_plugin_t *plugin_create(const clap_host_t *host) {
   return &p->plugin;
 }
 
-void init_plugin(clap_plugin_t *plugin, void *data) {
+/*void init_plugin(clap_plugin_t *plugin, void *data) {
   plugin->desc = &plugin_desc;
   plugin->init = chomp_init;
   plugin->destroy = chomp_destroy;
@@ -411,6 +395,7 @@ void init_plugin(clap_plugin_t *plugin, void *data) {
   plugin->get_extension = chomp_get_extension;
   plugin->on_main_thread = chomp_on_main_thread;
   plugin->plugin_data = data;
-}
+}*/
 
 }  // namespace chomp
+#endif

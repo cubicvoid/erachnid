@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "clap_gui.hh"
+#include "params.hh"
 
 namespace erachnid {
 
@@ -16,7 +17,8 @@ class CLAPGUI;
 
 class CLAPPlugin {
  public:
-  CLAPPlugin(const clap_host_t *_host);
+  CLAPPlugin(const clap_host_t *_host, const clap_plugin_descriptor_t *desc);
+  virtual ~CLAPPlugin();
 
   clap_process_status Process(const clap_process_t *process);
 
@@ -28,7 +30,10 @@ class CLAPPlugin {
   virtual void Deactivate() = 0;
   virtual void Reset() = 0;
 
-  virtual bool StartProcessing() { processing = true; }
+  virtual bool StartProcessing() {
+    processing = true;
+    return true;
+  }
   virtual void StopProcessing() { processing = false; }
 
   virtual uint32_t NotePortsCount(bool is_input);
@@ -58,7 +63,6 @@ class CLAPPlugin {
   virtual void ParamFlush(
       const clap_input_events_t *in, const clap_output_events_t *out
   );
-  clap_plugin_t plugin;
 
   bool GUIIsAPISupported(const char *api, bool is_floating) {
     return gui->IsAPISupported(api, is_floating);
@@ -90,7 +94,27 @@ class CLAPPlugin {
   bool GUIShow() { return gui->Show(); }
   bool GUIHide() { return gui->Hide(); }
 
+  clap_plugin_t *RawPlugin() { return &rawPlugin; }
+
  protected:
+  struct Param {
+    Param(clap_param_info_t _info, double _value)
+        : info(_info), value(_value) {}
+    clap_param_info_t info;
+    double            value;
+  };
+
+  void AddParam(
+      ParamID     id,
+      std::string name,
+      std::string module,
+      double      minValue,
+      double      maxValue,
+      double      defaultValue,
+      uint64_t    flags
+  );
+  void RefreshParameters();
+
   const clap_host_t *host;
 
   int  pluginID;
@@ -98,6 +122,14 @@ class CLAPPlugin {
   bool processing;
 
   std::unique_ptr<CLAPGUI> gui;
+
+ private:
+  void InitRawPlugin(const clap_plugin_descriptor_t *desc);
+
+  clap_plugin_t rawPlugin;
+
+  std::vector<Param *> paramsAll;
+  std::vector<Param *> paramsActive;
 };
 
 }  // namespace erachnid

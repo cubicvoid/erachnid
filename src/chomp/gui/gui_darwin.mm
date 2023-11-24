@@ -2,18 +2,18 @@
 
 #import "gui.hh"
 
-#import "chomp_impl.hh"
+#import "chomp.hh"
 
 #if __has_feature(objc_arc)
 #error "ARC is on"
 #endif
 
-namespace chomp {
+namespace erachnid::chomp {
   class GUIWrapperDarwin;
 }
 
 @interface FAESimpleClass : NSObject {
-  chomp::Plugin *_plugin;
+  erachnid::chomp::Plugin *_plugin;
 }
 
 @property (nonatomic, retain) IBOutlet NSView *view;
@@ -24,7 +24,7 @@ namespace chomp {
 
 @implementation FAESimpleClass
 
-- (id)initWithPlugin:(chomp::Plugin *)plugin {
+- (id)initWithPlugin:(erachnid::chomp::Plugin *)plugin {
   self = [super init];
   if (self != nil) {
     _plugin = plugin;
@@ -41,7 +41,7 @@ namespace chomp {
 @end
 
 
-namespace chomp {
+namespace erachnid::chomp {
 
 
 
