@@ -36,15 +36,15 @@ class CLAPPlugin {
   }
   virtual void StopProcessing() { processing = false; }
 
-  virtual uint32_t NotePortsCount(bool is_input);
+  virtual uint32_t NotePortsCount(bool is_input) = 0;
   virtual bool     NotePortsGet(
           uint32_t index, bool is_input, clap_note_port_info_t *info
-      );
+      ) = 0;
 
-  virtual uint32_t AudioPortsCount(bool is_input);
+  virtual uint32_t AudioPortsCount(bool is_input) = 0;
   virtual bool     AudioPortsGet(
           uint32_t index, bool is_input, clap_audio_port_info_t *info
-      );
+      ) = 0;
 
   virtual uint32_t ParamCount();
   virtual bool     ParamGetInfo(

@@ -232,7 +232,8 @@ namespace {
   bool plugin_gui_get_resize_hints(
       const clap_plugin_t *_plugin, clap_gui_resize_hints_t *hints
   ) {
-    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    // CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin
+    // *>(_plugin->plugin_data);
 
     // TODO
     return false;
@@ -307,7 +308,8 @@ namespace {
   const void *plugin_get_extension(
       const struct clap_plugin *_plugin, const char *id
   ) {
-    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    // CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin
+    // *>(_plugin->plugin_data);
 
     // if (!strcmp(id, CLAP_EXT_LATENCY))
     //    return &s_my_plug_latency;
@@ -330,7 +332,8 @@ namespace {
   }
 
   void plugin_on_main_thread(const struct clap_plugin *_plugin) {
-    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    // CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin
+    // *>(_plugin->plugin_data);
     /*const clap_host_params_t *host_params =
         reinterpret_cast<const clap_host_params_t *>(
             plugin->host->get_extension(plugin->host, CLAP_EXT_PARAMS)

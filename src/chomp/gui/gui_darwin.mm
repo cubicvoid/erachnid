@@ -182,8 +182,8 @@ bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
 
 bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
   //plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
-  // this->width = width;
-  // this->height = height;
+  this->width = width;
+  this->height = height;
   // return true;
   if (controller != nil) {
     plugin->Log("gui_set_size(width: %d, height: %d) -> 1", width, height);

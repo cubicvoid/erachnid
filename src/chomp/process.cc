@@ -108,8 +108,8 @@ void Plugin::ProcessEvent(const clap_event_header_t *hdr) {
       }
 
       case CLAP_EVENT_NOTE_CHOKE: {
-        const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
-        // TODO: handle note choke
+        // const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
+        //  TODO: handle note choke
         break;
       }
 

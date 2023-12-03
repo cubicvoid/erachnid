@@ -4,7 +4,7 @@ endif()
 
 add_library(erachnid MODULE
   clap-entry.cc
-  reaper.c
+  reaper.cc
 )
 
 add_subdirectory(common)
@@ -15,13 +15,13 @@ add_subdirectory(gryphus)
 
 target_link_libraries(erachnid PRIVATE
   #gui-shared
-  common
+  erachnid-common
   reaper-sdk
   clap
   chomp
 	starry
-  gryphus
-¥)
+  #gryphus
+)
 
 
 if(APPLE)

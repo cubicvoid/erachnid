@@ -65,8 +65,8 @@ void Plugin::Log(const char *format...) {
     int  msec;
 
     struct timeval tv;
-    time_t         t = static_cast<time_t>(tv.tv_sec);
-    struct tm     *timeinfo;
+    // time_t         t = static_cast<time_t>(tv.tv_sec);
+    struct tm *timeinfo;
     gettimeofday(&tv, nullptr);
     timeinfo = localtime(&tv.tv_sec);
     strftime(timeStr, sizeof(timeStr), "%F %T", timeinfo);

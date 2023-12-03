@@ -1,3 +1,10 @@
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include "swell/swell.h"
+#endif
+
 #define REAPERAPI_IMPLEMENT
 /*#define REAPERAPI_MINIMAL
 #define REAPERAPI_WANT_PeakBuild_Create
