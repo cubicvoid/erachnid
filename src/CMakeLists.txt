@@ -34,7 +34,7 @@ if(APPLE)
     target_sources(erachnid PRIVATE "${XIBS}")
     set_target_properties(erachnid PROPERTIES RESOURCE "${XIBS}")
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES
+    set_target_properties(erachnid PROPERTIES
       BUNDLE True
       BUNDLE_EXTENSION clap
       MACOSX_BUNDLE_GUI_IDENTIFIER "me.faec.erachnid"
@@ -49,12 +49,12 @@ if(APPLE)
 
     if (${COPY_AFTER_BUILD})
       message(STATUS "Will copy plugin after every build" )
-      set(build_file, $<TARGET_FILE:mylibrary>)
+      set(build_file, $<TARGET_FILE:erachnid>)
       #set(products_folder "${CMAKE_BINARY_DIR}/src")
       #COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${PROJECT_NAME}.clap to ~/Library/Audio/Plug-Ins/CLAP/"
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND rm "-f" "~/Library/Audio/Plug-Ins/CLAP/erachnid.clap"
-        COMMAND ln -s "${build_file}" "~/Library/Audio/Plug-Ins/CLAP/erachnid.clap")
+        COMMAND ln -s "$<TARGET_BUNDLE_DIR:erachnid>" "~/Library/Audio/Plug-Ins/CLAP/erachnid.clap")
     endif()
 elseif(UNIX)
     target_compile_definitions(${PROJECT_NAME} PRIVATE IS_LINUX=1)
