@@ -9,7 +9,7 @@
 #endif
 
 namespace erachnid::chomp {
-  class GUIWrapperDarwin;
+  class ChompGUIDarwin;
 }
 
 @interface FAESimpleClass : NSObject {
@@ -45,10 +45,12 @@ namespace erachnid::chomp {
 
 
 
-class GUIWrapperDarwin : public GUIWrapper {
+class ChompGUIDarwin : public ChompGUI {
 public:
-  GUIWrapperDarwin(Plugin *_plugin);
+  ChompGUIDarwin(Plugin *_plugin);
 
+  virtual bool IsAPISupported(const char *api, bool is_floating);
+  virtual bool GetPreferredAPI(const char **api, bool *is_floating);
   virtual bool Create(const char *api, bool is_floating);
   virtual void Destroy();
   virtual bool SetScale(double scale);
@@ -72,18 +74,28 @@ private:
 
 };
 
-GUIWrapperDarwin::GUIWrapperDarwin(Plugin *_plugin) :
+ChompGUIDarwin::ChompGUIDarwin(Plugin *_plugin) :
   plugin(_plugin), /*rootView(nil),*/ controller(nil),
   width(500), height(300)
 {
   int value;
-  plugin->Log("GUIWrapperDarwin(%lx)  (this: %lx, stack: %lx)",
+  plugin->Log("ChompGUIDarwin(%lx)  (this: %lx, stack: %lx)",
     reinterpret_cast<long>(_plugin), reinterpret_cast<long>(this),
     reinterpret_cast<long>(&value));
 
 }
 
-bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
+bool ChompGUIDarwin::IsAPISupported(const char *api, bool is_floating) {
+  return strcmp(api, CLAP_WINDOW_API_COCOA) == 0 && !is_floating;
+}
+
+bool ChompGUIDarwin::GetPreferredAPI(const char **api, bool *is_floating) {
+  *api = CLAP_WINDOW_API_COCOA;
+  *is_floating = false;
+  return true;
+}
+
+bool ChompGUIDarwin::Create(const char *api, bool is_floating) {
   int value;
   plugin->Log("gui_create(%s, %d)  (this: %lx, stack: %lx)",
     api, static_cast<int>(is_floating),
@@ -120,7 +132,7 @@ bool GUIWrapperDarwin::Create(const char *api, bool is_floating) {
   return true;
 }
 
-void GUIWrapperDarwin::Destroy() {
+void ChompGUIDarwin::Destroy() {
   plugin->Log("gui_destroy() (this=%lx, controller=%lx)", reinterpret_cast<long>(this), controller);
   if (controller != nil) {
     [controller.view removeFromSuperview];
@@ -147,12 +159,12 @@ void GUIWrapperDarwin::Destroy() {
   */
 }
 
-bool GUIWrapperDarwin::SetScale(double scale) {
+bool ChompGUIDarwin::SetScale(double scale) {
   plugin->Log("gui_set_scale(%lf) -> 1", scale);
   return true;
 }
 
-bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
+bool ChompGUIDarwin::GetSize(uint32_t *width, uint32_t *height) {
   // *width = this->width;
   // *height = this->height;
   // plugin->Log("gui_get_size() -> width: %d, height: %d", *width, *height);
@@ -169,18 +181,18 @@ bool GUIWrapperDarwin::GetSize(uint32_t *width, uint32_t *height) {
   }
 }
 
-bool GUIWrapperDarwin::CanResize() {
+bool ChompGUIDarwin::CanResize() {
   bool result = (controller != nil);
   plugin->Log("gui_can_resize() -> %d", static_cast<int>(result));
   return result;
 }
 
-bool GUIWrapperDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
+bool ChompGUIDarwin::AdjustSize(uint32_t *width, uint32_t *height) {
   plugin->Log("gui_adjust_size(width: %d, height: %d) -> 1", *width, *height);
   return true;
 }
 
-bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
+bool ChompGUIDarwin::SetSize(uint32_t width, uint32_t height) {
   //plugin->Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
   this->width = width;
   this->height = height;
@@ -194,7 +206,7 @@ bool GUIWrapperDarwin::SetSize(uint32_t width, uint32_t height) {
   return false;
 }
 
-bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
+bool ChompGUIDarwin::SetParent(const clap_window_t *window) {
   // plugin->Log("gui_set_parent(%lx) -> 1", window->cocoa);
   // return true;
   NSView *container = reinterpret_cast<NSView *>(window->cocoa);
@@ -207,12 +219,12 @@ bool GUIWrapperDarwin::SetParent(const clap_window_t *window) {
   return false;
 }
 
-bool GUIWrapperDarwin::SetTransient(const clap_window_t *window) {
+bool ChompGUIDarwin::SetTransient(const clap_window_t *window) {
   plugin->Log("gui_set_transient()");
   return false;
 }
 
-bool GUIWrapperDarwin::Show() {
+bool ChompGUIDarwin::Show() {
   // plugin->Log("gui_show() -> 1");
   // return true;
   if (controller != nullptr) {
@@ -224,7 +236,7 @@ bool GUIWrapperDarwin::Show() {
   return false;
 }
 
-bool GUIWrapperDarwin::Hide() {
+bool ChompGUIDarwin::Hide() {
   //   plugin->Log("gui_hide() -> 1");
   // return true;
   if (controller != nil) {
@@ -236,8 +248,8 @@ bool GUIWrapperDarwin::Hide() {
   return false;
 }
 
-GUIWrapper* NewGUIWrapperDarwin(Plugin *plugin) {
-  return new GUIWrapperDarwin(plugin);
+ChompGUI* NewChompGUIDarwin(Plugin *plugin) {
+  return new ChompGUIDarwin(plugin);
 }
 
 }

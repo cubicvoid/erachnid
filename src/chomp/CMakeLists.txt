@@ -6,10 +6,13 @@ add_library(chomp OBJECT
     ports.cc
     #bridge.cc
     gui/gui.cc
+    gui/gui.hh
     include/chomp.hh)
 
 if(APPLE)
-    target_sources(chomp PRIVATE gui/gui_darwin.mm)
+    target_sources(chomp PRIVATE
+        gui/gui_darwin.mm
+        gui/gui_darwin.h)
     add_xib(gui/Stuff.xib)
 endif()
 

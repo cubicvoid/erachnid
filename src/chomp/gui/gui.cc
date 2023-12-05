@@ -1,15 +1,15 @@
 #include "gui.hh"
 
+#ifdef DARWIN
 #include "gui_darwin.h"
+#endif
 
 namespace erachnid::chomp {
 
-GUIWrapper* GUIWrapper::New(Plugin* plugin) {
+ChompGUI* ChompGUI::New(Plugin* plugin) {
   // If we supported more than one platform, this is where we would
-  // return the appropriate subclass of GUIWrapper.
-  return NewGUIWrapperDarwin(plugin);
+  // return the appropriate subclass of ChompGUI.
+  return NewChompGUIDarwin(plugin);
 }
-
-GUIWrapper::~GUIWrapper() {}
 
 }  // namespace erachnid::chomp

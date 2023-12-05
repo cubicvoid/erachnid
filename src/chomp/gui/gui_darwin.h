@@ -4,9 +4,9 @@
 
 namespace erachnid::chomp {
 
-class GUIWrapper;
+class ChompGUI;
 class Plugin;
 
-GUIWrapper* NewGUIWrapperDarwin(Plugin* plugin);
+ChompGUI* NewChompGUIDarwin(Plugin* plugin);
 
 }  // namespace erachnid::chomp

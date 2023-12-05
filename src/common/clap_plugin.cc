@@ -25,7 +25,9 @@ CLAPPlugin::CLAPPlugin(
 
 CLAPPlugin::~CLAPPlugin() {}
 
-clap_process_status erachnid::CLAPPlugin::Process(clap_process const *) {}
+clap_process_status erachnid::CLAPPlugin::Process(clap_process const *) {
+  return CLAP_PROCESS_CONTINUE;
+}
 
 bool CLAPPlugin::Init() { return true; }
 

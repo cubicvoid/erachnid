@@ -54,6 +54,8 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
       CLAP_PARAM_IS_AUTOMATABLE
   );
   RefreshParameters();
+
+  gui.reset(ChompGUI::New(this));
 }
 
 void Plugin::Log(const char *format...) {

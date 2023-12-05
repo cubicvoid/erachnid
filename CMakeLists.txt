@@ -7,6 +7,10 @@ else()
     add_compile_options(-W -Wall -Wno-unused-parameter)
 endif()
 
+if(APPLE)
+    add_compile_definitions(DARWIN)
+endif()
+
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Build for 10.13")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
