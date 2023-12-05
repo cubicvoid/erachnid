@@ -9,12 +9,12 @@
 
 namespace erachnid::chomp {
 
-uint32_t Plugin::NotePortsCount(bool is_input) {
+uint32_t ChompPlugin::NotePortsCount(bool is_input) {
   Log("chomp_note_ports_count");
   return 1;
 }
 
-bool Plugin::NotePortsGet(
+bool ChompPlugin::NotePortsGet(
     uint32_t index, bool is_input, clap_note_port_info_t *info
 ) {
   if (index > 0) return false;
@@ -25,12 +25,12 @@ bool Plugin::NotePortsGet(
   return true;
 }
 
-uint32_t Plugin::AudioPortsCount(bool is_input) {
+uint32_t ChompPlugin::AudioPortsCount(bool is_input) {
   Log("chomp_audio_ports_count(is_input: %d)", is_input);
   return 1;
 }
 
-bool Plugin::AudioPortsGet(
+bool ChompPlugin::AudioPortsGet(
     uint32_t index, bool is_input, clap_audio_port_info_t *info
 ) {
   Log("chomp_audio_ports_get(index: %d, is_input: %d)", index, is_input);

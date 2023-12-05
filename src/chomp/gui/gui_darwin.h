@@ -5,8 +5,8 @@
 namespace erachnid::chomp {
 
 class ChompGUI;
-class Plugin;
+class ChompPlugin;
 
-ChompGUI* NewChompGUIDarwin(Plugin* plugin);
+ChompGUI* NewChompGUIDarwin(ChompPlugin* plugin);
 
 }  // namespace erachnid::chomp

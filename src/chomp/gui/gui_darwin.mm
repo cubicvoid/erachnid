@@ -13,7 +13,7 @@ namespace erachnid::chomp {
 }
 
 @interface FAESimpleClass : NSObject {
-  erachnid::chomp::Plugin *_plugin;
+  erachnid::chomp::ChompPlugin *_plugin;
 }
 
 @property (nonatomic, retain) IBOutlet NSView *view;
@@ -24,7 +24,7 @@ namespace erachnid::chomp {
 
 @implementation FAESimpleClass
 
-- (id)initWithPlugin:(erachnid::chomp::Plugin *)plugin {
+- (id)initWithPlugin:(erachnid::chomp::ChompPlugin *)plugin {
   self = [super init];
   if (self != nil) {
     _plugin = plugin;
@@ -47,7 +47,7 @@ namespace erachnid::chomp {
 
 class ChompGUIDarwin : public ChompGUI {
 public:
-  ChompGUIDarwin(Plugin *_plugin);
+  ChompGUIDarwin(ChompPlugin *_plugin);
 
   virtual bool IsAPISupported(const char *api, bool is_floating);
   virtual bool GetPreferredAPI(const char **api, bool *is_floating);
@@ -65,7 +65,7 @@ public:
 
 private:
 
-  Plugin *plugin;
+  ChompPlugin *plugin;
   //NSView *rootView;
   FAESimpleClass *controller;
 
@@ -74,7 +74,7 @@ private:
 
 };
 
-ChompGUIDarwin::ChompGUIDarwin(Plugin *_plugin) :
+ChompGUIDarwin::ChompGUIDarwin(ChompPlugin *_plugin) :
   plugin(_plugin), /*rootView(nil),*/ controller(nil),
   width(500), height(300)
 {
@@ -248,7 +248,7 @@ bool ChompGUIDarwin::Hide() {
   return false;
 }
 
-ChompGUI* NewChompGUIDarwin(Plugin *plugin) {
+ChompGUI* NewChompGUIDarwin(ChompPlugin *plugin) {
   return new ChompGUIDarwin(plugin);
 }
 

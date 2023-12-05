@@ -6,11 +6,11 @@
 
 namespace erachnid::chomp {
 
-class Plugin;
+class ChompPlugin;
 
 class ChompGUI : public CLAPGUI {
  public:
-  static ChompGUI *New(Plugin *plugin);
+  static ChompGUI *New(ChompPlugin *plugin);
 };
 
 }  // namespace erachnid::chomp

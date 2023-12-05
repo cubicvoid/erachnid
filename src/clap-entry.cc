@@ -29,7 +29,7 @@ static PluginEntry s_plugins[] = {
     },*/
     {
         .desc = &chomp::plugin_desc,
-        .create = plugin_create<chomp::Plugin>,
+        .create = plugin_create<chomp::ChompPlugin>,
     },
 };
 

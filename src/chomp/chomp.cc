@@ -32,7 +32,8 @@ const clap_plugin_descriptor_t plugin_desc = {
 
 FILE *logFile = nullptr;
 
-Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
+ChompPlugin::ChompPlugin(const clap_host_t *_host)
+    : CLAPPlugin(_host, &plugin_desc) {
   static int count = 0;
   pluginID = count++;
 
@@ -58,7 +59,7 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   gui.reset(ChompGUI::New(this));
 }
 
-void Plugin::Log(const char *format...) {
+void ChompPlugin::Log(const char *format...) {
   if (logFile != nullptr) {
     va_list args;
     va_start(args, format);
@@ -83,7 +84,7 @@ void Plugin::Log(const char *format...) {
   }
 }
 
-bool Plugin::Init() {
+bool ChompPlugin::Init() {
   Log("plugin_init");
 
   // Fetch host's extensions here
@@ -99,14 +100,14 @@ bool Plugin::Init() {
   return true;
 }
 
-void Plugin::Destroy() {
+void ChompPlugin::Destroy() {
   Log("chomp_plug_destroy");
   /*if (logFile != nullptr) {
     fclose(logFile);
   }*/
 }
 
-bool Plugin::Activate(
+bool ChompPlugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {
   Log("chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
@@ -114,11 +115,11 @@ bool Plugin::Activate(
   return true;
 }
 
-void Plugin::Deactivate() {
+void ChompPlugin::Deactivate() {
   Log("chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
       noteOnCount, noteOffCount, midiCount, sampleCount);
 }
 
-void Plugin::Reset() {}
+void ChompPlugin::Reset() {}
 
 }  // namespace erachnid::chomp

@@ -10,18 +10,18 @@
 
 namespace erachnid::chomp {
 
-void Plugin::NoteOn(const clap_event_note_t *note) { envTarget = 1.0; }
+void ChompPlugin::NoteOn(const clap_event_note_t *note) { envTarget = 1.0; }
 
-void Plugin::NoteOff(const clap_event_note_t *note) { envTarget = 0.0; }
+void ChompPlugin::NoteOff(const clap_event_note_t *note) { envTarget = 0.0; }
 
-bool Plugin::StartProcessing() {
+bool ChompPlugin::StartProcessing() {
   processing = true;
   return true;
 }
 
-void Plugin::StopProcessing() { processing = false; }
+void ChompPlugin::StopProcessing() { processing = false; }
 
-clap_process_status Plugin::Process(const clap_process_t *process) {
+clap_process_status ChompPlugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;
   const uint32_t eventCount = process->in_events->size(process->in_events);
   uint32_t       eventIndex = 0;
@@ -86,7 +86,7 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
   return CLAP_PROCESS_CONTINUE;
 }
 
-void Plugin::ProcessEvent(const clap_event_header_t *hdr) {
+void ChompPlugin::ProcessEvent(const clap_event_header_t *hdr) {
   if (hdr->space_id == CLAP_CORE_EVENT_SPACE_ID) {
     switch (hdr->type) {
       case CLAP_EVENT_NOTE_ON: {

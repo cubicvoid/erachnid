@@ -17,9 +17,9 @@ class GUIWrapper;
 
 struct Voice {};
 
-class Plugin : public CLAPPlugin {
+class ChompPlugin : public CLAPPlugin {
  public:
-  Plugin(const clap_host_t *_host);
+  ChompPlugin(const clap_host_t *_host);
 
   clap_process_status Process(const clap_process_t *process);
 
