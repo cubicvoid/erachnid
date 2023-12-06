@@ -2,7 +2,7 @@
 
 //#import "gui.hh"
 
-#import "chomp.hh"
+#import "chomp_plugin.hh"
 
 #if __has_feature(objc_arc)
 #error "ARC is on"

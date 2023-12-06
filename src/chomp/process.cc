@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "chomp.hh"
+#include "chomp_plugin.hh"
 
 namespace erachnid::chomp {
 

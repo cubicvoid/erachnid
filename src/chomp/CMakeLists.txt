@@ -1,12 +1,14 @@
-add_library(chomp OBJECT
-    chomp.cc
-    #chomp_impl.hh
-    #params.cc
-    process.cc
-    ports.cc
-    #bridge.cc
-    include/chomp.hh)
-
+add_library(chomp STATIC)
+target_sources(chomp
+    PUBLIC
+        chomp.cc
+        include/chomp.hh
+    PRIVATE
+        chomp_plugin.cc
+        chomp_plugin.hh
+        process.cc
+        ports.cc
+)
 
 if(APPLE)
     target_sources(chomp PRIVATE
@@ -15,9 +17,9 @@ if(APPLE)
     add_xib(gui/Stuff.xib)
 endif()
 
-
 target_include_directories(chomp PUBLIC include)
 target_include_directories(chomp PRIVATE .)
+
 target_link_libraries(chomp
     PRIVATE
         clap
