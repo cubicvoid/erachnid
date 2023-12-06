@@ -9,8 +9,12 @@
 #include <cstring>
 #include <format>
 
+#ifdef DARWIN
+#include "gui/chomp_gui_darwin.h"
+#endif
+
 // #include "bridge.hh"
-#include "gui/gui.hh"
+// #include "gui/gui.hh"
 #include "params.hh"
 #include "reaper_plugin.h"
 
@@ -29,6 +33,14 @@ const clap_plugin_descriptor_t plugin_desc = {
     .features = (const char *[]
     ){CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
 };
+
+clap_plugin_t *PluginCreate(const clap_host_t *host) {
+  ChompPlugin *p;
+#ifdef DARWIN
+  p = NewChompPluginDarwin(host);
+#endif
+  return p->RawPlugin();
+}
 
 FILE *logFile = nullptr;
 
@@ -55,8 +67,6 @@ ChompPlugin::ChompPlugin(const clap_host_t *_host)
       CLAP_PARAM_IS_AUTOMATABLE
   );
   RefreshParameters();
-
-  gui.reset(ChompGUI::New(this));
 }
 
 void ChompPlugin::Log(const char *format...) {

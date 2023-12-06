@@ -64,35 +64,19 @@ class CLAPPlugin {
       const clap_input_events_t *in, const clap_output_events_t *out
   );
 
-  bool GUIIsAPISupported(const char *api, bool is_floating) {
-    return gui->IsAPISupported(api, is_floating);
-  }
-  bool GUIGetPreferredAPI(const char **api, bool *is_floating) {
-    return gui->GetPreferredAPI(api, is_floating);
-  }
-  bool GUICreate(const char *api, bool is_floating) {
-    return gui->Create(api, is_floating);
-  }
-  bool GUISetScale(double scale) { return gui->SetScale(scale); }
-  void GUIDestroy() { return gui->Destroy(); }
-  bool GUIGetSize(uint32_t *width, uint32_t *height) {
-    return gui->GetSize(width, height);
-  }
-  bool GUICanResize() { return gui->CanResize(); }
-  bool GUIAdjustSize(uint32_t *width, uint32_t *height) {
-    return gui->AdjustSize(width, height);
-  }
-  bool GUISetSize(uint32_t width, uint32_t height) {
-    return gui->SetSize(width, height);
-  }
-  bool GUISetParent(const clap_window_t *window) {
-    return gui->SetParent(window);
-  }
-  bool GUISetTransient(const clap_window_t *window) {
-    return gui->SetTransient(window);
-  }
-  bool GUIShow() { return gui->Show(); }
-  bool GUIHide() { return gui->Hide(); }
+  virtual bool GUIIsAPISupported(const char *api, bool is_floating) = 0;
+  virtual bool GUIGetPreferredAPI(const char **api, bool *is_floating) = 0;
+  virtual bool GUICreate(const char *api, bool is_floating) = 0;
+  virtual bool GUISetScale(double scale) = 0;
+  virtual void GUIDestroy() = 0;
+  virtual bool GUIGetSize(uint32_t *width, uint32_t *height) = 0;
+  virtual bool GUICanResize() = 0;
+  virtual bool GUIAdjustSize(uint32_t *width, uint32_t *height) = 0;
+  virtual bool GUISetSize(uint32_t width, uint32_t height) = 0;
+  virtual bool GUISetParent(const clap_window_t *window) = 0;
+  virtual bool GUISetTransient(const clap_window_t *window) = 0;
+  virtual bool GUIShow() = 0;
+  virtual bool GUIHide() = 0;
 
   clap_plugin_t *RawPlugin() { return &rawPlugin; }
 
@@ -120,8 +104,6 @@ class CLAPPlugin {
   int  pluginID;
   bool active;
   bool processing;
-
-  std::unique_ptr<CLAPGUI> gui;
 
  private:
   void InitRawPlugin(const clap_plugin_descriptor_t *desc);

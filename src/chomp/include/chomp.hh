@@ -13,10 +13,10 @@
 
 namespace erachnid::chomp {
 
-class GUIWrapper;
-
 struct Voice {};
 
+// Abstract class for Chomp (concrete implementations for each GUI
+// platform, which so far is just darwin)
 class ChompPlugin : public CLAPPlugin {
  public:
   ChompPlugin(const clap_host_t *_host);
@@ -45,16 +45,11 @@ class ChompPlugin : public CLAPPlugin {
 
   void Log(const char *format...);
 
-  // std::unique_ptr<GUIWrapper> gui;
-  //  const clap_window_t        *window;
-
   void (*log)(const clap_host_t *host, int pluginID, const char *msg);
 
   uint32_t latency;
 
-  int  pluginID;
-  bool active;
-  bool processing;
+  int pluginID;
 
  private:
   void ProcessEvent(const clap_event_header_t *hdr);
@@ -71,5 +66,6 @@ class ChompPlugin : public CLAPPlugin {
 };
 
 extern const clap_plugin_descriptor_t plugin_desc;
+clap_plugin_t                        *PluginCreate(const clap_host_t *host);
 
 }  // namespace erachnid::chomp

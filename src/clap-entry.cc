@@ -15,13 +15,6 @@ struct PluginEntry {
   clap_plugin_t *(CLAP_ABI *create)(const clap_host_t *host);
 };
 
-template <class PluginType>
-clap_plugin_t *plugin_create(const clap_host_t *host) {
-  static_assert(std::is_base_of<CLAPPlugin, PluginType>::value);
-  PluginType *p = new PluginType(host);
-  return p->RawPlugin();
-}
-
 static PluginEntry s_plugins[] = {
     /*{
         .desc = &s_my_plug_desc,
@@ -29,7 +22,7 @@ static PluginEntry s_plugins[] = {
     },*/
     {
         .desc = &chomp::plugin_desc,
-        .create = plugin_create<chomp::ChompPlugin>,
+        .create = chomp::PluginCreate,
     },
 };
 
