@@ -1,27 +1,26 @@
 #include <clap/clap.h>
 
-#include "starry_plugin.hh"
+#include "weave_plugin.hh"
 
 #ifdef DARWIN
-// #include "gui/starry_gui_darwin.h"
+// #include "gui/weave_gui_darwin.h"
 #endif
 
-namespace erachnid::starry {
+namespace erachnid::weave {
 
 // Needs to be explicitly declared extern so it isn't just linked internally
 extern const clap_plugin_descriptor_t plugin_desc;
 const clap_plugin_descriptor_t        plugin_desc = {
            .clap_version = CLAP_VERSION_INIT,
-           .id = "me.faec.erachnid.starry",
-           .name = "erachnid starry",
+           .id = "me.faec.erachnid.weave",
+           .name = "erachnid weave",
            .vendor = "cubicvoid",
            .url = "https://faec.me",
            .manual_url = "https://faec.me",
            .support_url = "https://faec.me",
            .version = "0.0.1",
-           .description = "additive synthesizer with skewed harmonics",
-           .features = (const char *[]
-    ){CLAP_PLUGIN_FEATURE_INSTRUMENT, CLAP_PLUGIN_FEATURE_STEREO, NULL},
+           .description = "perform step-sequenced midi clips",
+           .features = (const char *[]){CLAP_PLUGIN_FEATURE_NOTE_EFFECT, NULL},
 };
 
 clap_plugin_t *PluginCreate(const clap_host_t *host) {
@@ -33,4 +32,4 @@ clap_plugin_t *PluginCreate(const clap_host_t *host) {
   return NULL;
 }
 
-}  // namespace erachnid::starry
+}  // namespace erachnid::weave

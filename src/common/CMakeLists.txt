@@ -9,4 +9,7 @@ add_library(erachnid-common OBJECT
 )
 
 target_include_directories(erachnid-common PUBLIC .)
-target_link_libraries(erachnid-common PRIVATE clap)
+target_link_libraries(erachnid-common
+	PRIVATE
+		clap
+		reaper-sdk)

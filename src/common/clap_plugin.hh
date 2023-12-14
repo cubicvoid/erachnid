@@ -10,6 +10,7 @@
 
 #include "clap_gui.hh"
 #include "params.hh"
+#include "reaper_plugin.h"
 
 namespace erachnid {
 
@@ -22,29 +23,41 @@ class CLAPPlugin {
 
   clap_process_status Process(const clap_process_t *process);
 
-  virtual bool Init() = 0;
-  virtual void Destroy() = 0;
+  virtual bool Init();
+  virtual void Destroy();
   virtual bool Activate(
       double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
-  ) = 0;
-  virtual void Deactivate() = 0;
-  virtual void Reset() = 0;
+  );
+  virtual void Deactivate();
+  virtual void Reset();
 
   virtual bool StartProcessing() {
-    processing = true;
+    _processing = true;
     return true;
   }
-  virtual void StopProcessing() { processing = false; }
+  virtual void StopProcessing() { _processing = false; }
 
-  virtual uint32_t NotePortsCount(bool is_input) = 0;
-  virtual bool     NotePortsGet(
-          uint32_t index, bool is_input, clap_note_port_info_t *info
-      ) = 0;
+  // If default settings and names are ok, only override NotePortsCount.
+  // If names matter, also override NotePortsName.
+  virtual uint32_t NotePortsCount(bool is_input);
 
-  virtual uint32_t AudioPortsCount(bool is_input) = 0;
-  virtual bool     AudioPortsGet(
-          uint32_t index, bool is_input, clap_audio_port_info_t *info
-      ) = 0;
+  // dest points to a buffer of size CLAP_NAME_SIZE
+  virtual void NotePortsName(uint32_t index, bool is_input, char *dest);
+
+  // If default settings and names are ok, only override AudioPortsCount.
+  // If names matter, also override AudioPortsName.
+  virtual uint32_t AudioPortsCount(bool is_input);
+
+  // dest points to a buffer of size CLAP_NAME_SIZE
+  virtual void AudioPortsName(uint32_t index, bool is_input, char *dest);
+
+  bool NotePortsEnabled();
+  bool NotePortsGet(uint32_t index, bool is_input, clap_note_port_info_t *info);
+
+  bool AudioPortsEnabled();
+  bool AudioPortsGet(
+      uint32_t index, bool is_input, clap_audio_port_info_t *info
+  );
 
   virtual uint32_t ParamCount();
   virtual bool     ParamGetInfo(
@@ -64,21 +77,34 @@ class CLAPPlugin {
       const clap_input_events_t *in, const clap_output_events_t *out
   );
 
-  virtual bool GUIIsAPISupported(const char *api, bool is_floating) = 0;
-  virtual bool GUIGetPreferredAPI(const char **api, bool *is_floating) = 0;
-  virtual bool GUICreate(const char *api, bool is_floating) = 0;
-  virtual bool GUISetScale(double scale) = 0;
-  virtual void GUIDestroy() = 0;
-  virtual bool GUIGetSize(uint32_t *width, uint32_t *height) = 0;
-  virtual bool GUICanResize() = 0;
-  virtual bool GUIAdjustSize(uint32_t *width, uint32_t *height) = 0;
-  virtual bool GUISetSize(uint32_t width, uint32_t height) = 0;
-  virtual bool GUISetParent(const clap_window_t *window) = 0;
-  virtual bool GUISetTransient(const clap_window_t *window) = 0;
-  virtual bool GUIShow() = 0;
-  virtual bool GUIHide() = 0;
+  virtual bool GUIEnabled() { return false; }
+  virtual bool GUIIsAPISupported(const char *api, bool is_floating) {
+    return false;
+  }
+  virtual bool GUIGetPreferredAPI(const char **api, bool *is_floating) {
+    return false;
+  }
+  virtual bool GUICreate(const char *api, bool is_floating) { return false; }
+  virtual bool GUISetScale(double scale) { return false; }
+  virtual void GUIDestroy() {}
+  virtual bool GUIGetSize(uint32_t *width, uint32_t *height) { return false; }
+  virtual bool GUICanResize() { return false; }
+  virtual bool GUIAdjustSize(uint32_t *width, uint32_t *height) {
+    return false;
+  }
+  virtual bool GUISetSize(uint32_t width, uint32_t height) { return false; }
+  virtual bool GUISetParent(const clap_window_t *window) { return false; }
+  virtual bool GUISetTransient(const clap_window_t *window) { return false; }
+  virtual bool GUIShow() { return false; }
+  virtual bool GUIHide() { return false; }
 
-  clap_plugin_t *RawPlugin() { return &rawPlugin; }
+  clap_plugin_t *RawPlugin() { return &_rawPlugin; }
+
+#ifdef NDEBUG
+  void Log(const char *format...) {}
+#else
+  void Log(const char *format...);
+#endif
 
  protected:
   struct Param {
@@ -99,16 +125,23 @@ class CLAPPlugin {
   );
   void RefreshParameters();
 
-  const clap_host_t *host;
+  const clap_host_t *_host;
 
-  int  pluginID;
-  bool active;
-  bool processing;
+  int  _pluginID;
+  bool _active;
+  bool _processing;
+
+  // Only valid when _active is true (between calls to Activate and Deactivate)
+  double   _sample_rate;
+  uint32_t _min_frames_count;
+  uint32_t _max_frames_count;
+
+  const reaper_plugin_info_t *_reaper;
 
  private:
   void InitRawPlugin(const clap_plugin_descriptor_t *desc);
 
-  clap_plugin_t rawPlugin;
+  clap_plugin_t _rawPlugin;
 
   std::vector<Param *> paramsAll;
   std::vector<Param *> paramsActive;

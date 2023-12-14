@@ -308,14 +308,14 @@ namespace {
   const void *plugin_get_extension(
       const struct clap_plugin *_plugin, const char *id
   ) {
-    // CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin
-    // *>(_plugin->plugin_data);
+    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
 
     // if (!strcmp(id, CLAP_EXT_LATENCY))
     //    return &s_my_plug_latency;
-    if (strcmp(id, CLAP_EXT_AUDIO_PORTS) == 0) {
+    if (plugin->AudioPortsEnabled() && strcmp(id, CLAP_EXT_AUDIO_PORTS) == 0) {
       return &s_plugin_audio_ports;
-    } else if (strcmp(id, CLAP_EXT_NOTE_PORTS) == 0) {
+    }
+    if (plugin->NotePortsEnabled() && strcmp(id, CLAP_EXT_NOTE_PORTS) == 0) {
       return &s_plugin_note_ports;
     }
     /*if (!strcmp(id, CLAP_EXT_STATE))
@@ -324,7 +324,7 @@ namespace {
       return &s_plugin_params;
     }
 
-    if (strcmp(id, CLAP_EXT_GUI) == 0) {
+    if (plugin->GUIEnabled() && strcmp(id, CLAP_EXT_GUI) == 0) {
       return &s_plugin_gui;
     }
     // TODO: add support to CLAP_EXT_PARAMS
@@ -351,18 +351,18 @@ namespace {
 }*/
 
 void CLAPPlugin::InitRawPlugin(const clap_plugin_descriptor_t *desc) {
-  rawPlugin.desc = desc;
-  rawPlugin.init = plugin_init;
-  rawPlugin.destroy = plugin_destroy;
-  rawPlugin.activate = plugin_activate;
-  rawPlugin.deactivate = plugin_deactivate;
-  rawPlugin.start_processing = plugin_start_processing;
-  rawPlugin.stop_processing = plugin_stop_processing;
-  rawPlugin.reset = plugin_reset;
-  rawPlugin.process = plugin_process;
-  rawPlugin.get_extension = plugin_get_extension;
-  rawPlugin.on_main_thread = plugin_on_main_thread;
-  rawPlugin.plugin_data = reinterpret_cast<void *>(this);
+  _rawPlugin.desc = desc;
+  _rawPlugin.init = plugin_init;
+  _rawPlugin.destroy = plugin_destroy;
+  _rawPlugin.activate = plugin_activate;
+  _rawPlugin.deactivate = plugin_deactivate;
+  _rawPlugin.start_processing = plugin_start_processing;
+  _rawPlugin.stop_processing = plugin_stop_processing;
+  _rawPlugin.reset = plugin_reset;
+  _rawPlugin.process = plugin_process;
+  _rawPlugin.get_extension = plugin_get_extension;
+  _rawPlugin.on_main_thread = plugin_on_main_thread;
+  _rawPlugin.plugin_data = reinterpret_cast<void *>(this);
 }
 
 }  // namespace erachnid

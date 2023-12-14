@@ -22,16 +22,11 @@ namespace erachnid::chomp {
 
 extern const clap_plugin_descriptor_t plugin_desc;
 
-FILE *logFile = nullptr;
-
 ChompPlugin::ChompPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {
   static int count = 0;
   pluginID = count++;
 
-  if (logFile == nullptr) {
-    logFile = fopen("/Users/fae/chomp.log", "wb");
-  }
   Log("plugin_create()");
 
   // init_plugin(&plugin, reinterpret_cast<void *>(this));
@@ -49,67 +44,4 @@ ChompPlugin::ChompPlugin(const clap_host_t *_host)
   RefreshParameters();
 }
 
-void ChompPlugin::Log(const char *format...) {
-  if (logFile != nullptr) {
-    va_list args;
-    va_start(args, format);
-
-    char timeStr[64];
-    int  msec;
-
-    struct timeval tv;
-    // time_t         t = static_cast<time_t>(tv.tv_sec);
-    struct tm *timeinfo;
-    gettimeofday(&tv, nullptr);
-    timeinfo = localtime(&tv.tv_sec);
-    strftime(timeStr, sizeof(timeStr), "%F %T", timeinfo);
-    msec = static_cast<int>(tv.tv_usec / 1000);
-
-    char buf[256];
-    snprintf(
-        buf, sizeof(buf), "[%d] %s.%03d %s\n", pluginID, timeStr, msec, format
-    );
-    vfprintf(logFile, buf, args);
-    fflush(logFile);
-  }
 }
-
-bool ChompPlugin::Init() {
-  Log("plugin_init");
-
-  // Fetch host's extensions here
-  // Make sure to check that the interface functions are not null pointers
-
-  const reaper_plugin_info_t *reaper =
-      reinterpret_cast<const reaper_plugin_info_t *>(
-          host->get_extension(host, "cockos.reaper_extension")
-      );
-  if (reaper != nullptr) {
-    Log("Got a REAPER extension?!?!");
-  }
-  return true;
-}
-
-void ChompPlugin::Destroy() {
-  Log("chomp_plug_destroy");
-  /*if (logFile != nullptr) {
-    fclose(logFile);
-  }*/
-}
-
-bool ChompPlugin::Activate(
-    double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
-) {
-  Log("chomp_plug_activate(%lf, %d, %d)", sample_rate, min_frames_count,
-      max_frames_count);
-  return true;
-}
-
-void ChompPlugin::Deactivate() {
-  Log("chomp_plug_deactivate (%d note on, %d note off, %d midi, %d samples)",
-      noteOnCount, noteOffCount, midiCount, sampleCount);
-}
-
-void ChompPlugin::Reset() {}
-
-}  // namespace erachnid::chomp

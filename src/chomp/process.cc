@@ -14,13 +14,6 @@ void ChompPlugin::NoteOn(const clap_event_note_t *note) { envTarget = 1.0; }
 
 void ChompPlugin::NoteOff(const clap_event_note_t *note) { envTarget = 0.0; }
 
-bool ChompPlugin::StartProcessing() {
-  processing = true;
-  return true;
-}
-
-void ChompPlugin::StopProcessing() { processing = false; }
-
 clap_process_status ChompPlugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;
   const uint32_t eventCount = process->in_events->size(process->in_events);
@@ -79,7 +72,7 @@ clap_process_status ChompPlugin::Process(const clap_process_t *process) {
   if (sampleCount > 10000 && sampleCount - frameCount <= 10000) {
     // one-time restart for testing
     // host->request_restart(host);
-    host->request_callback(host);
+    _host->request_callback(_host);
     return CLAP_PROCESS_SLEEP;
   }
 
@@ -114,49 +107,51 @@ void ChompPlugin::ProcessEvent(const clap_event_header_t *hdr) {
       }
 
       case CLAP_EVENT_NOTE_EXPRESSION: {
-        const clap_event_note_expression_t *ev =
-            (const clap_event_note_expression_t *)hdr;
+        // const clap_event_note_expression_t *ev =
+        //     (const clap_event_note_expression_t *)hdr;
         // TODO: handle note expression
         break;
       }
 
       case CLAP_EVENT_PARAM_VALUE: {
-        const clap_event_param_value_t *ev =
-            (const clap_event_param_value_t *)hdr;
+        // const clap_event_param_value_t *ev =
+        //     (const clap_event_param_value_t *)hdr;
         // TODO: handle parameter change
         break;
       }
 
       case CLAP_EVENT_PARAM_MOD: {
-        const clap_event_param_mod_t *ev = (const clap_event_param_mod_t *)hdr;
-        // TODO: handle parameter modulation
+        // const clap_event_param_mod_t *ev = (const clap_event_param_mod_t
+        // *)hdr;
+        //  TODO: handle parameter modulation
         break;
       }
 
       case CLAP_EVENT_TRANSPORT: {
-        const clap_event_transport_t *ev = (const clap_event_transport_t *)hdr;
-        // TODO: handle transport event
+        // const clap_event_transport_t *ev = (const clap_event_transport_t
+        // *)hdr;
+        //  TODO: handle transport event
         break;
       }
 
       case CLAP_EVENT_MIDI: {
-        const clap_event_midi_t *ev = (const clap_event_midi_t *)hdr;
+        // const clap_event_midi_t *ev = (const clap_event_midi_t *)hdr;
         midiCount++;
         // TODO: handle MIDI event
         break;
       }
 
       case CLAP_EVENT_MIDI_SYSEX: {
-        const clap_event_midi_sysex_t *ev =
-            (const clap_event_midi_sysex_t *)hdr;
+        // const clap_event_midi_sysex_t *ev =
+        //     (const clap_event_midi_sysex_t *)hdr;
         midiCount++;
         // TODO: handle MIDI Sysex event
         break;
       }
 
       case CLAP_EVENT_MIDI2: {
-        const clap_event_midi2_t *ev = (const clap_event_midi2_t *)hdr;
-        // TODO: handle MIDI2 event
+        // const clap_event_midi2_t *ev = (const clap_event_midi2_t *)hdr;
+        //  TODO: handle MIDI2 event
         midiCount++;
         break;
       }

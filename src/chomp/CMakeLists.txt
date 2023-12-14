@@ -7,7 +7,6 @@ target_sources(chomp
         chomp_plugin.cc
         chomp_plugin.hh
         process.cc
-        ports.cc
 )
 
 if(APPLE)
