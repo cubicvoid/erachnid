@@ -24,14 +24,7 @@ extern const clap_plugin_descriptor_t plugin_desc;
 
 ChompPlugin::ChompPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {
-  static int count = 0;
-  pluginID = count++;
-
   Log("plugin_create()");
-
-  // init_plugin(&plugin, reinterpret_cast<void *>(this));
-  // TODO: reactivate the gui
-  // gui.reset(GUIWrapper::New(this));
 
   AddParam(
       ParamIDRats, "rats", "something", 0, 100, 50,

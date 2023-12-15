@@ -21,19 +21,10 @@ class ChompPlugin : public CLAPPlugin {
 
   virtual clap_process_status Process(const clap_process_t *process);
 
-  virtual bool Init();
-  virtual void Destroy();
-  virtual void Deactivate();
-  virtual bool Activate(
-      double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
-  );
-
   virtual uint32_t NotePortsCount(bool is_input) { return 1; }
   virtual uint32_t AudioPortsCount(bool is_input) { return 1; }
 
   uint32_t latency;
-
-  int pluginID;
 
  private:
   void ProcessEvent(const clap_event_header_t *hdr);
