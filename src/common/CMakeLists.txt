@@ -4,8 +4,8 @@ add_library(erachnid-common OBJECT
 	clap_gui.hh
 	clap_plugin.cc
 	clap_plugin.hh
-	params.cc
-	params.hh
+	clap_param.cc
+	clap_param.hh
 )
 
 target_include_directories(erachnid-common PUBLIC .)

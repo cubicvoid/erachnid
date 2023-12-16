@@ -8,8 +8,8 @@
 #include <cstring>
 #include <memory>
 
+#include "clap_param.hh"
 #include "clap_plugin.hh"
-#include "params.hh"
 
 namespace erachnid::chomp {
 

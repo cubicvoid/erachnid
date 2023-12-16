@@ -15,26 +15,26 @@
 
 // #include "bridge.hh"
 // #include "gui/gui.hh"
-#include "params.hh"
+#include "clap_param.hh"
 #include "reaper_plugin.h"
 
-namespace erachnid::chomp {
+enum { PARAM_RATS, PARAM_ATTACK };
 
+namespace erachnid::chomp {
 extern const clap_plugin_descriptor_t plugin_desc;
 
 ChompPlugin::ChompPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {
   Log("plugin_create()");
 
-  AddParam(
-      ParamIDRats, "rats", "something", 0, 100, 50,
+  AddParam(new CLAPParam(
+      PARAM_RATS, "rats", "something", 0, 100, 50,
       CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
-  );
-  AddParam(
-      ParamIDAttack, "attack", "something else", 0.0, 1.0, 0.0,
+  ));
+  AddParam(new CLAPParam(
+      PARAM_ATTACK, "attack", "something else", 0.0, 1.0, 0.0,
       CLAP_PARAM_IS_AUTOMATABLE
-  );
-  RefreshParameters();
+  ));
 }
 
-}
+}  // namespace erachnid::chomp

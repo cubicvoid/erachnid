@@ -122,23 +122,25 @@ namespace {
 
   uint32_t plugin_params_count(const clap_plugin_t *_plugin) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    return plugin->ParamCount();
+    return plugin->ParamsCount();
   }
 
   bool plugin_params_get_info(
-      const clap_plugin_t *_plugin,
+      const clap_plugin_t *raw_plugin,
       uint32_t             param_index,
       clap_param_info_t   *param_info
   ) {
-    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    return plugin->ParamGetInfo(param_index, param_info);
+    CLAPPlugin *plugin =
+        reinterpret_cast<CLAPPlugin *>(raw_plugin->plugin_data);
+    return plugin->ParamsGetInfo(param_index, param_info);
   }
 
   bool plugin_params_get_value(
-      const clap_plugin_t *_plugin, clap_id param_id, double *out_value
+      const clap_plugin_t *raw_plugin, clap_id param_id, double *out_value
   ) {
-    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    return plugin->ParamGetValue(param_id, out_value);
+    CLAPPlugin *plugin =
+        reinterpret_cast<CLAPPlugin *>(raw_plugin->plugin_data);
+    return plugin->ParamsGetValue(param_id, out_value);
   }
 
   bool plugin_params_value_to_text(
@@ -149,7 +151,7 @@ namespace {
       uint32_t             out_buffer_capacity
   ) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    return plugin->ParamValueToText(
+    return plugin->ParamsValueToText(
         param_id, value, out_buffer, out_buffer_capacity
     );
   }
@@ -161,7 +163,7 @@ namespace {
       double              *out_value
   ) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    return plugin->ParamTextToValue(param_id, param_value_text, out_value);
+    return plugin->ParamsTextToValue(param_id, param_value_text, out_value);
   }
 
   void plugin_params_flush(
@@ -170,7 +172,7 @@ namespace {
       const clap_output_events_t *out
   ) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
-    plugin->ParamFlush(in, out);
+    plugin->ParamsFlush(in, out);
   }
 
   const clap_plugin_params_t s_plugin_params = {
@@ -351,18 +353,18 @@ namespace {
 }*/
 
 void CLAPPlugin::InitRawPlugin(const clap_plugin_descriptor_t *desc) {
-  _rawPlugin.desc = desc;
-  _rawPlugin.init = plugin_init;
-  _rawPlugin.destroy = plugin_destroy;
-  _rawPlugin.activate = plugin_activate;
-  _rawPlugin.deactivate = plugin_deactivate;
-  _rawPlugin.start_processing = plugin_start_processing;
-  _rawPlugin.stop_processing = plugin_stop_processing;
-  _rawPlugin.reset = plugin_reset;
-  _rawPlugin.process = plugin_process;
-  _rawPlugin.get_extension = plugin_get_extension;
-  _rawPlugin.on_main_thread = plugin_on_main_thread;
-  _rawPlugin.plugin_data = reinterpret_cast<void *>(this);
+  _raw_plugin.desc = desc;
+  _raw_plugin.init = plugin_init;
+  _raw_plugin.destroy = plugin_destroy;
+  _raw_plugin.activate = plugin_activate;
+  _raw_plugin.deactivate = plugin_deactivate;
+  _raw_plugin.start_processing = plugin_start_processing;
+  _raw_plugin.stop_processing = plugin_stop_processing;
+  _raw_plugin.reset = plugin_reset;
+  _raw_plugin.process = plugin_process;
+  _raw_plugin.get_extension = plugin_get_extension;
+  _raw_plugin.on_main_thread = plugin_on_main_thread;
+  _raw_plugin.plugin_data = reinterpret_cast<void *>(this);
 }
 
 }  // namespace erachnid

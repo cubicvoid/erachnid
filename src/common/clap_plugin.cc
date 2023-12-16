@@ -3,13 +3,14 @@
 #include <clap/clap.h>
 #include <sys/time.h>
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <format>
 
-static FILE *logFile = nullptr;
+static FILE *_log_file = nullptr;
 
 namespace erachnid {
 
@@ -18,12 +19,10 @@ CLAPPlugin::CLAPPlugin(
 )
     : _host(host), _active(false), _processing(false) {
 #ifndef NDEBUG
-  // this is a hacky way of assigning a unique id to each plugin
-  // instance, but it's only used for debug logging:
-  static int count = 0;
-  _pluginID = count++;
-  if (logFile == nullptr) {
-    logFile = fopen("/Users/fae/chomp.log", "wb");
+  static std::atomic<int> count(0);
+  _plugin_id = count.fetch_add(1);
+  if (_log_file == nullptr) {
+    _log_file = fopen("/Users/fae/chomp.log", "wb");
   }
 #endif
 
@@ -126,9 +125,36 @@ bool CLAPPlugin::AudioPortsGet(
   return true;
 }
 
+bool CLAPPlugin::ParamsValueToText(
+    clap_id  param_id,
+    double   value,
+    char    *out_buffer,
+    uint32_t out_buffer_capacity
+) {
+  auto it = _params_lookup.find(param_id);
+  if (it == _params_lookup.end()) {
+    return false;
+  }
+  return (it->second)->ValueToText(value, out_buffer, out_buffer_capacity);
+}
+
+bool CLAPPlugin::ParamsTextToValue(
+    clap_id param_id, const char *param_value_text, double *out_value
+) {
+  auto it = _params_lookup.find(param_id);
+  if (it == _params_lookup.end()) {
+    return false;
+  }
+  return (it->second)->TextToValue(param_value_text, out_value);
+}
+
+void CLAPPlugin::ParamsFlush(
+    const clap_input_events_t *in, const clap_output_events_t *out
+) {}
+
 #ifndef NDEBUG
 void CLAPPlugin::Log(const char *format...) {
-  if (logFile != nullptr) {
+  if (_log_file != nullptr) {
     va_list args;
     va_start(args, format);
 
@@ -145,10 +171,10 @@ void CLAPPlugin::Log(const char *format...) {
 
     char buf[256];
     snprintf(
-        buf, sizeof(buf), "[%d] %s.%03d %s\n", _pluginID, timeStr, msec, format
+        buf, sizeof(buf), "[%d] %s.%03d %s\n", _plugin_id, timeStr, msec, format
     );
-    vfprintf(logFile, buf, args);
-    fflush(logFile);
+    vfprintf(_log_file, buf, args);
+    fflush(_log_file);
   }
 }
 #endif

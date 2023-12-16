@@ -6,10 +6,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <memory>
 
 #include "clap_gui.hh"
-#include "params.hh"
+#include "clap_param.hh"
 #include "reaper_plugin.h"
 
 namespace erachnid {
@@ -59,21 +60,21 @@ class CLAPPlugin {
       uint32_t index, bool is_input, clap_audio_port_info_t *info
   );
 
-  virtual uint32_t ParamCount();
-  virtual bool     ParamGetInfo(
+  virtual uint32_t ParamsCount();
+  virtual bool     ParamsGetInfo(
           uint32_t param_index, clap_param_info_t *param_info
       );
-  virtual bool ParamGetValue(clap_id param_id, double *out_value);
-  virtual bool ParamValueToText(
+  virtual bool ParamsGetValue(clap_id param_id, double *out_value);
+  virtual bool ParamsValueToText(
       clap_id  param_id,
       double   value,
       char    *out_buffer,
       uint32_t out_buffer_capacity
   );
-  virtual bool ParamTextToValue(
+  virtual bool ParamsTextToValue(
       clap_id param_id, const char *param_value_text, double *out_value
   );
-  virtual void ParamFlush(
+  virtual void ParamsFlush(
       const clap_input_events_t *in, const clap_output_events_t *out
   );
 
@@ -98,7 +99,7 @@ class CLAPPlugin {
   virtual bool GUIShow() { return false; }
   virtual bool GUIHide() { return false; }
 
-  clap_plugin_t *RawPlugin() { return &_rawPlugin; }
+  clap_plugin_t *RawPlugin() { return &_raw_plugin; }
 
 #ifdef NDEBUG
   void Log(const char *format...) {}
@@ -107,27 +108,11 @@ class CLAPPlugin {
 #endif
 
  protected:
-  struct Param {
-    Param(clap_param_info_t _info, double _value)
-        : info(_info), value(_value) {}
-    clap_param_info_t info;
-    double            value;
-  };
-
-  void AddParam(
-      ParamID     id,
-      std::string name,
-      std::string module,
-      double      minValue,
-      double      maxValue,
-      double      defaultValue,
-      uint64_t    flags
-  );
-  void RefreshParameters();
+  void AddParam(CLAPParam *param){};
 
   const clap_host_t *_host;
 
-  int  _pluginID;
+  int  _plugin_id;
   bool _active;
   bool _processing;
 
@@ -141,10 +126,10 @@ class CLAPPlugin {
  private:
   void InitRawPlugin(const clap_plugin_descriptor_t *desc);
 
-  clap_plugin_t _rawPlugin;
+  clap_plugin_t _raw_plugin;
 
-  std::vector<Param *> paramsAll;
-  std::vector<Param *> paramsActive;
+  std::vector<CLAPParam *>       _params;
+  std::map<clap_id, CLAPParam *> _params_lookup;
 };
 
 }  // namespace erachnid
