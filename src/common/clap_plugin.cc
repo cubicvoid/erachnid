@@ -22,7 +22,7 @@ CLAPPlugin::CLAPPlugin(
   static std::atomic<int> count(0);
   _plugin_id = count.fetch_add(1);
   if (_log_file == nullptr) {
-    _log_file = fopen("/Users/fae/chomp.log", "wb");
+    _log_file = fopen("/Users/fae/erachnid.log", "wb");
   }
 #endif
 
@@ -131,26 +131,38 @@ bool CLAPPlugin::ParamsValueToText(
     char    *out_buffer,
     uint32_t out_buffer_capacity
 ) {
-  auto it = _params_lookup.find(param_id);
-  if (it == _params_lookup.end()) {
+  CLAPParam *param = ParamForID(param_id);
+  if (param == nullptr) {
     return false;
   }
-  return (it->second)->ValueToText(value, out_buffer, out_buffer_capacity);
+  return param->ValueToText(value, out_buffer, out_buffer_capacity);
 }
 
 bool CLAPPlugin::ParamsTextToValue(
     clap_id param_id, const char *param_value_text, double *out_value
 ) {
-  auto it = _params_lookup.find(param_id);
-  if (it == _params_lookup.end()) {
+  CLAPParam *param = ParamForID(param_id);
+  if (param == nullptr) {
     return false;
   }
-  return (it->second)->TextToValue(param_value_text, out_value);
+  return param->TextToValue(param_value_text, out_value);
 }
 
 void CLAPPlugin::ParamsFlush(
     const clap_input_events_t *in, const clap_output_events_t *out
-) {}
+) {
+  int size = in->size(in);
+  for (int i = 0; i < size; i++) {
+    const clap_event_header_t *header = in->get(in, i);
+    if (header->type == CLAP_EVENT_PARAM_VALUE) {
+      const clap_event_param_value_t *param_value =
+          reinterpret_cast<const clap_event_param_value_t *>(header);
+    } else if (header->type == CLAP_EVENT_PARAM_MOD) {
+      const clap_event_param_mod_t *param_mod =
+          reinterpret_cast<const clap_event_param_mod_t *>(header);
+    }
+  }
+}
 
 #ifndef NDEBUG
 void CLAPPlugin::Log(const char *format...) {

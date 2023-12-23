@@ -7,6 +7,7 @@
 
 #include "chomp.hh"
 #include "clap_plugin.hh"
+#include "starry.hh"
 
 using namespace erachnid;
 
@@ -24,6 +25,10 @@ static PluginEntry s_plugins[] = {
         .desc = &chomp::plugin_desc,
         .create = chomp::PluginCreate,
     },
+    {
+        .desc = &starry::plugin_desc,
+        .create = starry::PluginCreate,
+    }
 };
 
 static uint32_t plugin_factory_get_plugin_count(

@@ -101,6 +101,14 @@ class CLAPPlugin {
 
   clap_plugin_t *RawPlugin() { return &_raw_plugin; }
 
+  CLAPParam *ParamForID(clap_id id) {
+    auto it = _params_lookup.find(id);
+    if (it == _params_lookup.end()) {
+      return nullptr;
+    }
+    return it->second;
+  }
+
 #ifdef NDEBUG
   void Log(const char *format...) {}
 #else
@@ -108,7 +116,10 @@ class CLAPPlugin {
 #endif
 
  protected:
-  void AddParam(CLAPParam *param){};
+  void AddParam(CLAPParam *param) {
+    _params.push_back(param);
+    _params_lookup[param->_id] = param;
+  };
 
   const clap_host_t *_host;
 

@@ -49,6 +49,7 @@ class ChompPluginDarwin : public ChompPlugin {
 public:
   ChompPluginDarwin(const clap_host_t *_host);
 
+  virtual bool GUIEnabled() { return true; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating);
   virtual bool GUIGetPreferredAPI(const char **api, bool *is_floating);
   virtual bool GUICreate(const char *api, bool is_floating);
@@ -86,6 +87,7 @@ ChompPluginDarwin::ChompPluginDarwin(const clap_host_t *_host) : ChompPlugin(_ho
 }
 
 bool ChompPluginDarwin::GUIIsAPISupported(const char *api, bool is_floating) {
+  Log("GUIIsAPISupported(%s, %d)", api, static_cast<int>(is_floating));
   return strcmp(api, CLAP_WINDOW_API_COCOA) == 0 && !is_floating;
 }
 
