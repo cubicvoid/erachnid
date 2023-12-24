@@ -12,6 +12,9 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
   uint32_t       ev_index = 0;
   uint32_t       next_ev_frame = event_count > 0 ? 0 : frames_count;
 
+  float **out = process->audio_outputs[0].data32;
+  auto    chans = process->audio_outputs->channel_count;
+
   for (uint32_t i = 0; i < frames_count;) {
     while (ev_index < event_count && next_ev_frame == i) {
       const clap_event_header_t *hdr =
@@ -30,7 +33,26 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
         break;
       }
     }
+
+    // This is a simple accumulator of output across our active voices.
+    // See saw-voice.h for information on the individual voice.
+    for (int ch = 0; ch < chans; ++ch) {
+      out[ch][i] = 0.f;
+    }
+    for (auto &v : voices) {
+      if (v.isPlaying()) {
+        v.step();
+        if (chans >= 2) {
+          out[0][i] += v.L;
+          out[1][i] += v.R;
+        } else if (chans == 1) {
+          out[0][i] += (v.L + v.R) * 0.5;
+        }
+      }
+    }
   }
+  float **out = process->audio_outputs[0].data32;
+  auto    chans = process->audio_outputs->channel_count;
 
   auto ov = process->out_events;
   for (const auto &[portid, channel, key, note_id] : terminated_voices) {
