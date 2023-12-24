@@ -53,8 +53,8 @@ bool CLAPParam::ValueToText(
 }
 
 bool CLAPParam::TextToValue(const char *param_value_text, double *out_value) {
-  char  *endptr;
-  double result = strtod(param_value_text, &endptr);
+  char *endptr;
+  strtod(param_value_text, &endptr);
   return (endptr != param_value_text && *endptr == 0);
 }
 

@@ -35,8 +35,9 @@ class StarryPlugin : public CLAPPlugin {
   void handleNoteOff(const clap_event_note *event);
   void handleNoteChoke(const clap_event_note *event);
 
-  StarryVoice &chooseNewVoice();
-  void         activateVoice(StarryVoice &v, const clap_event_note *event);
+  StarryVoice *chooseNewVoice();
+  void         activateVoice(StarryVoice *v, const clap_event_note *event);
+  void         chokeVoice(StarryVoice *v);
 
   std::array<StarryVoice, max_voices>         voices;
   std::vector<std::tuple<int, int, int, int>> terminated_voices;

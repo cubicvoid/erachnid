@@ -87,20 +87,20 @@ void StarryPlugin::ProcessEvent(const clap_event_header_t *hdr) {
   }
 }
 
-StarryVoice &StarryPlugin::chooseNewVoice() {
+StarryVoice *StarryPlugin::chooseNewVoice() {
   for (StarryVoice &v : voices) {
     if (v.state == StarryVoice::OFF) {
-      return v;
+      return &v;
     }
   }
-  auto         idx = rand() % max_voices;
+  int          idx = rand() % max_voices;
   StarryVoice &v = voices[idx];
   terminated_voices.emplace_back(v.portid, v.channel, v.key, v.note_id);
-  return v;
+  return &v;
 }
 
 void StarryPlugin::handleNoteOn(const clap_event_note *event) {
-  StarryVoice &v = chooseNewVoice();
+  StarryVoice *v = chooseNewVoice();
   activateVoice(v, event);
   // dataCopyForUI.updateCount++;
   // dataCopyForUI.polyphony++;
@@ -109,7 +109,7 @@ void StarryPlugin::handleNoteOn(const clap_event_note *event) {
 }
 
 void StarryPlugin::handleNoteOff(const clap_event_note *event) {
-  for (auto &v : voices) {
+  for (StarryVoice &v : voices) {
     if (v.isPlaying() && v.key == event->key && v.portid == event->port_index &&
         v.channel == event->channel) {
       v.release();
@@ -119,12 +119,14 @@ void StarryPlugin::handleNoteOff(const clap_event_note *event) {
 
 void StarryPlugin::handleNoteChoke(const clap_event_note *event) {}
 
-void StarryPlugin::activateVoice(StarryVoice &v, const clap_event_note *event) {
-  v.state = StarryVoice::ATTACK;
-  v.key = event->key;
-  v.portid = event->port_index;
-  v.channel = event->channel;
-  v.note_id = event->note_id;
+void StarryPlugin::activateVoice(StarryVoice *v, const clap_event_note *event) {
+  v->state = StarryVoice::ATTACK;
+  v->key = event->key;
+  v->portid = event->port_index;
+  v->channel = event->channel;
+  v->note_id = event->note_id;
 }
+
+void StarryPlugin::chokeVoice(StarryVoice *v) {}
 
 }  // namespace erachnid::starry
