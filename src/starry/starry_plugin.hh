@@ -13,11 +13,14 @@
 
 #include "clap_param.hh"
 #include "clap_plugin.hh"
+#include "starry_voice.hh"
 
 namespace erachnid::starry {
 
 class StarryPlugin : public CLAPPlugin {
  public:
+  static constexpr int max_voices = 8;
+
   StarryPlugin(const clap_host_t *_host);
 
   virtual uint32_t NotePortsCount(bool is_input) { return is_input ? 1 : 0; };
@@ -28,10 +31,15 @@ class StarryPlugin : public CLAPPlugin {
   void ProcessEvent(const clap_event_header_t *hdr);
 
  private:
-  void handleNoteOn(int port_index, int channel, int key, int noteid);
-  void handleNoteOff(int port_index, int channel, int n);
+  void handleNoteOn(const clap_event_note *event);
+  void handleNoteOff(const clap_event_note *event);
+  void handleNoteChoke(const clap_event_note *event);
 
-  std::array<StarryVoice, max_voices> voices;
+  StarryVoice &chooseNewVoice();
+  void         activateVoice(StarryVoice &v, const clap_event_note *event);
+
+  std::array<StarryVoice, max_voices>         voices;
+  std::vector<std::tuple<int, int, int, int>> terminated_voices;
 };
 
 }  // namespace erachnid::starry

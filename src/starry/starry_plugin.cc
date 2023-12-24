@@ -31,6 +31,29 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
       }
     }
   }
+
+  auto ov = process->out_events;
+  for (const auto &[portid, channel, key, note_id] : terminated_voices) {
+    clap_event_note evt;
+    evt.header.size = sizeof(clap_event_note);
+    evt.header.type = (uint16_t)CLAP_EVENT_NOTE_END;
+    evt.header.time = process->frames_count - 1;
+    evt.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+    evt.header.flags = 0;
+
+    evt.port_index = portid;
+    evt.channel = channel;
+    evt.key = key;
+    evt.note_id = note_id;
+    evt.velocity = 0.0;
+
+    ov->try_push(ov, &(evt.header));
+
+    // dataCopyForUI.updateCount++;
+    // dataCopyForUI.polyphony--;
+  }
+  terminated_voices.clear();
+
   return CLAP_PROCESS_CONTINUE;
 }
 
@@ -45,51 +68,63 @@ void StarryPlugin::ProcessEvent(const clap_event_header_t *hdr) {
     }
     case CLAP_EVENT_NOTE_ON: {
       auto nevt = reinterpret_cast<const clap_event_note *>(hdr);
-      handleNoteOn(nevt->port_index, nevt->channel, nevt->key, nevt->note_id);
+      handleNoteOn(nevt);
     } break;
     case CLAP_EVENT_NOTE_OFF: {
       auto nevt = reinterpret_cast<const clap_event_note *>(hdr);
-      handleNoteOff(nevt->port_index, nevt->channel, nevt->key);
+      handleNoteOff(nevt);
+    } break;
+    case CLAP_EVENT_NOTE_CHOKE: {
+      auto nevt = reinterpret_cast<const clap_event_note *>(hdr);
+      handleNoteChoke(nevt);
     } break;
     case CLAP_EVENT_PARAM_VALUE: {
       // TODO: handle params
       // auto v = reinterpret_cast<const clap_event_param_value *>(hdr);
     } break;
+    case CLAP_EVENT_PARAM_MOD: {
+    } break;
   }
 }
 
-void StarryPlugin::handleNoteOn(
-    int port_index, int channel, int key, int noteid
-) {
-  bool foundVoice{false};
-  for (auto &v : voices) {
-    if (v.state == SawDemoVoice::OFF) {
-      activateVoice(v, port_index, channel, key, noteid);
-      foundVoice = true;
-      break;
+StarryVoice &StarryPlugin::chooseNewVoice() {
+  for (StarryVoice &v : voices) {
+    if (v.state == StarryVoice::OFF) {
+      return v;
     }
   }
+  auto         idx = rand() % max_voices;
+  StarryVoice &v = voices[idx];
+  terminated_voices.emplace_back(v.portid, v.channel, v.key, v.note_id);
+  return v;
+}
 
-  if (!foundVoice) {
-    // We could steal oldest. If you want to do that toss in a PR to add age
-    // to the voice I guess. This is just a demo synth though.
-    auto  idx = rand() % max_voices;
-    auto &v = voices[idx];
-    terminatedVoices.emplace_back(v.portid, v.channel, v.key, v.note_id);
-    activateVoice(v, port_index, channel, key, noteid);
-  }
+void StarryPlugin::handleNoteOn(const clap_event_note *event) {
+  StarryVoice &v = chooseNewVoice();
+  activateVoice(v, event);
+  // dataCopyForUI.updateCount++;
+  // dataCopyForUI.polyphony++;
 
-  dataCopyForUI.updateCount++;
-  dataCopyForUI.polyphony++;
+  // TODO: update UI
+}
 
-  if (editor) {
-    auto r = ToUI();
-    r.type = ToUI::MIDI_NOTE_ON;
-    r.id = (uint32_t)key;
-    toUiQ.try_enqueue(r);
+void StarryPlugin::handleNoteOff(const clap_event_note *event) {
+  for (auto &v : voices) {
+    if (v.isPlaying() && v.key == event->key && v.portid == event->port_index &&
+        v.channel == event->channel) {
+      v.release();
+    }
   }
 }
 
-void StarryPlugin::handleNoteOff(int port_index, int channel, int n) {}
+void StarryPlugin::handleNoteChoke(const clap_event_note *event) {}
+
+void StarryPlugin::activateVoice(StarryVoice &v, const clap_event_note *event) {
+  v.state = StarryVoice::ATTACK;
+  v.key = event->key;
+  v.portid = event->port_index;
+  v.channel = event->channel;
+  v.note_id = event->note_id;
+}
 
 }  // namespace erachnid::starry

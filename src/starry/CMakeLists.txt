@@ -6,6 +6,8 @@ target_sources(starry
     PRIVATE
         starry_plugin.cc
         starry_plugin.hh
+        starry_voice.cc
+        starry_voice.hh
 )
 
 #if(APPLE)
