@@ -24,7 +24,7 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
 
   float   **out = process->audio_outputs[0].data32;
   const int chans = process->audio_outputs->channel_count;
-  for (uint32_t i = 0; i < frames_count;) {
+  /*for (uint32_t i = 0; i < frames_count; ++i) {
     double phase_pos = static_cast<double>(sample_pos) / 100.0;
     double s = 0.2 * sin(phase_pos);
     double c = 0.2 * cos(phase_pos);
@@ -36,9 +36,9 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
       out[0][i] += s * 0.5;
     }
   }
-  return;
+  return;*/
 
-  for (uint32_t i = 0; i < frames_count;) {
+  for (uint32_t i = 0; i < frames_count; ++i) {
     while (ev_index < event_count && next_ev_frame == i) {
       const clap_event_header_t *hdr =
           process->in_events->get(process->in_events, ev_index);
