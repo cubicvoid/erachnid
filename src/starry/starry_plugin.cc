@@ -1,5 +1,7 @@
 #include "starry_plugin.hh"
 
+#include <math.h>
+
 namespace erachnid::starry {
 extern const clap_plugin_descriptor_t plugin_desc;
 
@@ -7,13 +9,34 @@ StarryPlugin::StarryPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {}
 
 clap_process_status StarryPlugin::Process(const clap_process_t *process) {
+  static bool first_time = true;
+  if (first_time) {
+    first_time = false;
+    Log("StarryPlugin::Process");
+  }
+
   const uint32_t frames_count = process->frames_count;
   const uint32_t event_count = process->in_events->size(process->in_events);
   uint32_t       ev_index = 0;
   uint32_t       next_ev_frame = event_count > 0 ? 0 : frames_count;
 
-  float **out = process->audio_outputs[0].data32;
-  auto    chans = process->audio_outputs->channel_count;
+  sample_pos++;
+
+  float   **out = process->audio_outputs[0].data32;
+  const int chans = process->audio_outputs->channel_count;
+  for (uint32_t i = 0; i < frames_count;) {
+    double phase_pos = static_cast<double>(sample_pos) / 100.0;
+    double s = 0.2 * sin(phase_pos);
+    double c = 0.2 * cos(phase_pos);
+    sample_pos++;
+    if (chans >= 2) {
+      out[0][i] += s;
+      out[1][i] += c;
+    } else if (chans == 1) {
+      out[0][i] += s * 0.5;
+    }
+  }
+  return;
 
   for (uint32_t i = 0; i < frames_count;) {
     while (ev_index < event_count && next_ev_frame == i) {
@@ -33,13 +56,13 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
         break;
       }
     }
-
-    // This is a simple accumulator of output across our active voices.
-    // See saw-voice.h for information on the individual voice.
+    // process->audio_outputs_count
+    //  This is a simple accumulator of output across our active voices.
+    //  See saw-voice.h for information on the individual voice.
     for (int ch = 0; ch < chans; ++ch) {
       out[ch][i] = 0.f;
     }
-    for (auto &v : voices) {
+    for (StarryVoice &v : voices) {
       if (v.isPlaying()) {
         v.step();
         if (chans >= 2) {
@@ -51,8 +74,6 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
       }
     }
   }
-  float **out = process->audio_outputs[0].data32;
-  auto    chans = process->audio_outputs->channel_count;
 
   auto ov = process->out_events;
   for (const auto &[portid, channel, key, note_id] : terminated_voices) {
@@ -122,6 +143,8 @@ StarryVoice *StarryPlugin::chooseNewVoice() {
 }
 
 void StarryPlugin::handleNoteOn(const clap_event_note *event) {
+  Log("handleNoteOn(%d, %d, %d, %d)", event->port_index, event->channel,
+      event->key, event->note_id);
   StarryVoice *v = chooseNewVoice();
   activateVoice(v, event);
   // dataCopyForUI.updateCount++;

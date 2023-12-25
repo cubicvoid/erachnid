@@ -311,6 +311,7 @@ namespace {
       const struct clap_plugin *_plugin, const char *id
   ) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    plugin->Log("plugin_get_extension(%s)", id);
 
     // if (!strcmp(id, CLAP_EXT_LATENCY))
     //    return &s_my_plug_latency;

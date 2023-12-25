@@ -24,7 +24,10 @@ class StarryPlugin : public CLAPPlugin {
   StarryPlugin(const clap_host_t *_host);
 
   virtual uint32_t NotePortsCount(bool is_input) { return is_input ? 1 : 0; };
-  virtual uint32_t AudioPortsCount(bool is_input) { return is_input ? 0 : 1; };
+  virtual uint32_t AudioPortsCount(bool is_input) {
+    Log("StarryPlugin::AudioPortsCount");
+    return is_input ? 0 : 1;
+  };
 
   virtual clap_process_status Process(const clap_process_t *process);
 
@@ -41,6 +44,8 @@ class StarryPlugin : public CLAPPlugin {
 
   std::array<StarryVoice, max_voices>         voices;
   std::vector<std::tuple<int, int, int, int>> terminated_voices;
+
+  int sample_pos{0};
 };
 
 }  // namespace erachnid::starry

@@ -22,7 +22,7 @@ class CLAPPlugin {
   CLAPPlugin(const clap_host_t *_host, const clap_plugin_descriptor_t *desc);
   virtual ~CLAPPlugin();
 
-  clap_process_status Process(const clap_process_t *process);
+  virtual clap_process_status Process(const clap_process_t *process);
 
   virtual bool Init();
   virtual void Destroy();
@@ -33,10 +33,14 @@ class CLAPPlugin {
   virtual void Reset();
 
   virtual bool StartProcessing() {
+    Log("CLAPPlugin::StartProcessing");
     _processing = true;
     return true;
   }
-  virtual void StopProcessing() { _processing = false; }
+  virtual void StopProcessing() {
+    Log("CLAPPlugin::StopProcessing");
+    _processing = false;
+  }
 
   // If default settings and names are ok, only override NotePortsCount.
   // If names matter, also override NotePortsName.

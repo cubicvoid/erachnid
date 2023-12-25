@@ -25,6 +25,7 @@ CLAPPlugin::CLAPPlugin(
     _log_file = fopen("/Users/fae/erachnid.log", "wb");
   }
 #endif
+  Log("CLAPPlugin::CLAPPlugin()");
 
   InitRawPlugin(desc);
 }
@@ -32,6 +33,7 @@ CLAPPlugin::CLAPPlugin(
 CLAPPlugin::~CLAPPlugin() {}
 
 clap_process_status erachnid::CLAPPlugin::Process(clap_process const *) {
+  Log("CLAPPlugin::Process");
   return CLAP_PROCESS_CONTINUE;
 }
 
@@ -47,6 +49,8 @@ void CLAPPlugin::Destroy() {}
 bool CLAPPlugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {
+  Log("CLAPPlugin::Activate(%lf, %d, %d)", sample_rate, min_frames_count,
+      max_frames_count);
   _sample_rate = sample_rate;
   _min_frames_count = min_frames_count;
   _max_frames_count = max_frames_count;

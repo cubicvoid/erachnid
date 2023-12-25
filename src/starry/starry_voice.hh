@@ -13,10 +13,15 @@ struct StarryVoice {
 
   int first_sample;
   // Finally, please set my sample rate at voice on. Thanks!
-  float sampleRate{0};
+  float sample_rate{0};
+
+  int sample_pos{0};
+
+  float L{0.f}, R{0.f};
 
   bool isPlaying() { return (state == ATTACK); }
   void release() { state = NEWLY_OFF; }
+  void step();
 };
 
 }  // namespace erachnid::starry
