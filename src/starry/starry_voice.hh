@@ -1,5 +1,7 @@
 #pragma once
 
+#include <clap/fixedpoint.h>
+
 namespace erachnid::starry {
 
 struct StarryVoice {
@@ -14,6 +16,14 @@ struct StarryVoice {
   int first_sample;
   // Finally, please set my sample rate at voice on. Thanks!
   float sample_rate{0};
+
+  // current position in cycle, between 0 (inclusive) and 1 (exclusive),
+  // using 33.31 fixed point (see clap/fixedpoint.h)
+  int64_t phase;
+
+  // current frequency, in fixed-point cycles per sample. added to phase every
+  // sample.
+  int64_t freq;
 
   int sample_pos{0};
 

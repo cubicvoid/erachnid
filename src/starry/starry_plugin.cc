@@ -8,6 +8,16 @@ extern const clap_plugin_descriptor_t plugin_desc;
 StarryPlugin::StarryPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {}
 
+bool StarryPlugin::Activate(
+    double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
+) {
+  for (StarryVoice &v : voices) {
+    v.sample_rate = sample_rate;
+    v.phase = random();
+  }
+  return true;
+}
+
 clap_process_status StarryPlugin::Process(const clap_process_t *process) {
   static bool first_time = true;
   if (first_time) {
@@ -167,6 +177,10 @@ void StarryPlugin::handleNoteChoke(const clap_event_note *event) {}
 void StarryPlugin::activateVoice(StarryVoice *v, const clap_event_note *event) {
   v->state = StarryVoice::ATTACK;
   v->key = event->key;
+  int    delta = v->key - 69;
+  double freq =
+      440.0 * pow(2.0, static_cast<double>(delta) / 12.0) / v->sample_rate;
+  v->freq = static_cast<int64_t>(freq * CLAP_SECTIME_FACTOR + 0.5);
   v->portid = event->port_index;
   v->channel = event->channel;
   v->note_id = event->note_id;

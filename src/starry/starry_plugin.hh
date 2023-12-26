@@ -23,6 +23,10 @@ class StarryPlugin : public CLAPPlugin {
 
   StarryPlugin(const clap_host_t *_host);
 
+  virtual bool Activate(
+      double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
+  );
+
   virtual uint32_t NotePortsCount(bool is_input) { return is_input ? 1 : 0; };
   virtual uint32_t AudioPortsCount(bool is_input) {
     Log("StarryPlugin::AudioPortsCount");
