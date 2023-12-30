@@ -81,6 +81,9 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
         } else if (chans == 1) {
           out[0][i] += (v.L + v.R) * 0.5;
         }
+        if (!v.isPlaying()) {
+          terminated_voices.emplace_back(v.portid, v.channel, v.key, v.note_id);
+        }
       }
     }
   }
@@ -152,7 +155,7 @@ StarryVoice *StarryPlugin::chooseNewVoice() {
   return &v;
 }
 
-void StarryPlugin::handleNoteOn(const clap_event_note *event) {
+void StarryPlugin::handleNoteOn(const clap_event_note_t *event) {
   Log("handleNoteOn(%d, %d, %d, %d)", event->port_index, event->channel,
       event->key, event->note_id);
   StarryVoice *v = chooseNewVoice();
@@ -163,18 +166,21 @@ void StarryPlugin::handleNoteOn(const clap_event_note *event) {
   // TODO: update UI
 }
 
-void StarryPlugin::handleNoteOff(const clap_event_note *event) {
+void StarryPlugin::handleNoteOff(const clap_event_note_t *event) {
   for (StarryVoice &v : voices) {
-    if (v.isPlaying() && v.key == event->key && v.portid == event->port_index &&
-        v.channel == event->channel) {
+    if (v.isPlaying() && v.matches(event)) {
+      // v.key == event->key && v.portid == event->port_index &&
+      //   v.channel == event->channel) {
       v.release();
     }
   }
 }
 
-void StarryPlugin::handleNoteChoke(const clap_event_note *event) {}
+void StarryPlugin::handleNoteChoke(const clap_event_note_t *event) {}
 
-void StarryPlugin::activateVoice(StarryVoice *v, const clap_event_note *event) {
+void StarryPlugin::activateVoice(
+    StarryVoice *v, const clap_event_note_t *event
+) {
   v->state = StarryVoice::ATTACK;
   v->key = event->key;
   int    delta = v->key - 69;

@@ -38,12 +38,12 @@ class StarryPlugin : public CLAPPlugin {
   void ProcessEvent(const clap_event_header_t *hdr);
 
  private:
-  void handleNoteOn(const clap_event_note *event);
-  void handleNoteOff(const clap_event_note *event);
-  void handleNoteChoke(const clap_event_note *event);
+  void handleNoteOn(const clap_event_note_t *event);
+  void handleNoteOff(const clap_event_note_t *event);
+  void handleNoteChoke(const clap_event_note_t *event);
 
   StarryVoice *chooseNewVoice();
-  void         activateVoice(StarryVoice *v, const clap_event_note *event);
+  void         activateVoice(StarryVoice *v, const clap_event_note_t *event);
   void         chokeVoice(StarryVoice *v);
 
   std::array<StarryVoice, max_voices>         voices;

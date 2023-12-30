@@ -1,10 +1,11 @@
 #pragma once
 
-#include <clap/fixedpoint.h>
+#include <clap/clap.h>
 
 namespace erachnid::starry {
 
 struct StarryVoice {
+  StarryVoice *next;
   enum AEGMode { OFF, ATTACK, HOLD, NEWLY_OFF, RELEASING } state{OFF};
 
   int portid;   // clap note port index
@@ -32,6 +33,7 @@ struct StarryVoice {
   bool isPlaying() { return (state == ATTACK); }
   void release() { state = NEWLY_OFF; }
   void step();
+  bool matches(const clap_event_note_t *event);
 };
 
 }  // namespace erachnid::starry
