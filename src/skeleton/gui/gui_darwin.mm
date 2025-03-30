@@ -10,7 +10,7 @@ namespace erachnid::skeleton {
   class PluginDarwin;
 }
 
-@interface FAESimpleClass : NSObject {
+@interface SkeletonController : NSObject {
   erachnid::skeleton::Plugin *_plugin;
 }
 
@@ -20,7 +20,7 @@ namespace erachnid::skeleton {
 
 @end
 
-@implementation FAESimpleClass
+@implementation SkeletonController
 
 - (id)initWithPlugin:(erachnid::skeleton::Plugin *)plugin {
   self = [super init];
@@ -64,7 +64,7 @@ public:
 
 private:
 
-  FAESimpleClass *controller;
+  SkeletonController *controller;
 
   uint32_t width;
   uint32_t height;
@@ -87,7 +87,6 @@ bool PluginDarwin::GUIGetPreferredAPI(const char **api, bool *is_floating) {
 }
 
 bool PluginDarwin::GUICreate(const char *api, bool is_floating) {
-  int value;
   NSBundle *bundle = [NSBundle bundleWithIdentifier:@"me.faec.erachnid"];
   if (bundle == nil) {
     //Log("couldn't load plugin bundle");
@@ -98,7 +97,7 @@ bool PluginDarwin::GUICreate(const char *api, bool is_floating) {
     //Log("couldn't load Stuff.nib from bundle");
     return false;
   }
-  controller = [[FAESimpleClass alloc] initWithPlugin:this];
+  controller = [[SkeletonController alloc] initWithPlugin:this];
 
   NSArray* topLevelObjects;
   if (![nib instantiateWithOwner:controller topLevelObjects:&topLevelObjects]) {
@@ -110,7 +109,7 @@ bool PluginDarwin::GUICreate(const char *api, bool is_floating) {
 }
 
 void PluginDarwin::GUIDestroy() {
-  NSLog(@"gui_destroy() (this=%lx, controller=%lx)", reinterpret_cast<long>(this), controller);
+  NSLog(@"gui_destroy(%lx, %@)", reinterpret_cast<unsigned long>(this), controller);
   if (controller != nil) {
     [controller.view removeFromSuperview];
     [controller release];
@@ -170,11 +169,11 @@ bool PluginDarwin::GUISetParent(const clap_window_t *window) {
   // return true;
   NSView *container = reinterpret_cast<NSView *>(window->cocoa);
   if (controller != nullptr) {
-    NSLog(@"gui_set_parent(%lx) -> 1", container);
+    NSLog(@"gui_set_parent(%@) -> 1", container);
     [container addSubview:controller.view];
     return true;
   }
-  NSLog(@"gui_set_parent(%lx) -> 0", container);
+  NSLog(@"gui_set_parent(%@) -> 0", container);
   return false;
 }
 
