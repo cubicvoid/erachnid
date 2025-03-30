@@ -7,6 +7,7 @@
 
 #include "chomp.hh"
 #include "clap_plugin.hh"
+#include "skeleton.hh"
 #include "starry.hh"
 
 using namespace erachnid;
@@ -24,6 +25,10 @@ static PluginEntry s_plugins[] = {
     {
         .desc = &chomp::plugin_desc,
         .create = chomp::PluginCreate,
+    },
+    {
+        .desc = &skeleton::plugin_desc,
+        .create = skeleton::PluginCreate,
     },
     {
         .desc = &starry::plugin_desc,

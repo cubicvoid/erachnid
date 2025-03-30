@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="FAESimpleClass">
+            <connections>
+                <outlet property="view" destination="AGq-9A-C3k" id="3gG-jO-Iri"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="AGq-9A-C3k">
+            <rect key="frame" x="0.0" y="0.0" width="461" height="233"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6js-MF-Eoa">
+                    <rect key="frame" x="382" y="13" width="66" height="32"/>
+                    <buttonCell key="cell" type="push" title="Beep" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hRD-Xz-M6e">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonPressed:" target="-2" id="nSQ-8r-yNv"/>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="6js-MF-Eoa" secondAttribute="trailing" constant="20" symbolic="YES" id="HwY-29-Ndk"/>
+                <constraint firstAttribute="bottom" secondItem="6js-MF-Eoa" secondAttribute="bottom" constant="20" symbolic="YES" id="W76-6o-28J"/>
+            </constraints>
+            <point key="canvasLocation" x="187.5" y="108.5"/>
+        </customView>
+    </objects>
+</document>

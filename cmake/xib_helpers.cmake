@@ -17,8 +17,8 @@ find_program(IBTOOL ibtool REQUIRED)
 # this isn't pretty but it's the only way to avoid including all
 # xibs for all modules explicitly in the main target cmake file
 function(add_xib)
-  # make absolute paths
   set(xibs)
+  # make absolute paths
   foreach(file IN LISTS ARGN)
     get_filename_component(fullpath "${file}" ABSOLUTE)
     list(APPEND xibs "${fullpath}")
