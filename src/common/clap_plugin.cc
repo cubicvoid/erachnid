@@ -32,8 +32,9 @@ CLAPPlugin::CLAPPlugin(
 
 CLAPPlugin::~CLAPPlugin() {}
 
-clap_process_status erachnid::CLAPPlugin::Process(clap_process const *) {
+clap_process_status CLAPPlugin::Process(clap_process const *) {
   Log("CLAPPlugin::Process");
+
   return CLAP_PROCESS_CONTINUE;
 }
 
