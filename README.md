@@ -20,7 +20,7 @@ cmake --build build/debug --config Debug
 (apple only for now)
 
 ```sh
-cmake -G Xcode -B build/xcode .
+cmake -G Xcode -B build/xcode -DCOPY_AFTER_BUILD=TRUE
 open build/xcode/erachnid.xcodeproj
 ```
 

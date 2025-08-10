@@ -7,6 +7,7 @@
 
 #include "chomp.hh"
 #include "clap_plugin.hh"
+#include "scan.hh"
 #include "skeleton.hh"
 #include "starry.hh"
 
@@ -25,6 +26,10 @@ static PluginEntry s_plugins[] = {
     {
         .desc = &chomp::plugin_desc,
         .create = chomp::PluginCreate,
+    },
+    {
+        .desc = &scan::plugin_desc,
+        .create = scan::PluginCreate,
     },
     {
         .desc = &skeleton::plugin_desc,

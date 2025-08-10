@@ -10,6 +10,7 @@ add_library(erachnid MODULE
 add_subdirectory(common)
 #add_subdirectory(gui)
 add_subdirectory(chomp)
+add_subdirectory(scan)
 add_subdirectory(skeleton)
 add_subdirectory(starry)
 add_subdirectory(weave)
@@ -20,6 +21,7 @@ target_link_libraries(erachnid PRIVATE
   reaper-sdk
   clap
   chomp
+  scan
   skeleton
   weave
 	starry
