@@ -15,6 +15,7 @@ namespace erachnid::skeleton {
 }
 
 @property (nonatomic, retain) IBOutlet NSView *view;
+@property (nonatomic, retain) IBOutlet NSButton *button;
 
 - (IBAction)buttonPressed:(id)sender;
 
@@ -89,22 +90,22 @@ bool PluginDarwin::GUIGetPreferredAPI(const char **api, bool *is_floating) {
 bool PluginDarwin::GUICreate(const char *api, bool is_floating) {
   NSBundle *bundle = [NSBundle bundleWithIdentifier:@"me.faec.erachnid"];
   if (bundle == nil) {
-    //Log("couldn't load plugin bundle");
+    NSLog(@"couldn't load plugin bundle");
     return false;
   }
-  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
+  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"skeleton" bundle:bundle] autorelease];
   if (nib == nil) {
-    //Log("couldn't load Stuff.nib from bundle");
+    NSLog(@"couldn't load nib from bundle");
     return false;
   }
   controller = [[SkeletonController alloc] initWithPlugin:this];
 
-  NSArray* topLevelObjects;
+  NSArray* topLevelObjects = nullptr;
   if (![nib instantiateWithOwner:controller topLevelObjects:&topLevelObjects]) {
-    //Log("Couldn't instantiate Stuff.nib");
+    NSLog(@"Couldn't instantiate nib");
     return false;
   }
-  NSLog(@"Stuff.nib instantiated with %d objects", static_cast<int>(topLevelObjects.count));
+  NSLog(@"nib instantiated with %d objects", static_cast<int>(topLevelObjects.count));
   return true;
 }
 

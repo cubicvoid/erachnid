@@ -25,5 +25,6 @@ target_link_libraries(${PLUGIN_NAME}
     PRIVATE
         clap
         reaper-sdk
+        nlohmann_json::nlohmann_json
     PUBLIC
         erachnid-common)

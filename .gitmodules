@@ -7,3 +7,6 @@
 [submodule "lib/WDL"]
 	path = lib/WDL
 	url = https://github.com/justinfrankel/WDL.git
+[submodule "lib/json"]
+	path = lib/nlohmann_json
+	url = https://github.com/nlohmann/json.git

@@ -14,7 +14,7 @@ void Plugin::NoteOn(const clap_event_note_t *note) {}
 
 void Plugin::NoteOff(const clap_event_note_t *note) {}
 
-struct SerializedEvent {
+/*struct SerializedEvent {
   uint32_t time;
   uint16_t space_id;
   uint16_t type;
@@ -23,7 +23,7 @@ struct SerializedEvent {
 struct SerializedProcessCall {
   uint32_t frames_count;
   std::vector<SerializedEvent> events;
-};
+};*/
 
 SerializedEvent ProcessEvent(const clap_event_header_t *hdr) {
   SerializedEvent event = {
