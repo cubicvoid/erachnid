@@ -35,6 +35,21 @@ namespace erachnid::scan {
     _plugin->Log("buttonPressed");
   }
 }
+
+- (IBAction)resetLog:(id)sender {
+  NSLog("resetLog");
+  //if (_plugin != nullptr) {
+
+  //}
+}
+
+- (IBAction)saveLog:(id)sender {
+  NSLog("saveLog");
+  NSSavePanel *panel = [NSSavePanel savePanel];
+  panel.allowedContentTypes = @[&UTType.json];
+  //+-panel begin
+  //[panel begin]
+}
   
 @end
 
