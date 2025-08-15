@@ -1,4 +1,7 @@
 #import <AppKit/AppKit.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+#include <nlohmann/json.hpp>
 
 #import "plugin.hh"
 
@@ -6,15 +9,18 @@
 #error "ARC is on"
 #endif
 
+using json = nlohmann::json;
+
 namespace erachnid::scan {
   class PluginDarwin;
 }
 
-@interface ScanController : NSObject {
+@interface ScanController : NSObject <NSOpenSavePanelDelegate> {
   erachnid::scan::Plugin *_plugin;
 }
 
 @property (nonatomic, retain) IBOutlet NSView *view;
+@property (nonatomic, retain) NSURL *saveTarget;
 
 - (IBAction)buttonPressed:(id)sender;
 
@@ -37,16 +43,39 @@ namespace erachnid::scan {
 }
 
 - (IBAction)resetLog:(id)sender {
-  NSLog("resetLog");
-  //if (_plugin != nullptr) {
+  NSLog(@"resetLog");
+  if (_plugin != nullptr) {
+		_plugin->ResetLog();
+  }
+}
 
-  //}
+- (NSString *)panel:(id)sender 
+userEnteredFilename:(NSString *)filename 
+          confirmed:(BOOL)okFlag {
+  //self.saveTarget = filename;
+  return filename;
 }
 
 - (IBAction)saveLog:(id)sender {
-  NSLog("saveLog");
+  NSLog(@"saveLog");
   NSSavePanel *panel = [NSSavePanel savePanel];
-  panel.allowedContentTypes = @[&UTType.json];
+	panel.allowedContentTypes = @[UTTypeJSON];
+	panel.delegate = self;
+	if (self.view.window != nil) {
+		[panel beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse result) {
+			if (result == NSModalResponseOK) {
+				NSLog(@"saving %@...", panel.URL);
+				
+				std::string serialized = _plugin->GetData().dump();
+				NSData *data = [NSData dataWithBytes:serialized.data() length:serialized.length()];
+				[data writeToURL:panel.URL atomically:YES];
+			} else {
+				NSLog(@"cancelled");
+			}
+		}];
+	} else {
+		NSLog(@"No window");
+	}
   //+-panel begin
   //[panel begin]
 }
@@ -107,7 +136,7 @@ bool PluginDarwin::GUICreate(const char *api, bool is_floating) {
     //Log("couldn't load plugin bundle");
     return false;
   }
-  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"Stuff" bundle:bundle] autorelease];
+  NSNib *nib = [[[NSNib alloc] initWithNibNamed:@"scan" bundle:bundle] autorelease];
   if (nib == nil) {
     //Log("couldn't load Stuff.nib from bundle");
     return false;
@@ -217,7 +246,7 @@ bool PluginDarwin::GUIHide() {
   return false;
 }
 
-Plugin* NewPluginDarwin(const clap_host_t *host) {
+CLAPPlugin* NewPluginDarwin(const clap_host_t *host) {
   return new PluginDarwin(host);
 }
 

@@ -1,6 +1,6 @@
 #include <clap/clap.h>
 
-#include "plugin.hh"
+#include "clap_plugin.hh"
 
 #ifdef DARWIN
 #include "gui/gui_darwin.h"
@@ -26,7 +26,7 @@ const clap_plugin_descriptor_t        plugin_desc = {
 };
 
 clap_plugin_t *PluginCreate(const clap_host_t *host) {
-  Plugin *p;
+  CLAPPlugin *p;
 #ifdef DARWIN
   p = NewPluginDarwin(host);
 #endif

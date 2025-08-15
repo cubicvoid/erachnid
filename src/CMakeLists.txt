@@ -47,7 +47,7 @@ if(APPLE)
       MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
       MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/erachnid.plist.in
     )
-    target_link_libraries(erachnid PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics" "-framework Cocoa")
+    target_link_libraries(erachnid PRIVATE "-framework CoreFoundation" "-framework AppKit" "-framework CoreGraphics" "-framework Cocoa" "-framework UniformTypeIdentifiers")
 
     target_compile_definitions(erachnid PRIVATE IS_MAC=1)
 

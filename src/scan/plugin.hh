@@ -11,6 +11,9 @@
 #include "clap_param.hh"
 #include "clap_plugin.hh"
 
+#include <nlohmann/json.hpp>
+
+
 namespace erachnid::scan {
 
 struct SerializedEvent {
@@ -35,12 +38,15 @@ class Plugin : public CLAPPlugin {
   virtual uint32_t AudioPortsCount(bool is_input) { return 1; }
 
   uint32_t latency;
+  
+  nlohmann::json GetData();
+  void ResetLog();
 
  private:
   void NoteOn(const clap_event_note_t *note);
   void NoteOff(const clap_event_note_t *note);
 
-  std::vector<SerializedProcessCall> processCalls;
+  std::vector<nlohmann::json> processCalls;
 };
 
 }  // namespace erachnid::skeleton

@@ -9,6 +9,8 @@
 #include <cstring>
 #include <format>
 
+
+
 #ifdef DARWIN
 #include "gui/gui_darwin.h"
 #endif
@@ -36,4 +38,16 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   ));
 }
 
-}  // namespace erachnid::skeleton
+nlohmann::json Plugin::GetData() {
+	nlohmann::json result = {
+		{"process_calls", processCalls},
+	};
+	return result;
+}
+
+
+void Plugin::ResetLog() {
+  processCalls.clear();
+}
+
+}  // namespace erachnid::scan

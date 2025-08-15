@@ -2,10 +2,14 @@
 
 #include <memory>
 
+namespace erachnid {
+
+class CLAPPlugin;
+
+}
+
 namespace erachnid::scan {
 
-class Plugin;
-
-Plugin* NewPluginDarwin(const clap_host_t* host);
+CLAPPlugin* NewPluginDarwin(const clap_host_t* host);
 
 }  // namespace erachnid::skeleton

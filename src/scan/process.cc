@@ -8,6 +8,8 @@
 
 #include "plugin.hh"
 
+using nlohmann::json;
+
 namespace erachnid::scan {
 
 void Plugin::NoteOn(const clap_event_note_t *note) {}
@@ -16,7 +18,7 @@ void Plugin::NoteOff(const clap_event_note_t *note) {}
 
 /*struct SerializedEvent {
   uint32_t time;
-  uint16_t space_id;
+  uint16_t space_id;'s
   uint16_t type;
 };
 
@@ -25,28 +27,23 @@ struct SerializedProcessCall {
   std::vector<SerializedEvent> events;
 };*/
 
-SerializedEvent ProcessEvent(const clap_event_header_t *hdr) {
-  SerializedEvent event = {
-    .time = hdr->time,
-    .space_id = hdr->space_id,
-    .type = hdr->type,
-  };
+json ProcessEvent(const clap_event_header_t *hdr) {
+  json j;
+  j["time"] = static_cast<int>(hdr->time);
+  j["space_id"] = static_cast<int>(hdr->space_id);
+  j["type"] = static_cast<int>(hdr->type);
   if (hdr->space_id == CLAP_CORE_EVENT_SPACE_ID) {
     switch (hdr->type) {
-      case CLAP_EVENT_NOTE_ON: {
+      case CLAP_EVENT_NOTE_ON:
+      case CLAP_EVENT_NOTE_OFF:
+      case CLAP_EVENT_NOTE_CHOKE:
+       {
         const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
-        break;
-      }
-
-      case CLAP_EVENT_NOTE_OFF: {
-        const clap_event_note_t *ev =
-            reinterpret_cast<const clap_event_note_t *>(hdr);
-        break;
-      }
-
-      case CLAP_EVENT_NOTE_CHOKE: {
-        // const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
-        //  TODO: handle note choke
+        j["channel"] = static_cast<int>(ev->channel);
+        j["key"] = static_cast<int>(ev->key);
+        j["note_id"] = static_cast<int>(ev->note_id);
+        j["port_index"] = static_cast<int>(ev->port_index);
+        j["velocity"] = static_cast<int>(ev->velocity);
         break;
       }
 
@@ -97,8 +94,8 @@ SerializedEvent ProcessEvent(const clap_event_header_t *hdr) {
         break;
       }
     }
-    return event;
   }
+  return j;
 }
 
 
@@ -111,12 +108,15 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
       eventCount > 0 ? process->in_events->get(process->in_events, 0) : nullptr;
   uint32_t nextEventFrame = eventCount > 0 ? hdr->time : frameCount;
 
-  SerializedProcessCall sProcess;
-  sProcess.frames_count = process->frames_count;
+  json j;
+  j["frames_count"] = frameCount;
+  std::vector<json> events;
   for (uint32_t i = 0; i < eventCount; i++) {
     const clap_event_header_t *hdr = process->in_events->get(process->in_events, i);
-    sProcess.events.push_back(ProcessEvent(hdr));
+    events.push_back(ProcessEvent(hdr));
   }
+  j["events"] = events;
+  processCalls.push_back(j);
   // process every samples until the next event
   for (uint32_t i = 0; i < frameCount; ++i) {
     // fetch input samples
