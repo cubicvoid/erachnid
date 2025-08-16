@@ -23,6 +23,9 @@
 enum { PARAM_RATS, PARAM_ATTACK };
 
 namespace erachnid::scan {
+
+  using nlohmann::json;
+
 extern const clap_plugin_descriptor_t plugin_desc;
 
 Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
@@ -38,14 +41,81 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   ));
 }
 
+bool Plugin::Activate(
+  double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
+) {
+  json j;
+  j["method"] = std::string("activate");
+  j["sample_rate"] = sample_rate;
+  j["min_frames_count"] = min_frames_count;
+  j["max_frames_count"] = max_frames_count;
+  AddEntryFromMainThread(j);
+
+  return CLAPPlugin::Activate(sample_rate, min_frames_count, max_frames_count);
+}
+
+void Plugin::AddEntryFromMainThread(json entry) {
+  entry["steady_time_calculated"] = steady_time_calculated.load();
+  refreshEntries();
+  entries.push_back(entry);
+}
+
+void Plugin::AddEntryFromAudioThread(json entry) {
+  entry["steady_time_calculated"] = steady_time_calculated.load();
+  pending_entries_lock.lock();
+  pending_entries.push_back(entry);
+  pending_entries_lock.unlock();
+  RequestMainThreadCallback();
+}
+
+void Plugin::Deactivate() {
+  json j;
+  j["method"] = std::string("deactivate");
+  AddEntryFromMainThread(j);
+  CLAPPlugin::Deactivate();
+}
+
+bool Plugin::StartProcessing() {
+  json j;
+  j["method"] = std::string("start_processing");
+  AddEntryFromAudioThread(j);
+  return CLAPPlugin::StartProcessing();
+}
+
+void Plugin::StopProcessing() {
+  json j;
+  j["method"] = std::string("stop_processing");
+  AddEntryFromAudioThread(j);
+  CLAPPlugin::StopProcessing();
+}
+
+void Plugin::Reset() {
+  json j;
+  j["method"] = std::string("reset");
+  AddEntryFromAudioThread(j);
+  CLAPPlugin::Reset();
+}
+
 void Plugin::OnMainThread() {
+  if (include_on_main_thread) {
+    json j;
+    j["method"] = std::string("on_main_thread");
+    AddEntryFromMainThread(j);
+  } else {
+    refreshEntries();
+  }
+
+  setEventCount(static_cast<int>(entries.size()));
+}
+
+// must be called on the main thread
+void Plugin::refreshEntries() {
   std::vector<nlohmann::json> new_entries;
   pending_entries_lock.lock();
   std::swap(pending_entries, new_entries);
   pending_entries_lock.unlock();
 
   entries.insert(entries.end(), new_entries.begin(), new_entries.end());
-  setEventCount(entries.size());
 }
 
 nlohmann::json Plugin::GetData() {
@@ -55,8 +125,9 @@ nlohmann::json Plugin::GetData() {
 
 
 void Plugin::ResetLog() {
+	refreshEntries();
   entries.clear();
-
+  setEventCount(static_cast<int>(entries.size()));
 }
 
 }  // namespace erachnid::scan

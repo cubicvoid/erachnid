@@ -12,21 +12,6 @@ using nlohmann::json;
 
 namespace erachnid::scan {
 
-void Plugin::NoteOn(const clap_event_note_t *note) {}
-
-void Plugin::NoteOff(const clap_event_note_t *note) {}
-
-/*struct SerializedEvent {
-  uint32_t time;
-  uint16_t space_id;'s
-  uint16_t type;
-};
-
-struct SerializedProcessCall {
-  uint32_t frames_count;
-  std::vector<SerializedEvent> events;
-};*/
-
 json jsonFromHeader(const clap_event_header_t *hdr) {
   json j;
   j["size"] = hdr->size;
@@ -105,6 +90,7 @@ json jsonFromTransport(const clap_event_transport_t *transport) {
   j["bar_number"] = transport->bar_number;
   j["tsig_num"] = transport->tsig_num;
   j["tsig_denom"] = transport->tsig_denom;
+  return j;
 }
 
 json jsonFromEvent(const clap_event_header_t *hdr) {
@@ -171,7 +157,7 @@ json jsonFromEvent(const clap_event_header_t *hdr) {
   return j;
 }
 
-json jsonFromInputEvents(const clap_input_events_t *in_events) {
+std::vector<json> jsonFromInputEvents(const clap_input_events_t *in_events) {
   std::vector<json> events;
   const uint32_t eventCount = in_events->size(in_events);
   for (uint32_t i = 0; i < eventCount; i++) {
@@ -188,21 +174,21 @@ json jsonFromProcess(const clap_process_t *process) {
   if (process->transport != nullptr) {
     j["transport"] = jsonFromTransport(process->transport);
   }
-  j["events"] = jsonFromInputEvents(process->in_events);
+  json in_events = jsonFromInputEvents(process->in_events);
+  j["events"] = in_events;
   return j;
 }
 
 clap_process_status Plugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;
-  const uint32_t eventCount = process->in_events->size(process->in_events);
-  uint32_t       eventIndex = 0;
-  const clap_event_header_t *hdr =
-      eventCount > 0 ? process->in_events->get(process->in_events, 0) : nullptr;
-  uint32_t nextEventFrame = eventCount > 0 ? hdr->time : frameCount;
 
-  json j;
-  j["process"] = jsonFromProcess(process);
-  entries.push_back(j);
+  if (include_empty_process.load() || process->in_events->size(process->in_events) > 0) {
+		json j = jsonFromProcess(process);
+    j["method"] = std::string("process");
+    AddEntryFromAudioThread(j);
+	}
+  steady_time_calculated.fetch_add(frameCount);
+  
   // process every samples until the next event
   for (uint32_t i = 0; i < frameCount; ++i) {
     // fetch input samples
@@ -217,13 +203,26 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
     process->audio_outputs[0].data32[1][i] = out_r;
   }
 
-  RequestMainThreadCallback();
   return CLAP_PROCESS_CONTINUE;
+}
+
+json jsonFromParamsFlush(const clap_input_events_t  *in) {
+  json j;
+  j["events"] = jsonFromInputEvents(in);
+  return j;
 }
 
 void Plugin::ParamsFlush(
   const clap_input_events_t  *in, const clap_output_events_t *out
 ) {
+  json j = jsonFromParamsFlush(in);
+  j["method"] = std::string("params_flush");
+
+  if (_active) {
+    AddEntryFromAudioThread(j);
+  } else {
+    AddEntryFromMainThread(j);
+  }
 }
 
 

@@ -318,16 +318,12 @@ namespace {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
     plugin->Log("plugin_get_extension(%s)", id);
 
-    // if (!strcmp(id, CLAP_EXT_LATENCY))
-    //    return &s_my_plug_latency;
     if (plugin->AudioPortsEnabled() && strcmp(id, CLAP_EXT_AUDIO_PORTS) == 0) {
       return &s_plugin_audio_ports;
     }
     if (plugin->NotePortsEnabled() && strcmp(id, CLAP_EXT_NOTE_PORTS) == 0) {
       return &s_plugin_note_ports;
     }
-    /*if (!strcmp(id, CLAP_EXT_STATE))
-       return &s_my_plug_state;*/
     if (strcmp(id, CLAP_EXT_PARAMS) == 0) {
       return &s_plugin_params;
     }
@@ -340,11 +336,6 @@ namespace {
   }
 
 }  // namespace
-
-/*clap_plugin_t *plugin_create(const clap_host_t *host) {
-  chomp::Plugin *p = new chomp::Plugin(host);
-  return &p->plugin;
-}*/
 
 void CLAPPlugin::InitRawPlugin(const clap_plugin_descriptor_t *desc) {
   _raw_plugin.desc = desc;

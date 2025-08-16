@@ -17,23 +17,10 @@
 
 namespace erachnid::scan {
 
-struct SerializedEvent {
-  uint32_t time;
-  uint16_t space_id;
-  uint16_t type;
-};
-
-struct SerializedProcessCall {
-  uint32_t frames_count;
-  std::vector<SerializedEvent> events;
-};
-  
-  
 class Plugin : public CLAPPlugin {
  public:
   Plugin(const clap_host_t *_host);
 
-  virtual void OnMainThread();
   virtual clap_process_status Process(const clap_process_t *process);
   virtual void ParamsFlush(
     const clap_input_events_t  *in, const clap_output_events_t *out);
@@ -41,23 +28,46 @@ class Plugin : public CLAPPlugin {
   virtual uint32_t NotePortsCount(bool is_input) { return 1; }
   virtual uint32_t AudioPortsCount(bool is_input) { return 1; }
 
+  virtual bool Activate(
+      double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
+  );
+  virtual void Deactivate();
+  virtual bool StartProcessing();
+  virtual void StopProcessing();
+  virtual void Reset();
+  virtual void OnMainThread();
+
+
   uint32_t latency;
   
   nlohmann::json GetData();
   void ResetLog();
 
+  void setIncludeEmptyProcess(bool value) {
+		include_empty_process.store(value);
+	}
+
+  void setIncludeOnMainThread(bool value) {
+    include_on_main_thread = value;
+  }
+
 protected:
   virtual void setEventCount(int count) { };
 
  private:
-  void NoteOn(const clap_event_note_t *note);
-  void NoteOff(const clap_event_note_t *note);
+  void AddEntryFromMainThread(nlohmann::json entry);
+  void AddEntryFromAudioThread(nlohmann::json entry);
 
+  void refreshEntries();
   // entries should only be accessed on the main thread. pending_entries
   // should only be accessed while holding pending_entries_lock.
   std::vector<nlohmann::json> entries;
   std::vector<nlohmann::json> pending_entries;
   std::mutex pending_entries_lock;
+  
+  std::atomic<bool> include_empty_process;
+  bool include_on_main_thread;
+  std::atomic<int64_t> steady_time_calculated;
 };
 
 }  // namespace erachnid::skeleton

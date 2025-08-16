@@ -20,6 +20,9 @@ namespace erachnid::scan {
 }
 
 @property (nonatomic, retain) IBOutlet NSView *view;
+@property (nonatomic, retain) IBOutlet NSTextField *eventCountField;
+@property (nonatomic, retain) IBOutlet NSSwitch *includeEmptyProcessSwitch;
+@property (nonatomic, retain) IBOutlet NSSwitch *includeOnMainThreadSwitch;
 @property (nonatomic, retain) NSURL *saveTarget;
 
 - (IBAction)buttonPressed:(id)sender;
@@ -37,7 +40,24 @@ namespace erachnid::scan {
 }
 
 - (void)setEventCount:(int)count {
+  if (self.eventCountField != nil) {
+	  self.eventCountField.stringValue = [NSString stringWithFormat:@"%d", count];
+  }
   //_count = count;
+}
+
+- (IBAction)setIncludeEmptyProcess:(id)sender {
+	if (_plugin != nullptr && self.includeEmptyProcessSwitch != nil) {
+		_plugin->setIncludeEmptyProcess(
+			self.includeEmptyProcessSwitch.state == NSControlStateValueOn);
+	}
+}
+
+- (IBAction)setIncludeOnMainThread:(id)sender {
+  if (_plugin != nullptr && self.includeOnMainThreadSwitch != nil) {
+    _plugin->setIncludeOnMainThread(
+      self.includeOnMainThreadSwitch.state == NSControlStateValueOn);
+  }
 }
 
 - (IBAction)buttonPressed:(id)sender {
@@ -128,7 +148,7 @@ PluginDarwin::PluginDarwin(const clap_host_t *_host) : Plugin(_host),
 }
 
 void PluginDarwin::setEventCount(int count) {
-  controller.eventCount = count;
+  [controller setEventCount:count];
 }
 
 bool PluginDarwin::GUIIsAPISupported(const char *api, bool is_floating) {

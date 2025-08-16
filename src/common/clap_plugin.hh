@@ -24,24 +24,37 @@ class CLAPPlugin {
 
   virtual clap_process_status Process(const clap_process_t *process);
 
+  // [main-thread]
   virtual bool Init();
+
+  // [main-thread & !active]
   virtual void Destroy();
-  virtual void OnMainThread();
+
+  // [main-thread & !active_state]
   virtual bool Activate(
       double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
   );
-  virtual void Deactivate();
-  virtual void Reset();
 
+  // [main-thread & active_state]
+  virtual void Deactivate();
+
+  // [audio-thread & active_state & !processing_state]
   virtual bool StartProcessing() {
-    Log("CLAPPlugin::StartProcessing");
     _processing = true;
     return true;
   }
+
+  // [audio-thread & active_state & processing_state]
   virtual void StopProcessing() {
-    Log("CLAPPlugin::StopProcessing");
     _processing = false;
   }
+
+  // [audio-thread & active_state]
+  virtual void Reset();
+
+   // [main-thread]
+  virtual void OnMainThread();
+
 
   // If default settings and names are ok, only override NotePortsCount.
   // If names matter, also override NotePortsName.
@@ -83,7 +96,7 @@ class CLAPPlugin {
       char    *out_buffer,
       uint32_t out_buffer_capacity
   );
-  
+
   // [main-thread]
   virtual bool ParamsTextToValue(
       clap_id param_id, const char *param_value_text, double *out_value
