@@ -36,6 +36,10 @@ namespace erachnid::scan {
   return self;
 }
 
+- (void)setEventCount:(int)count {
+  //_count = count;
+}
+
 - (IBAction)buttonPressed:(id)sender {
   if (_plugin != nullptr) {
     _plugin->Log("buttonPressed");
@@ -88,6 +92,9 @@ namespace erachnid::scan {
 
 
 class PluginDarwin : public Plugin {
+protected:
+  virtual void setEventCount(int count);
+
 public:
   PluginDarwin(const clap_host_t *_host);
 
@@ -118,6 +125,10 @@ PluginDarwin::PluginDarwin(const clap_host_t *_host) : Plugin(_host),
   /*rootView(nil),*/ controller(nil),
   width(500), height(300)
 {
+}
+
+void PluginDarwin::setEventCount(int count) {
+  controller.eventCount = count;
 }
 
 bool PluginDarwin::GUIIsAPISupported(const char *api, bool is_floating) {

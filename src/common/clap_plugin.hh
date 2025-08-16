@@ -26,6 +26,7 @@ class CLAPPlugin {
 
   virtual bool Init();
   virtual void Destroy();
+  virtual void OnMainThread();
   virtual bool Activate(
       double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
   );
@@ -64,20 +65,31 @@ class CLAPPlugin {
       uint32_t index, bool is_input, clap_audio_port_info_t *info
   );
 
+  // [main-thread]
   virtual uint32_t ParamsCount();
+
+  // [main-thread]
   virtual bool     ParamsGetInfo(
           uint32_t param_index, clap_param_info_t *param_info
       );
+
+  // [main-thread]
   virtual bool ParamsGetValue(clap_id param_id, double *out_value);
+
+  // [main-thread]
   virtual bool ParamsValueToText(
       clap_id  param_id,
       double   value,
       char    *out_buffer,
       uint32_t out_buffer_capacity
   );
+  
+  // [main-thread]
   virtual bool ParamsTextToValue(
       clap_id param_id, const char *param_value_text, double *out_value
   );
+
+  // [active ? audio-thread : main-thread]
   virtual void ParamsFlush(
       const clap_input_events_t *in, const clap_output_events_t *out
   );
@@ -124,6 +136,10 @@ class CLAPPlugin {
     _params.push_back(param);
     _params_lookup[param->_id] = param;
   };
+
+  void RequestMainThreadCallback() {
+    _host->request_callback(_host);
+  }
 
   const clap_host_t *_host;
 

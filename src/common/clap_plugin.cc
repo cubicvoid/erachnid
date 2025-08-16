@@ -47,6 +47,8 @@ bool CLAPPlugin::Init() {
 
 void CLAPPlugin::Destroy() {}
 
+void CLAPPlugin::OnMainThread() {}
+
 bool CLAPPlugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {

@@ -69,12 +69,6 @@ clap_process_status ChompPlugin::Process(const clap_process_t *process) {
     }
   }
   sampleCount += frameCount;
-  if (sampleCount > 10000 && sampleCount - frameCount <= 10000) {
-    // one-time restart for testing
-    // host->request_restart(host);
-    _host->request_callback(_host);
-    return CLAP_PROCESS_SLEEP;
-  }
 
   return CLAP_PROCESS_CONTINUE;
 }

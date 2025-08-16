@@ -27,6 +27,11 @@ namespace {
     delete plugin;
   }
 
+  CLAP_ABI void plugin_on_main_thread(const struct clap_plugin *_plugin) {
+    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    plugin->OnMainThread();
+  }
+
   CLAP_ABI bool plugin_activate(
       const struct clap_plugin *_plugin,
       double                    sample_rate,
@@ -332,18 +337,6 @@ namespace {
     }
     // TODO: add support to CLAP_EXT_PARAMS
     return NULL;
-  }
-
-  CLAP_ABI void plugin_on_main_thread(const struct clap_plugin *_plugin) {
-    // CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin
-    // *>(_plugin->plugin_data);
-    /*const clap_host_params_t *host_params =
-        reinterpret_cast<const clap_host_params_t *>(
-            plugin->host->get_extension(plugin->host, CLAP_EXT_PARAMS)
-        );
-    if (host_params != nullptr && host_params->rescan != nullptr) {
-      host_params->rescan(plugin->host, CLAP_PARAM_RESCAN_ALL);
-    }*/
   }
 
 }  // namespace

@@ -38,16 +38,25 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   ));
 }
 
+void Plugin::OnMainThread() {
+  std::vector<nlohmann::json> new_entries;
+  pending_entries_lock.lock();
+  std::swap(pending_entries, new_entries);
+  pending_entries_lock.unlock();
+
+  entries.insert(entries.end(), new_entries.begin(), new_entries.end());
+  setEventCount(entries.size());
+}
+
 nlohmann::json Plugin::GetData() {
-	nlohmann::json result = {
-		{"process_calls", processCalls},
-	};
+	nlohmann::json result = entries;
 	return result;
 }
 
 
 void Plugin::ResetLog() {
-  processCalls.clear();
+  entries.clear();
+
 }
 
 }  // namespace erachnid::scan
