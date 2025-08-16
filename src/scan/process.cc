@@ -29,6 +29,7 @@ struct SerializedProcessCall {
 
 json ProcessEvent(const clap_event_header_t *hdr) {
   json j;
+
   j["time"] = static_cast<int>(hdr->time);
   j["space_id"] = static_cast<int>(hdr->space_id);
   j["type"] = static_cast<int>(hdr->type);
@@ -98,7 +99,10 @@ json ProcessEvent(const clap_event_header_t *hdr) {
   return j;
 }
 
-
+json jsonForTransport(const clap_event_transport_t *transport) {
+  json j;
+  j["flags"] = transport->flags;
+}
 
 clap_process_status Plugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;
@@ -109,7 +113,11 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
   uint32_t nextEventFrame = eventCount > 0 ? hdr->time : frameCount;
 
   json j;
+  j["steady_time"] = process->steady_time;
   j["frames_count"] = frameCount;
+  if (process->transport != nullptr) {
+    j["transport"] = jsonForTransport(process->transport);
+  }
   std::vector<json> events;
   for (uint32_t i = 0; i < eventCount; i++) {
     const clap_event_header_t *hdr = process->in_events->get(process->in_events, i);
