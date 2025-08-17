@@ -10,6 +10,7 @@
             <connections>
                 <outlet property="eventCountField" destination="puA-Dp-8h2" id="xaa-Bm-NAR"/>
                 <outlet property="includeEmptyProcessSwitch" destination="det-xz-Mqz" id="P7c-EF-u4b"/>
+                <outlet property="includeOnMainThreadSwitch" destination="Xai-21-tbh" id="rxi-n7-rjZ"/>
                 <outlet property="view" destination="AGq-9A-C3k" id="3gG-jO-Iri"/>
             </connections>
         </customObject>
@@ -70,17 +71,35 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <switch horizontalHuggingPriority="750" verticalHuggingPriority="750" baseWritingDirection="leftToRight" alignment="left" translatesAutoresizingMaskIntoConstraints="NO" id="Xai-21-tbh">
+                    <rect key="frame" x="18" y="135" width="42" height="25"/>
+                    <connections>
+                        <action selector="setIncludeOnMainThread:" target="-2" id="Um1-e6-M5p"/>
+                    </connections>
+                </switch>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p0i-q1-ZlA">
+                    <rect key="frame" x="64" y="140" width="182" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Include on_main_thread calls" id="ApM-Ji-xqk">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
             </subviews>
             <constraints>
                 <constraint firstItem="puA-Dp-8h2" firstAttribute="centerY" secondItem="rbD-uN-Lfr" secondAttribute="centerY" id="0Cq-6R-PCS"/>
                 <constraint firstItem="det-xz-Mqz" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="20" symbolic="YES" id="0k3-aY-XY4"/>
                 <constraint firstItem="puA-Dp-8h2" firstAttribute="leading" secondItem="rbD-uN-Lfr" secondAttribute="trailing" constant="8" symbolic="YES" id="GEr-Sv-nv6"/>
+                <constraint firstItem="p0i-q1-ZlA" firstAttribute="centerY" secondItem="Xai-21-tbh" secondAttribute="centerY" id="HK8-Mn-j8k"/>
                 <constraint firstItem="geQ-GY-O9s" firstAttribute="centerY" secondItem="det-xz-Mqz" secondAttribute="centerY" id="HO4-BP-iqf"/>
+                <constraint firstItem="p0i-q1-ZlA" firstAttribute="leading" secondItem="Xai-21-tbh" secondAttribute="trailing" constant="8" symbolic="YES" id="HoT-82-1ei"/>
                 <constraint firstAttribute="trailing" secondItem="6js-MF-Eoa" secondAttribute="trailing" constant="20" symbolic="YES" id="HwY-29-Ndk"/>
+                <constraint firstItem="Xai-21-tbh" firstAttribute="top" secondItem="det-xz-Mqz" secondAttribute="bottom" constant="8" symbolic="YES" id="Lgb-cn-5Qc"/>
                 <constraint firstItem="geQ-GY-O9s" firstAttribute="leading" secondItem="det-xz-Mqz" secondAttribute="trailing" constant="8" symbolic="YES" id="S2X-06-tFn"/>
                 <constraint firstAttribute="bottom" secondItem="6js-MF-Eoa" secondAttribute="bottom" constant="20" symbolic="YES" id="W76-6o-28J"/>
                 <constraint firstItem="rbD-uN-Lfr" firstAttribute="top" secondItem="AGq-9A-C3k" secondAttribute="top" constant="20" symbolic="YES" id="aOb-xv-S1U"/>
                 <constraint firstItem="rbD-uN-Lfr" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="22" id="jT3-Ts-06s"/>
+                <constraint firstItem="Xai-21-tbh" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="20" symbolic="YES" id="oEK-Gr-LcD"/>
                 <constraint firstItem="det-xz-Mqz" firstAttribute="top" secondItem="rbD-uN-Lfr" secondAttribute="bottom" constant="8" symbolic="YES" id="wUb-5Y-i3X"/>
             </constraints>
             <point key="canvasLocation" x="187.5" y="108.5"/>

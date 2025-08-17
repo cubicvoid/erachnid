@@ -93,6 +93,12 @@ json jsonFromTransport(const clap_event_transport_t *transport) {
   return j;
 }
 
+json jsonFromParamGesture(const clap_event_param_gesture_t *param_gesture) {
+  json j;
+  j["param_id"] = param_gesture->param_id;
+  return j;
+}
+
 json jsonFromEvent(const clap_event_header_t *hdr) {
   json j;
 
@@ -101,8 +107,7 @@ json jsonFromEvent(const clap_event_header_t *hdr) {
     switch (hdr->type) {
       case CLAP_EVENT_NOTE_ON:
       case CLAP_EVENT_NOTE_OFF:
-      case CLAP_EVENT_NOTE_CHOKE:
-       {
+      case CLAP_EVENT_NOTE_CHOKE: {
         const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
         j["note"] = jsonFromEventNote(ev);
         break;
@@ -134,6 +139,13 @@ json jsonFromEvent(const clap_event_header_t *hdr) {
         break;
       }
 
+      case CLAP_EVENT_PARAM_GESTURE_BEGIN: 
+      case CLAP_EVENT_PARAM_GESTURE_END: {
+        const clap_event_param_gesture_t *ev = (const clap_event_param_gesture_t *)hdr;
+        j["param_gesture"] = jsonFromParamGesture(ev);
+        break;
+      }
+
       case CLAP_EVENT_MIDI: {
         // const clap_event_midi_t *ev = (const clap_event_midi_t *)hdr;
         // TODO: handle MIDI event
@@ -152,6 +164,7 @@ json jsonFromEvent(const clap_event_header_t *hdr) {
         //  TODO: handle MIDI2 event
         break;
       }
+
     }
   }
   return j;
@@ -189,9 +202,8 @@ clap_process_status Plugin::Process(const clap_process_t *process) {
 	}
   steady_time_calculated.fetch_add(frameCount);
   
-  // process every samples until the next event
+  // process all samples
   for (uint32_t i = 0; i < frameCount; ++i) {
-    // fetch input samples
     const float in_l = process->audio_inputs[0].data32[0][i];
     const float in_r = process->audio_inputs[0].data32[1][i];
 

@@ -20,7 +20,7 @@
 #include "clap_param.hh"
 #include "reaper_plugin.h"
 
-enum { PARAM_RATS, PARAM_ATTACK };
+enum { PARAM_RATS, PARAM_ATTACK, PARAM_DECIBELS };
 
 namespace erachnid::scan {
 
@@ -31,14 +31,26 @@ extern const clap_plugin_descriptor_t plugin_desc;
 Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
   Log("plugin_create()");
 
+  const uint64_t fully_automatable =
+      CLAP_PARAM_IS_AUTOMATABLE
+    | CLAP_PARAM_IS_AUTOMATABLE_PER_CHANNEL
+    | CLAP_PARAM_IS_AUTOMATABLE_PER_KEY
+    | CLAP_PARAM_IS_AUTOMATABLE_PER_NOTE_ID
+    | CLAP_PARAM_IS_AUTOMATABLE_PER_PORT
+    | CLAP_PARAM_IS_MODULATABLE
+    | CLAP_PARAM_IS_MODULATABLE_PER_CHANNEL
+    | CLAP_PARAM_IS_MODULATABLE_PER_KEY
+    | CLAP_PARAM_IS_MODULATABLE_PER_NOTE_ID
+    | CLAP_PARAM_IS_MODULATABLE_PER_PORT;
+
   AddParam(new CLAPParam(
       PARAM_RATS, "rats", "something", 0, 100, 50,
-      CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
-  ));
+      CLAP_PARAM_IS_STEPPED | fully_automatable));
   AddParam(new CLAPParam(
       PARAM_ATTACK, "attack", "something else", 0.0, 1.0, 0.0,
-      CLAP_PARAM_IS_AUTOMATABLE
-  ));
+      fully_automatable));
+  AddParam(new CLAPParam(
+      PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable));
 }
 
 bool Plugin::Activate(
