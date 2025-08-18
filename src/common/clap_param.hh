@@ -25,6 +25,7 @@ class CLAPParam {
 
   void   GetInfo(clap_param_info_t *param_info);
   double GetValue() const { return _value.load(); }
+  void SetValue(double value) { _value.store(value); }
 
   virtual bool ValueToText(
       double value, char *out_buffer, uint32_t out_buffer_capacity

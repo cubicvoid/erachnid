@@ -99,6 +99,68 @@ json jsonFromParamGesture(const clap_event_param_gesture_t *param_gesture) {
   return j;
 }
 
+void Plugin::handleEvent(const clap_event_header_t *hdr) {
+  if (hdr->space_id == CLAP_CORE_EVENT_SPACE_ID) {
+    switch (hdr->type) {
+      case CLAP_EVENT_NOTE_ON:
+      case CLAP_EVENT_NOTE_OFF:
+      case CLAP_EVENT_NOTE_CHOKE: {
+        const clap_event_note_t *ev = (const clap_event_note_t *)hdr;
+        break;
+      }
+        
+      case CLAP_EVENT_NOTE_EXPRESSION: {
+        const clap_event_note_expression_t *ev =
+        (const clap_event_note_expression_t *)hdr;
+        break;
+      }
+        
+      case CLAP_EVENT_PARAM_VALUE: {
+        const clap_event_param_value_t *ev =
+        (const clap_event_param_value_t *)hdr;
+        ParamForID(ev->param_id)->SetValue(ev->value);
+        break;
+      }
+        
+      case CLAP_EVENT_PARAM_MOD: {
+        const clap_event_param_mod_t *ev = (const clap_event_param_mod_t *)hdr;
+        break;
+      }
+        
+      case CLAP_EVENT_TRANSPORT: {
+        const clap_event_transport_t *ev = (const clap_event_transport_t *)hdr;
+        break;
+      }
+        
+      case CLAP_EVENT_PARAM_GESTURE_BEGIN:
+      case CLAP_EVENT_PARAM_GESTURE_END: {
+        const clap_event_param_gesture_t *ev = (const clap_event_param_gesture_t *)hdr;
+        break;
+      }
+        
+      case CLAP_EVENT_MIDI: {
+        // const clap_event_midi_t *ev = (const clap_event_midi_t *)hdr;
+        // TODO: handle MIDI event
+        break;
+      }
+        
+      case CLAP_EVENT_MIDI_SYSEX: {
+        // const clap_event_midi_sysex_t *ev =
+        //     (const clap_event_midi_sysex_t *)hdr;
+        // TODO: handle MIDI Sysex event
+        break;
+      }
+        
+      case CLAP_EVENT_MIDI2: {
+        // const clap_event_midi2_t *ev = (const clap_event_midi2_t *)hdr;
+        //  TODO: handle MIDI2 event
+        break;
+      }
+        
+    }
+  }
+}
+
 json jsonFromEvent(const clap_event_header_t *hdr) {
   json j;
 
@@ -194,13 +256,21 @@ json jsonFromProcess(const clap_process_t *process) {
 
 clap_process_status Plugin::Process(const clap_process_t *process) {
   const uint32_t frameCount = process->frames_count;
+  const uint32_t eventCount = process->in_events->size(process->in_events);
 
-  if (include_empty_process.load() || process->in_events->size(process->in_events) > 0) {
-		json j = jsonFromProcess(process);
-    j["method"] = std::string("process");
-    AddEntryFromAudioThread(j);
+  if (include_empty_process.load() || eventCount > 0) {
+    if ((process->transport->flags & CLAP_TRANSPORT_IS_PLAYING) || getIncludeProcessWithoutTransport()) {
+      json j = jsonFromProcess(process);
+      j["method"] = std::string("process");
+      AddEntryFromAudioThread(j);
+    }
 	}
   steady_time_calculated.fetch_add(frameCount);
+
+  for (uint32_t i = 0; i < eventCount; i++) {
+    const clap_event_header_t *hdr = process->in_events->get(process->in_events, i);
+    handleEvent(hdr);
+  }
   
   // process all samples
   for (uint32_t i = 0; i < frameCount; ++i) {
@@ -229,6 +299,13 @@ void Plugin::ParamsFlush(
 ) {
   json j = jsonFromParamsFlush(in);
   j["method"] = std::string("params_flush");
+
+  const uint32_t eventCount = in->size(in);
+  for (uint32_t i = 0; i < eventCount; i++) {
+    const clap_event_header_t *hdr = in->get(in, i);
+    handleEvent(hdr);
+
+  }
 
   if (_active) {
     AddEntryFromAudioThread(j);

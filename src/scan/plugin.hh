@@ -47,8 +47,24 @@ class Plugin : public CLAPPlugin {
 		include_empty_process.store(value);
 	}
 
+  bool getIncludeEmptyProcess() {
+    return include_empty_process.load();
+  }
+
   void setIncludeOnMainThread(bool value) {
     include_on_main_thread = value;
+  }
+
+  bool getIncludeOnMainThread() {
+    return include_on_main_thread;
+  }
+
+  void setIncludeProcessWithoutTransport(bool value) {
+    include_no_transport.store(value);
+  }
+
+  bool getIncludeProcessWithoutTransport() {
+    return include_no_transport.load();
   }
 
 protected:
@@ -58,6 +74,9 @@ protected:
   void AddEntryFromMainThread(nlohmann::json entry);
   void AddEntryFromAudioThread(nlohmann::json entry);
 
+  void handleEvent(const clap_event_header_t *hdr);
+
+
   void refreshEntries();
   // entries should only be accessed on the main thread. pending_entries
   // should only be accessed while holding pending_entries_lock.
@@ -66,8 +85,11 @@ protected:
   std::mutex pending_entries_lock;
   
   std::atomic<bool> include_empty_process;
+  std::atomic<bool> include_no_transport;
   bool include_on_main_thread;
   std::atomic<int64_t> steady_time_calculated;
+
+
 };
 
 }  // namespace erachnid::skeleton

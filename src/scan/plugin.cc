@@ -24,11 +24,15 @@ enum { PARAM_RATS, PARAM_ATTACK, PARAM_DECIBELS };
 
 namespace erachnid::scan {
 
-  using nlohmann::json;
+using nlohmann::json;
 
 extern const clap_plugin_descriptor_t plugin_desc;
 
-Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc) {
+Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc),
+  include_empty_process(false),
+  include_no_transport(true),
+  include_on_main_thread(false)
+{
   Log("plugin_create()");
 
   const uint64_t fully_automatable =

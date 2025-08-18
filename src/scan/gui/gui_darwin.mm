@@ -23,6 +23,7 @@ namespace erachnid::scan {
 @property (nonatomic, retain) IBOutlet NSTextField *eventCountField;
 @property (nonatomic, retain) IBOutlet NSSwitch *includeEmptyProcessSwitch;
 @property (nonatomic, retain) IBOutlet NSSwitch *includeOnMainThreadSwitch;
+@property (nonatomic, retain) IBOutlet NSSwitch *includeProcessWithoutTransportSwitch;
 @property (nonatomic, retain) NSURL *saveTarget;
 
 - (IBAction)buttonPressed:(id)sender;
@@ -57,6 +58,23 @@ namespace erachnid::scan {
   if (_plugin != nullptr && self.includeOnMainThreadSwitch != nil) {
     _plugin->setIncludeOnMainThread(
       self.includeOnMainThreadSwitch.state == NSControlStateValueOn);
+  }
+}
+
+- (IBAction)setIncludeProcessWithoutTransport:(id)sender {
+  if (_plugin != nullptr && self.includeProcessWithoutTransportSwitch != nil) {
+    _plugin->setIncludeProcessWithoutTransport(
+                                               self.includeProcessWithoutTransportSwitch.state == NSControlStateValueOn);
+
+  }
+}
+
+- (void)refreshGUI {
+  if (_plugin != nullptr) {
+    NSLog(@"refreshGUI");
+    self.includeEmptyProcessSwitch.state = _plugin->getIncludeEmptyProcess();
+    self.includeOnMainThreadSwitch.state = _plugin->getIncludeOnMainThread();
+    self.includeProcessWithoutTransportSwitch.state = _plugin->getIncludeProcessWithoutTransport();
   }
 }
 
@@ -261,6 +279,7 @@ bool PluginDarwin::GUIShow() {
   if (controller != nullptr) {
     NSLog(@"gui_show() -> 1");
     controller.view.hidden = false;
+    [controller refreshGUI];
     return true;
   }
   NSLog(@"gui_show() -> 0");

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23094" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23094"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -11,6 +11,7 @@
                 <outlet property="eventCountField" destination="puA-Dp-8h2" id="xaa-Bm-NAR"/>
                 <outlet property="includeEmptyProcessSwitch" destination="det-xz-Mqz" id="P7c-EF-u4b"/>
                 <outlet property="includeOnMainThreadSwitch" destination="Xai-21-tbh" id="rxi-n7-rjZ"/>
+                <outlet property="includeProcessWithoutTransportSwitch" destination="boG-Pg-6ks" id="yaw-mL-6RG"/>
                 <outlet property="view" destination="AGq-9A-C3k" id="3gG-jO-Iri"/>
             </connections>
         </customObject>
@@ -85,10 +86,25 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <switch horizontalHuggingPriority="750" verticalHuggingPriority="750" baseWritingDirection="leftToRight" alignment="left" translatesAutoresizingMaskIntoConstraints="NO" id="boG-Pg-6ks">
+                    <rect key="frame" x="18" y="104" width="42" height="25"/>
+                    <connections>
+                        <action selector="setIncludeProcessWithoutTransport:" target="-2" id="e2T-tA-CWC"/>
+                    </connections>
+                </switch>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LNU-S4-uk2">
+                    <rect key="frame" x="64" y="109" width="296" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Include process calls while transport not playing" id="6jG-SQ-pfa">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
             </subviews>
             <constraints>
                 <constraint firstItem="puA-Dp-8h2" firstAttribute="centerY" secondItem="rbD-uN-Lfr" secondAttribute="centerY" id="0Cq-6R-PCS"/>
                 <constraint firstItem="det-xz-Mqz" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="20" symbolic="YES" id="0k3-aY-XY4"/>
+                <constraint firstItem="LNU-S4-uk2" firstAttribute="centerY" secondItem="boG-Pg-6ks" secondAttribute="centerY" id="7qM-1K-wcp"/>
                 <constraint firstItem="puA-Dp-8h2" firstAttribute="leading" secondItem="rbD-uN-Lfr" secondAttribute="trailing" constant="8" symbolic="YES" id="GEr-Sv-nv6"/>
                 <constraint firstItem="p0i-q1-ZlA" firstAttribute="centerY" secondItem="Xai-21-tbh" secondAttribute="centerY" id="HK8-Mn-j8k"/>
                 <constraint firstItem="geQ-GY-O9s" firstAttribute="centerY" secondItem="det-xz-Mqz" secondAttribute="centerY" id="HO4-BP-iqf"/>
@@ -98,6 +114,9 @@
                 <constraint firstItem="geQ-GY-O9s" firstAttribute="leading" secondItem="det-xz-Mqz" secondAttribute="trailing" constant="8" symbolic="YES" id="S2X-06-tFn"/>
                 <constraint firstAttribute="bottom" secondItem="6js-MF-Eoa" secondAttribute="bottom" constant="20" symbolic="YES" id="W76-6o-28J"/>
                 <constraint firstItem="rbD-uN-Lfr" firstAttribute="top" secondItem="AGq-9A-C3k" secondAttribute="top" constant="20" symbolic="YES" id="aOb-xv-S1U"/>
+                <constraint firstItem="boG-Pg-6ks" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="20" symbolic="YES" id="ayq-Ke-vNe"/>
+                <constraint firstItem="boG-Pg-6ks" firstAttribute="top" secondItem="Xai-21-tbh" secondAttribute="bottom" constant="9" id="d9x-03-jFr"/>
+                <constraint firstItem="LNU-S4-uk2" firstAttribute="leading" secondItem="boG-Pg-6ks" secondAttribute="trailing" constant="8" symbolic="YES" id="e2S-5P-g9T"/>
                 <constraint firstItem="rbD-uN-Lfr" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="22" id="jT3-Ts-06s"/>
                 <constraint firstItem="Xai-21-tbh" firstAttribute="leading" secondItem="AGq-9A-C3k" secondAttribute="leading" constant="20" symbolic="YES" id="oEK-Gr-LcD"/>
                 <constraint firstItem="det-xz-Mqz" firstAttribute="top" secondItem="rbD-uN-Lfr" secondAttribute="bottom" constant="8" symbolic="YES" id="wUb-5Y-i3X"/>
