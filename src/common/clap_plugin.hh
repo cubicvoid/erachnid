@@ -9,6 +9,8 @@
 #include <map>
 #include <memory>
 
+#include <nlohmann/json.hpp>
+
 #include "clap_gui.hh"
 #include "clap_param.hh"
 #include "reaper_plugin.h"
@@ -107,6 +109,10 @@ class CLAPPlugin {
       const clap_input_events_t *in, const clap_output_events_t *out
   );
 
+
+  virtual bool StateSaveToJSON(nlohmann::json json) { return true; }
+  virtual bool StateLoadFromJSON(nlohmann::json json) { return true; }
+
   virtual bool GUIEnabled() { return false; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating) {
     return false;
@@ -154,6 +160,12 @@ class CLAPPlugin {
     _host->request_callback(_host);
   }
 
+  void MarkPluginStateDirty() {
+    if (host_state != nullptr) {
+      host_state->mark_dirty(_host);
+    }
+  }
+
   const clap_host_t *_host;
 
   int  _plugin_id;
@@ -169,8 +181,12 @@ class CLAPPlugin {
 
  private:
   void InitRawPlugin(const clap_plugin_descriptor_t *desc);
+  bool StateSave(const clap_ostream_t *stream);
+  bool StateLoad(const clap_istream_t *stream);
+
 
   clap_plugin_t _raw_plugin;
+  const clap_host_state_t *host_state;
 
   std::vector<CLAPParam *>       _params;
   std::map<clap_id, CLAPParam *> _params_lookup;

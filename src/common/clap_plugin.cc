@@ -25,6 +25,8 @@ CLAPPlugin::CLAPPlugin(
     _log_file = fopen("/Users/fae/erachnid.log", "wb");
   }
 #endif
+  host_state = (const clap_host_state_t *)host->get_extension(host, CLAP_EXT_STATE);
+
   Log("CLAPPlugin::CLAPPlugin()");
 
   InitRawPlugin(desc);
@@ -46,6 +48,24 @@ bool CLAPPlugin::Init() {
 }
 
 void CLAPPlugin::Destroy() {}
+
+bool CLAPPlugin::StateSave(const clap_ostream_t *stream) {
+  nlohmann::json json;
+  if (!StateSaveToJSON(json)) {
+    return false;
+  }
+  std::string serialized = json.dump();
+  size_t remaining = serialized.size();
+  const char *buf = serialized.c_str();
+  while (remaining > 0) {
+
+  }
+  return true;
+}
+
+bool CLAPPlugin::StateLoad(const clap_istream_t *stream) {
+  return true;
+}
 
 bool CLAPPlugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count

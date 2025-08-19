@@ -57,6 +57,8 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc),
       PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable));
 }
 
+
+
 bool Plugin::Activate(
   double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {

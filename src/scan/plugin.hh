@@ -37,6 +37,8 @@ class Plugin : public CLAPPlugin {
   virtual void Reset();
   virtual void OnMainThread();
 
+  virtual bool StateSaveToJSON(nlohmann::json json);
+  virtual bool StateLoadFromJSON(nlohmann::json json);
 
   uint32_t latency;
   
@@ -71,6 +73,7 @@ protected:
   virtual void setEventCount(int count) { };
 
  private:
+
   void AddEntryFromMainThread(nlohmann::json entry);
   void AddEntryFromAudioThread(nlohmann::json entry);
 
