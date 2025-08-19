@@ -19,7 +19,7 @@ class CLAPParam {
       double      min_value,
       double      max_value,
       double      default_value,
-      uint64_t    flags
+      clap_param_info_flags flags
   );
   virtual ~CLAPParam();
 
@@ -38,7 +38,7 @@ class CLAPParam {
   double      _min_value;
   double      _max_value;
   double      _default_value;
-  uint64_t    _flags;
+  clap_param_info_flags _flags;
 
   std::atomic<double> _value;
 };

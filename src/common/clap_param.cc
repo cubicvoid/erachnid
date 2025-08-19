@@ -17,7 +17,7 @@ CLAPParam::CLAPParam(
     double      min_value,
     double      max_value,
     double      default_value,
-    uint64_t    flags
+    clap_param_info_flags flags
 )
     : _id(id),
       _name(name),
