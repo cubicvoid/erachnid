@@ -69,6 +69,26 @@ namespace {
     plugin->Reset();
   }
 
+  ///////////////////////
+  // clap_plugin_state //
+  ///////////////////////
+
+  CLAP_ABI bool plugin_state_save(const clap_plugin_t *_plugin, const clap_ostream_t *stream) {
+    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    return plugin->StateSave(stream);
+  }
+
+  CLAP_ABI bool plugin_state_load(const clap_plugin_t *_plugin, const clap_istream_t *stream) {
+    CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
+    return plugin->StateLoad(stream);
+  }
+
+  const clap_plugin_state_t s_plugin_state = {
+    .save = plugin_state_save,
+    .load = plugin_state_load,
+  };
+
+
   /////////////////////////////
   // clap_plugin_audio_ports //
   /////////////////////////////
@@ -318,17 +338,20 @@ namespace {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
     plugin->Log("plugin_get_extension(%s)", id);
 
-    if (plugin->AudioPortsEnabled() && strcmp(id, CLAP_EXT_AUDIO_PORTS) == 0) {
-      return &s_plugin_audio_ports;
-    }
-    if (plugin->NotePortsEnabled() && strcmp(id, CLAP_EXT_NOTE_PORTS) == 0) {
-      return &s_plugin_note_ports;
-    }
-    if (strcmp(id, CLAP_EXT_PARAMS) == 0) {
+    if (!strcmp(id, CLAP_EXT_PARAMS)) {
       return &s_plugin_params;
     }
+    if (!strcmp(id, CLAP_EXT_STATE)) {
+      return &s_plugin_state;
+    }
+    if (plugin->AudioPortsEnabled() && !strcmp(id, CLAP_EXT_AUDIO_PORTS)) {
+      return &s_plugin_audio_ports;
+    }
+    if (plugin->NotePortsEnabled() && !strcmp(id, CLAP_EXT_NOTE_PORTS)) {
+      return &s_plugin_note_ports;
+    }
 
-    if (plugin->GUIEnabled() && strcmp(id, CLAP_EXT_GUI) == 0) {
+    if (plugin->GUIEnabled() && !strcmp(id, CLAP_EXT_GUI)) {
       return &s_plugin_gui;
     }
     // TODO: add support to CLAP_EXT_PARAMS

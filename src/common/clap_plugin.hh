@@ -109,9 +109,8 @@ class CLAPPlugin {
       const clap_input_events_t *in, const clap_output_events_t *out
   );
 
-
-  virtual bool StateSaveToJSON(nlohmann::json json) { return true; }
-  virtual bool StateLoadFromJSON(nlohmann::json json) { return true; }
+  bool StateSave(const clap_ostream_t *stream);
+  bool StateLoad(const clap_istream_t *stream);
 
   virtual bool GUIEnabled() { return false; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating) {
@@ -151,6 +150,9 @@ class CLAPPlugin {
 #endif
 
  protected:
+  virtual bool StateSaveToJSON(nlohmann::json json) { return true; }
+  virtual bool StateLoadFromJSON(nlohmann::json json) { return true; }
+
   void AddParam(CLAPParam *param) {
     _params.push_back(param);
     _params_lookup[param->_id] = param;
@@ -181,8 +183,6 @@ class CLAPPlugin {
 
  private:
   void InitRawPlugin(const clap_plugin_descriptor_t *desc);
-  bool StateSave(const clap_ostream_t *stream);
-  bool StateLoad(const clap_istream_t *stream);
 
 
   clap_plugin_t _raw_plugin;

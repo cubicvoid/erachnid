@@ -47,16 +47,49 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc),
     | CLAP_PARAM_IS_MODULATABLE_PER_NOTE_ID
     | CLAP_PARAM_IS_MODULATABLE_PER_PORT;
 
-  AddParam(new CLAPParam(
+  
+  _param_rats = new CLAPParam(
       PARAM_RATS, "rats", "something", 0, 100, 50,
-      CLAP_PARAM_IS_STEPPED | fully_automatable));
-  AddParam(new CLAPParam(
+      CLAP_PARAM_IS_STEPPED | fully_automatable);
+  _param_attack = new CLAPParam(
       PARAM_ATTACK, "attack", "something else", 0.0, 1.0, 0.0,
-      fully_automatable));
-  AddParam(new CLAPParam(
-      PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable));
+      fully_automatable);
+  _param_decibels = new CLAPParam(
+      PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable);
+  AddParam(_param_rats);
+  AddParam(_param_attack);
+  AddParam(_param_decibels);
 }
 
+bool Plugin::StateLoadFromJSON(nlohmann::json json) {
+  include_empty_process.store(json.value<bool>("include_empty_process", false));
+  include_no_transport.store(json.value<bool>("include_no_transport", true));
+  include_on_main_thread = json.value<bool>("include_on_main_thread", false);
+  _param_rats->SetValue(json.value<double>("rats", _param_rats->_default_value));
+  _param_attack->SetValue(json.value<double>("attack", _param_attack->_default_value));
+  _param_decibels->SetValue(json.value("decibels", _param_decibels->_default_value));
+  nlohmann::json j;
+  nlohmann::json state_load;
+  state_load["data"] = json.dump();
+  j["state_load"] = state_load;
+  entries.push_back(j);
+  return true;
+}
+
+bool Plugin::StateSaveToJSON(nlohmann::json json) {
+  json["include_empty_process"] = include_empty_process.load();
+  json["include_no_transport"] = include_no_transport.load();
+  json["include_on_main_thread"] = include_on_main_thread;
+  json["rats"] = _param_rats->GetValue();
+  json["attack"] = _param_attack->GetValue();
+  json["decibels"] = _param_decibels->GetValue();
+  nlohmann::json j;
+  nlohmann::json state_save;
+  state_save["data"] = json.dump();
+  j["state_save"] = state_save;
+  entries.push_back(j);
+  return true;
+}
 
 
 bool Plugin::Activate(

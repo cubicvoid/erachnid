@@ -25,7 +25,8 @@ CLAPParam::CLAPParam(
       _min_value(min_value),
       _max_value(max_value),
       _default_value(default_value),
-      _flags(flags) {}
+      _flags(flags),
+      _value(default_value) {}
 CLAPParam::~CLAPParam() {}
 
 void CLAPParam::GetInfo(clap_param_info_t *param_info) {

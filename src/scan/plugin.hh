@@ -47,6 +47,7 @@ class Plugin : public CLAPPlugin {
 
   void setIncludeEmptyProcess(bool value) {
 		include_empty_process.store(value);
+    MarkPluginStateDirty();
 	}
 
   bool getIncludeEmptyProcess() {
@@ -55,6 +56,7 @@ class Plugin : public CLAPPlugin {
 
   void setIncludeOnMainThread(bool value) {
     include_on_main_thread = value;
+    MarkPluginStateDirty();
   }
 
   bool getIncludeOnMainThread() {
@@ -63,6 +65,7 @@ class Plugin : public CLAPPlugin {
 
   void setIncludeProcessWithoutTransport(bool value) {
     include_no_transport.store(value);
+    MarkPluginStateDirty();
   }
 
   bool getIncludeProcessWithoutTransport() {
@@ -92,7 +95,9 @@ protected:
   bool include_on_main_thread;
   std::atomic<int64_t> steady_time_calculated;
 
-
+  CLAPParam *_param_rats;
+  CLAPParam *_param_attack;
+  CLAPParam *_param_decibels;
 };
 
 }  // namespace erachnid::skeleton

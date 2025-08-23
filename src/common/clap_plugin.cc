@@ -50,7 +50,7 @@ bool CLAPPlugin::Init() {
 void CLAPPlugin::Destroy() {}
 
 bool CLAPPlugin::StateSave(const clap_ostream_t *stream) {
-  nlohmann::json json;
+  nlohmann::json json = nlohmann::json::object();
   if (!StateSaveToJSON(json)) {
     return false;
   }
@@ -58,13 +58,32 @@ bool CLAPPlugin::StateSave(const clap_ostream_t *stream) {
   size_t remaining = serialized.size();
   const char *buf = serialized.c_str();
   while (remaining > 0) {
-
+    int64_t written = stream->write(stream, reinterpret_cast<const void*>(buf), remaining);
+    if (written < 0) return false;
+    remaining -= written;
+    buf += written;
   }
   return true;
 }
 
 bool CLAPPlugin::StateLoad(const clap_istream_t *stream) {
-  return true;
+  std::string data;
+  int64_t len;
+  do {
+    char buf[128];
+    len = stream->read(stream, reinterpret_cast<void*>(buf), sizeof(buf));
+    if (len < 0) return false;
+    if (len > 0) {
+      data += std::string(buf, buf+len);
+    }
+  } while (len != 0);
+
+	try {
+		nlohmann::json json = nlohmann::json::parse(data);
+		return StateLoadFromJSON(json);
+	} catch (const nlohmann::json::parse_error& e) {
+		return false;
+	}
 }
 
 bool CLAPPlugin::Activate(

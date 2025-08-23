@@ -12,4 +12,6 @@ target_include_directories(erachnid-common PUBLIC .)
 target_link_libraries(erachnid-common
 	PRIVATE
 		clap
-		reaper-sdk)
+		reaper-sdk
+	PUBLIC
+		nlohmann_json::nlohmann_json)
