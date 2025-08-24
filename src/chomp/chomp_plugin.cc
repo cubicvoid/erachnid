@@ -25,16 +25,15 @@ extern const clap_plugin_descriptor_t plugin_desc;
 
 ChompPlugin::ChompPlugin(const clap_host_t *_host)
     : CLAPPlugin(_host, &plugin_desc) {
-  Log("plugin_create()");
 
-  AddParam(new CLAPParam(
+  AddParam(std::shared_ptr<CLAPParam>(new CLAPParam(
       PARAM_RATS, "rats", "something", 0, 100, 50,
       CLAP_PARAM_IS_STEPPED | CLAP_PARAM_IS_AUTOMATABLE
-  ));
-  AddParam(new CLAPParam(
+  )));
+  AddParam(std::shared_ptr<CLAPParam>(new CLAPParam(
       PARAM_ATTACK, "attack", "something else", 0.0, 1.0, 0.0,
       CLAP_PARAM_IS_AUTOMATABLE
-  ));
+  )));
 }
 
 }  // namespace erachnid::chomp

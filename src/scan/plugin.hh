@@ -36,6 +36,8 @@ class Plugin : public CLAPPlugin {
   virtual void StopProcessing();
   virtual void Reset();
   virtual void OnMainThread();
+  virtual void Destroy();
+
 
   virtual bool StateSaveToJSON(nlohmann::json json);
   virtual bool StateLoadFromJSON(nlohmann::json json);
@@ -95,9 +97,9 @@ protected:
   bool include_on_main_thread;
   std::atomic<int64_t> steady_time_calculated;
 
-  CLAPParam *_param_rats;
-  CLAPParam *_param_attack;
-  CLAPParam *_param_decibels;
+  std::shared_ptr<CLAPParam> _param_rats;
+  std::shared_ptr<CLAPParam> _param_attack;
+  std::shared_ptr<CLAPParam> _param_decibels;
 };
 
 }  // namespace erachnid::skeleton

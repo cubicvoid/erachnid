@@ -22,7 +22,7 @@ class CLAPGUI;
 class CLAPPlugin {
  public:
   CLAPPlugin(const clap_host_t *_host, const clap_plugin_descriptor_t *desc);
-  virtual ~CLAPPlugin();
+  virtual ~CLAPPlugin() { };
 
   virtual clap_process_status Process(const clap_process_t *process);
 
@@ -30,7 +30,7 @@ class CLAPPlugin {
   virtual bool Init();
 
   // [main-thread & !active]
-  virtual void Destroy();
+  virtual void Destroy() { };
 
   // [main-thread & !active_state]
   virtual bool Activate(
@@ -135,7 +135,7 @@ class CLAPPlugin {
 
   clap_plugin_t *RawPlugin() { return &_raw_plugin; }
 
-  CLAPParam *ParamForID(clap_id id) {
+  std::shared_ptr<CLAPParam> ParamForID(clap_id id) {
     auto it = _params_lookup.find(id);
     if (it == _params_lookup.end()) {
       return nullptr;
@@ -143,17 +143,11 @@ class CLAPPlugin {
     return it->second;
   }
 
-#ifdef NDEBUG
-  void Log(const char *format...) {}
-#else
-  void Log(const char *format...);
-#endif
-
  protected:
   virtual bool StateSaveToJSON(nlohmann::json json) { return true; }
   virtual bool StateLoadFromJSON(nlohmann::json json) { return true; }
 
-  void AddParam(CLAPParam *param) {
+  void AddParam(std::shared_ptr<CLAPParam> param) {
     _params.push_back(param);
     _params_lookup[param->_id] = param;
   };
@@ -188,8 +182,8 @@ class CLAPPlugin {
   clap_plugin_t _raw_plugin;
   const clap_host_state_t *host_state;
 
-  std::vector<CLAPParam *>       _params;
-  std::map<clap_id, CLAPParam *> _params_lookup;
+  std::vector<std::shared_ptr<CLAPParam>> _params;
+  std::map<clap_id, std::shared_ptr<CLAPParam> > _params_lookup;
 };
 
 }  // namespace erachnid

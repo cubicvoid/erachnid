@@ -32,9 +32,6 @@ namespace erachnid::skeleton {
 }
 
 - (IBAction)buttonPressed:(id)sender {
-  if (_plugin != nullptr) {
-    _plugin->Log("buttonPressed");
-  }
 }
   
 @end
@@ -142,17 +139,14 @@ bool PluginDarwin::GUIGetSize(uint32_t *width, uint32_t *height) {
 
 bool PluginDarwin::GUICanResize() {
   bool result = (controller != nil);
-  Log("gui_can_resize() -> %d", static_cast<int>(result));
   return result;
 }
 
 bool PluginDarwin::GUIAdjustSize(uint32_t *width, uint32_t *height) {
-  Log("gui_adjust_size(width: %d, height: %d) -> 1", *width, *height);
   return true;
 }
 
 bool PluginDarwin::GUISetSize(uint32_t width, uint32_t height) {
-  //Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
   this->width = width;
   this->height = height;
   // return true;
@@ -166,8 +160,6 @@ bool PluginDarwin::GUISetSize(uint32_t width, uint32_t height) {
 }
 
 bool PluginDarwin::GUISetParent(const clap_window_t *window) {
-  // Log("gui_set_parent(%lx) -> 1", window->cocoa);
-  // return true;
   NSView *container = reinterpret_cast<NSView *>(window->cocoa);
   if (controller != nullptr) {
     NSLog(@"gui_set_parent(%@) -> 1", container);

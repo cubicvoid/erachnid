@@ -10,33 +10,17 @@
 #include <cstring>
 #include <format>
 
-static FILE *_log_file = nullptr;
-
 namespace erachnid {
 
 CLAPPlugin::CLAPPlugin(
     const clap_host_t *host, const clap_plugin_descriptor_t *desc
 )
     : _host(host), _active(false), _processing(false) {
-#ifndef NDEBUG
-  static std::atomic<int> count(0);
-  _plugin_id = count.fetch_add(1);
-  if (_log_file == nullptr) {
-    _log_file = fopen("/Users/fae/erachnid.log", "wb");
-  }
-#endif
   host_state = (const clap_host_state_t *)host->get_extension(host, CLAP_EXT_STATE);
-
-  Log("CLAPPlugin::CLAPPlugin()");
-
   InitRawPlugin(desc);
 }
 
-CLAPPlugin::~CLAPPlugin() {}
-
 clap_process_status CLAPPlugin::Process(clap_process const *) {
-  Log("CLAPPlugin::Process");
-
   return CLAP_PROCESS_CONTINUE;
 }
 
@@ -46,8 +30,6 @@ bool CLAPPlugin::Init() {
   );
   return true;
 }
-
-void CLAPPlugin::Destroy() {}
 
 bool CLAPPlugin::StateSave(const clap_ostream_t *stream) {
   nlohmann::json json = nlohmann::json::object();
@@ -89,8 +71,6 @@ bool CLAPPlugin::StateLoad(const clap_istream_t *stream) {
 bool CLAPPlugin::Activate(
     double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count
 ) {
-  Log("CLAPPlugin::Activate(%lf, %d, %d)", sample_rate, min_frames_count,
-      max_frames_count);
   _sample_rate = sample_rate;
   _min_frames_count = min_frames_count;
   _max_frames_count = max_frames_count;
@@ -177,7 +157,7 @@ bool CLAPPlugin::ParamsValueToText(
     char    *out_buffer,
     uint32_t out_buffer_capacity
 ) {
-  CLAPParam *param = ParamForID(param_id);
+  auto param = ParamForID(param_id);
   if (param == nullptr) {
     return false;
   }
@@ -187,7 +167,7 @@ bool CLAPPlugin::ParamsValueToText(
 bool CLAPPlugin::ParamsTextToValue(
     clap_id param_id, const char *param_value_text, double *out_value
 ) {
-  CLAPParam *param = ParamForID(param_id);
+  auto param = ParamForID(param_id);
   if (param == nullptr) {
     return false;
   }
@@ -209,32 +189,5 @@ void CLAPPlugin::ParamsFlush(
     }
   }
 }
-
-#ifndef NDEBUG
-void CLAPPlugin::Log(const char *format...) {
-  if (_log_file != nullptr) {
-    va_list args;
-    va_start(args, format);
-
-    char timeStr[64];
-    int  msec;
-
-    struct timeval tv;
-    // time_t         t = static_cast<time_t>(tv.tv_sec);
-    struct tm *timeinfo;
-    gettimeofday(&tv, nullptr);
-    timeinfo = localtime(&tv.tv_sec);
-    strftime(timeStr, sizeof(timeStr), "%F %T", timeinfo);
-    msec = static_cast<int>(tv.tv_usec / 1000);
-
-    char buf[256];
-    snprintf(
-        buf, sizeof(buf), "[%d] %s.%03d %s\n", _plugin_id, timeStr, msec, format
-    );
-    vfprintf(_log_file, buf, args);
-    fflush(_log_file);
-  }
-}
-#endif
 
 }  // namespace erachnid

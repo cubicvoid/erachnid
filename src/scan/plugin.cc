@@ -33,8 +33,6 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc),
   include_no_transport(true),
   include_on_main_thread(false)
 {
-  Log("plugin_create()");
-
   const uint64_t fully_automatable =
       CLAP_PARAM_IS_AUTOMATABLE
     | CLAP_PARAM_IS_AUTOMATABLE_PER_CHANNEL
@@ -48,14 +46,14 @@ Plugin::Plugin(const clap_host_t *_host) : CLAPPlugin(_host, &plugin_desc),
     | CLAP_PARAM_IS_MODULATABLE_PER_PORT;
 
   
-  _param_rats = new CLAPParam(
+  _param_rats = std::shared_ptr<CLAPParam>(new CLAPParam(
       PARAM_RATS, "rats", "something", 0, 100, 50,
-      CLAP_PARAM_IS_STEPPED | fully_automatable);
-  _param_attack = new CLAPParam(
+      CLAP_PARAM_IS_STEPPED | fully_automatable));
+  _param_attack = std::shared_ptr<CLAPParam>(new CLAPParam(
       PARAM_ATTACK, "attack", "something else", 0.0, 1.0, 0.0,
-      fully_automatable);
-  _param_decibels = new CLAPParam(
-      PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable);
+      fully_automatable));
+  _param_decibels = std::shared_ptr<CLAPParam>(new CLAPParam(
+      PARAM_DECIBELS, "decibels", "amp", -96.0, 12.0, 0.0, fully_automatable));
   AddParam(_param_rats);
   AddParam(_param_attack);
   AddParam(_param_decibels);
@@ -69,9 +67,8 @@ bool Plugin::StateLoadFromJSON(nlohmann::json json) {
   _param_attack->SetValue(json.value<double>("attack", _param_attack->_default_value));
   _param_decibels->SetValue(json.value("decibels", _param_decibels->_default_value));
   nlohmann::json j;
-  nlohmann::json state_load;
-  state_load["data"] = json.dump();
-  j["state_load"] = state_load;
+  j["method"] = std::string("state_load");
+  j["data"] = json.dump();
   entries.push_back(j);
   return true;
 }
@@ -84,11 +81,14 @@ bool Plugin::StateSaveToJSON(nlohmann::json json) {
   json["attack"] = _param_attack->GetValue();
   json["decibels"] = _param_decibels->GetValue();
   nlohmann::json j;
-  nlohmann::json state_save;
-  state_save["data"] = json.dump();
-  j["state_save"] = state_save;
+  j["method"] = std::string("state_save");
+  j["data"] = json.dump();
   entries.push_back(j);
   return true;
+}
+
+void Plugin::Destroy() {
+  
 }
 
 

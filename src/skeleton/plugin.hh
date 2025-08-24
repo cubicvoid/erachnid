@@ -16,6 +16,7 @@ namespace erachnid::skeleton {
 class Plugin : public CLAPPlugin {
  public:
   Plugin(const clap_host_t *_host);
+  virtual ~Plugin() { }
 
   virtual clap_process_status Process(const clap_process_t *process);
 
@@ -23,6 +24,7 @@ class Plugin : public CLAPPlugin {
   virtual uint32_t AudioPortsCount(bool is_input) { return 1; }
 
   uint32_t latency;
+  
 
  private:
   void ProcessEvent(const clap_event_header_t *hdr);

@@ -22,7 +22,6 @@ clap_process_status StarryPlugin::Process(const clap_process_t *process) {
   static bool first_time = true;
   if (first_time) {
     first_time = false;
-    Log("StarryPlugin::Process");
   }
 
   const uint32_t frames_count = process->frames_count;
@@ -156,8 +155,6 @@ StarryVoice *StarryPlugin::chooseNewVoice() {
 }
 
 void StarryPlugin::handleNoteOn(const clap_event_note_t *event) {
-  Log("handleNoteOn(%d, %d, %d, %d)", event->port_index, event->channel,
-      event->key, event->note_id);
   StarryVoice *v = chooseNewVoice();
   activateVoice(v, event);
   // dataCopyForUI.updateCount++;

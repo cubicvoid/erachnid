@@ -79,9 +79,6 @@ namespace erachnid::scan {
 }
 
 - (IBAction)buttonPressed:(id)sender {
-  if (_plugin != nullptr) {
-    _plugin->Log("buttonPressed");
-  }
 }
 
 - (IBAction)resetLog:(id)sender {
@@ -135,6 +132,7 @@ protected:
 
 public:
   PluginDarwin(const clap_host_t *_host);
+  virtual ~PluginDarwin() { }
 
   virtual bool GUIEnabled() { return true; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating);
@@ -216,10 +214,6 @@ bool PluginDarwin::GUISetScale(double scale) {
 }
 
 bool PluginDarwin::GUIGetSize(uint32_t *width, uint32_t *height) {
-  // *width = this->width;
-  // *height = this->height;
-  // Log("gui_get_size() -> width: %d, height: %d", *width, *height);
-  // return true;
   if (controller != nil) {
     NSRect frame = controller.view.frame;
     *width = static_cast<uint32_t>(NSWidth(frame));
@@ -234,17 +228,14 @@ bool PluginDarwin::GUIGetSize(uint32_t *width, uint32_t *height) {
 
 bool PluginDarwin::GUICanResize() {
   bool result = (controller != nil);
-  Log("gui_can_resize() -> %d", static_cast<int>(result));
   return result;
 }
 
 bool PluginDarwin::GUIAdjustSize(uint32_t *width, uint32_t *height) {
-  Log("gui_adjust_size(width: %d, height: %d) -> 1", *width, *height);
   return true;
 }
 
 bool PluginDarwin::GUISetSize(uint32_t width, uint32_t height) {
-  //Log("gui_set_size(width: %d, height: %d) -> 0", width, height);
   this->width = width;
   this->height = height;
   // return true;

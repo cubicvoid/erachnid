@@ -29,7 +29,6 @@ class StarryPlugin : public CLAPPlugin {
 
   virtual uint32_t NotePortsCount(bool is_input) { return is_input ? 1 : 0; };
   virtual uint32_t AudioPortsCount(bool is_input) {
-    Log("StarryPlugin::AudioPortsCount");
     return is_input ? 0 : 1;
   };
 
