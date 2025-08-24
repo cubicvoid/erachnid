@@ -24,7 +24,7 @@ namespace {
   CLAP_ABI void plugin_destroy(const struct clap_plugin *_plugin) {
     CLAPPlugin *plugin = reinterpret_cast<CLAPPlugin *>(_plugin->plugin_data);
     plugin->Destroy();
-    //delete plugin;
+    delete plugin;
   }
 
   CLAP_ABI void plugin_on_main_thread(const struct clap_plugin *_plugin) {

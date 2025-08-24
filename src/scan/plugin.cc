@@ -73,16 +73,16 @@ bool Plugin::StateLoadFromJSON(nlohmann::json json) {
   return true;
 }
 
-bool Plugin::StateSaveToJSON(nlohmann::json json) {
-  json["include_empty_process"] = include_empty_process.load();
-  json["include_no_transport"] = include_no_transport.load();
-  json["include_on_main_thread"] = include_on_main_thread;
-  json["rats"] = _param_rats->GetValue();
-  json["attack"] = _param_attack->GetValue();
-  json["decibels"] = _param_decibels->GetValue();
+bool Plugin::StateSaveToJSON(nlohmann::json *json) {
+  (*json)["include_empty_process"] = include_empty_process.load();
+  (*json)["include_no_transport"] = include_no_transport.load();
+  (*json)["include_on_main_thread"] = include_on_main_thread;
+  (*json)["rats"] = _param_rats->GetValue();
+  (*json)["attack"] = _param_attack->GetValue();
+  (*json)["decibels"] = _param_decibels->GetValue();
   nlohmann::json j;
   j["method"] = std::string("state_save");
-  j["data"] = json.dump();
+  j["data"] = json->dump();
   entries.push_back(j);
   return true;
 }
@@ -109,6 +109,7 @@ void Plugin::AddEntryFromMainThread(json entry) {
   entry["steady_time_calculated"] = steady_time_calculated.load();
   refreshEntries();
   entries.push_back(entry);
+  setEventCount(static_cast<int>(entries.size()));
 }
 
 void Plugin::AddEntryFromAudioThread(json entry) {
@@ -154,9 +155,8 @@ void Plugin::OnMainThread() {
     AddEntryFromMainThread(j);
   } else {
     refreshEntries();
+    setEventCount(static_cast<int>(entries.size()));
   }
-
-  setEventCount(static_cast<int>(entries.size()));
 }
 
 // must be called on the main thread

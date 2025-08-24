@@ -22,6 +22,7 @@ class StarryPlugin : public CLAPPlugin {
   static constexpr int max_voices = 8;
 
   StarryPlugin(const clap_host_t *_host);
+  virtual ~StarryPlugin() { }
 
   virtual bool Activate(
       double sample_rate, uint32_t min_frames_count, uint32_t max_frames_count

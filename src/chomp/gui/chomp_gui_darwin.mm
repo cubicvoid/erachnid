@@ -45,6 +45,7 @@ namespace erachnid::chomp {
 class ChompPluginDarwin : public ChompPlugin {
 public:
   ChompPluginDarwin(const clap_host_t *_host);
+  virtual ~ChompPluginDarwin() { }
 
   virtual bool GUIEnabled() { return true; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating);

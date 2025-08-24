@@ -18,6 +18,7 @@ namespace erachnid::chomp {
 class ChompPlugin : public CLAPPlugin {
  public:
   ChompPlugin(const clap_host_t *_host);
+  virtual ~ChompPlugin() { }
 
   virtual clap_process_status Process(const clap_process_t *process);
 

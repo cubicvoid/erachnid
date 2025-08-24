@@ -20,6 +20,7 @@ namespace erachnid::scan {
 class Plugin : public CLAPPlugin {
  public:
   Plugin(const clap_host_t *_host);
+  virtual ~Plugin() { }
 
   virtual clap_process_status Process(const clap_process_t *process);
   virtual void ParamsFlush(
@@ -39,7 +40,7 @@ class Plugin : public CLAPPlugin {
   virtual void Destroy();
 
 
-  virtual bool StateSaveToJSON(nlohmann::json json);
+  virtual bool StateSaveToJSON(nlohmann::json *json);
   virtual bool StateLoadFromJSON(nlohmann::json json);
 
   uint32_t latency;

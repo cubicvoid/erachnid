@@ -33,7 +33,7 @@ bool CLAPPlugin::Init() {
 
 bool CLAPPlugin::StateSave(const clap_ostream_t *stream) {
   nlohmann::json json = nlohmann::json::object();
-  if (!StateSaveToJSON(json)) {
+  if (!StateSaveToJSON(&json)) {
     return false;
   }
   std::string serialized = json.dump();

@@ -144,7 +144,7 @@ class CLAPPlugin {
   }
 
  protected:
-  virtual bool StateSaveToJSON(nlohmann::json json) { return true; }
+  virtual bool StateSaveToJSON(nlohmann::json *json) { return true; }
   virtual bool StateLoadFromJSON(nlohmann::json json) { return true; }
 
   void AddParam(std::shared_ptr<CLAPParam> param) {

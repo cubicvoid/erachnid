@@ -44,6 +44,7 @@ namespace erachnid::skeleton {
 class PluginDarwin : public Plugin {
 public:
   PluginDarwin(const clap_host_t *_host);
+  virtual ~PluginDarwin() { }
 
   virtual bool GUIEnabled() { return true; }
   virtual bool GUIIsAPISupported(const char *api, bool is_floating);
