@@ -69,7 +69,7 @@ bool Plugin::StateLoadFromJSON(nlohmann::json json) {
   nlohmann::json j;
   j["method"] = std::string("state_load");
   j["data"] = json.dump();
-  entries.push_back(j);
+  AddEntryFromMainThread(j);
   return true;
 }
 
@@ -83,7 +83,7 @@ bool Plugin::StateSaveToJSON(nlohmann::json *json) {
   nlohmann::json j;
   j["method"] = std::string("state_save");
   j["data"] = json->dump();
-  entries.push_back(j);
+  AddEntryFromMainThread(j);
   return true;
 }
 
