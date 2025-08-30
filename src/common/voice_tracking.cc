@@ -49,7 +49,11 @@ void VoiceTracking::NoteOff(const clap_event_note_t *note) {
 }
 
 void VoiceTracking::NoteChoke(const clap_event_note_t *note) {
-
+	for (auto &v : voices) {
+		if (v.active && v.Match(note)) {
+			v.active = false;
+		}
+	}
 }
 
 
