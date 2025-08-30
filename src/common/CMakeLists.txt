@@ -6,6 +6,8 @@ add_library(erachnid-common OBJECT
 	clap_plugin.hh
 	clap_param.cc
 	clap_param.hh
+	voice_tracking.cc
+	voice_tracking.hh
 )
 
 target_include_directories(erachnid-common PUBLIC .)
